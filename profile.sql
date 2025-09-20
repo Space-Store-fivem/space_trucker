@@ -94,3 +94,14 @@ CREATE TABLE IF NOT EXISTS `gs_trucker_fleet_logs` (
   FOREIGN KEY (`fleet_id`) REFERENCES `gs_trucker_fleet`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ALTER TABLE `gs_trucker_fleet` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `gs_trucker_company_industries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `industry_name` varchar(50) NOT NULL,
+  `purchase_price` int(11) NOT NULL,
+  `purchase_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `industry_name` (`industry_name`),
+  KEY `company_id` (`company_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

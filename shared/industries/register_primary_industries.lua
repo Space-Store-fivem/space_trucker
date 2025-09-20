@@ -26,7 +26,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 -- CHEMICALS
 
@@ -59,7 +59,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 -- SCRAPYARD
 Industries:AddIndustry(
@@ -84,7 +84,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 Industries:AddIndustry(
     spaceconfig.Industry.Name.THOMSON_SCRAPYARD,
@@ -108,7 +108,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 -- FOREST
 Industries:AddIndustry(
@@ -133,7 +133,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 -- FARM
 Industries:AddIndustry(
@@ -158,7 +158,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 Industries:AddIndustry(
     spaceconfig.Industry.Name.PALETO_BAY_FARM,
@@ -182,7 +182,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 Industries:AddIndustry(
     spaceconfig.Industry.Name.N10_FARM,
@@ -206,7 +206,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 Industries:AddIndustry(
     spaceconfig.Industry.Name.N11_FARM,
@@ -237,7 +237,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 Industries:AddIndustry(
     spaceconfig.Industry.Name.N12_FARM,
@@ -296,7 +296,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 -- Industries:AddIndustry(
 --     spaceconfig.Industry.Name.N13_FARM,
@@ -345,7 +345,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 Industries:AddIndustry(
     spaceconfig.Industry.Name.N15_FARM,
@@ -376,7 +376,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 Industries:AddIndustry(
     spaceconfig.Industry.Name.LA_FUENTE_FARM,
@@ -414,7 +414,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 -- Mineral
 Industries:AddIndustry(
@@ -446,7 +446,7 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 -- Quarry
 Industries:AddIndustry(
@@ -471,5 +471,5 @@ Industries:AddIndustry(
         },
         [spaceconfig.Industry.TradeType.WANTED] = {}
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 

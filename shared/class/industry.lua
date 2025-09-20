@@ -108,3 +108,18 @@ end
 function Industry:Destroy()
     self = nil
 end
+
+-- ADICIONE ESTAS DUAS NOVAS FUNÇÕES AO FINAL DO FICHEIRO shared/class/industry.lua
+
+---Define o preço de compra para esta indústria
+---@param _price number
+function Industry:SetPurchasePrice(_price)
+    self.purchase_price = _price
+    return self -- Importante para permitir o encadeamento de funções (ex: AddIndustry(...):SetPurchasePrice(...))
+end
+
+---Obtém o preço de compra desta indústria
+---@return number|nil
+function Industry:GetPurchasePrice()
+    return self.purchase_price
+end

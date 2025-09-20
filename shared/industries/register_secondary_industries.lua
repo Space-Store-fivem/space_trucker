@@ -30,7 +30,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 -- MINT
 
 Industries:AddIndustry(
@@ -64,7 +64,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 
 -- STEEL FEDERAL FACTORY
@@ -106,7 +106,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 -- WEAPON FEDERAL FACTORY
 Industries:AddIndustry(
@@ -147,7 +147,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
 -- SAWMILL FACTORY
 Industries:AddIndustry(
@@ -195,7 +195,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 -- BROS TEXTILE FACTORY
 Industries:AddIndustry(
     spaceconfig.Industry.Name.BROS_TEXTILE_FACTORY,
@@ -235,7 +235,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 -- PIßWASSER BREWERY
 Industries:AddIndustry(
     spaceconfig.Industry.Name.PIBWASSER_BREWERY,
@@ -268,7 +268,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 -- PALETO BAY FOOD PROCESSING PLANT
 Industries:AddIndustry(
     spaceconfig.Industry.Name.PALETO_BAY_FOOD_PROCESSING_PLANT,
@@ -329,7 +329,7 @@ Industries:AddIndustry(
             },
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 -- LOS SANTOS CONCRETE PLANT
 Industries:AddIndustry(
     spaceconfig.Industry.Name.LOS_SANTOS_CONCRETE_PLANT,
@@ -376,7 +376,7 @@ Industries:AddIndustry(
             -- },
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 -- THE MOUNT DISTILLERY
 Industries:AddIndustry(
     spaceconfig.Industry.Name.THE_MOUNT_DISTILLERY,
@@ -409,7 +409,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 -- TRADITION MALT HOUSE
 Industries:AddIndustry(
     spaceconfig.Industry.Name.TRADITION_MALT_HOUSE,
@@ -442,7 +442,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 -- APPLIANCES FACTORY
 Industries:AddIndustry(
     spaceconfig.Industry.Name.APPLIANCES_FACTORY,
@@ -482,7 +482,7 @@ Industries:AddIndustry(
             }
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 -- LOS SANTOS AUTOS
 Industries:AddIndustry(
     spaceconfig.Industry.Name.LOS_SANTOS_AUTOS,
@@ -529,4 +529,4 @@ Industries:AddIndustry(
             },
         }
     }
-)
+):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO

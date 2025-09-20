@@ -1039,3 +1039,17 @@ CreateCallback('gs_trucker:callback:checkMultiVehicleStorage', function(source, 
 
     return cb({ status = true, data = data })
 end)
+
+
+-- NO FICHEIRO: server/s_main.lua
+-- ADICIONE ESTE BLOCO DE CÓDIGO AO FINAL DO FICHEIRO
+
+CreateThread(function()
+    -- Espera 5 segundos após o arranque do recurso.
+    -- Isto dá tempo de sobra para os shared_scripts serem carregados e popularem a tabela 'Industries'.
+    print('[gs_trucker] A aguardar 5 segundos para registar os callbacks das indústrias...')
+    Wait(5000)
+    
+    -- Agora que temos a certeza que as indústrias existem, registamos as funções que dependem delas.
+    exports.gs_trucker:RegisterIndustryCallbacks()
+end)

@@ -240,25 +240,40 @@ end)
 -- =============================================================================
 -- * NOVA ALTERAÇÃO ADICIONADA AQUI
 -- =============================================================================
-RegisterNUICallback('getCompanyIndustries', function(data, cb)
-    -- A variável global 'Industries' está disponível aqui graças aos shared_scripts
+RegisterNUICallback('requestCompanyIndustries', function(data, cb)
+    print('[gs_trucker] NUI: A interface pediu a lista de indústrias.')
     local allIndustries = Industries:GetIndustries()
-    
     local simplifiedIndustries = {}
-    
-    -- Convertemos os dados complexos para uma tabela simples que o JSON consegue entender
-    for name, industry in pairs(allIndustries) do
-        table.insert(simplifiedIndustries, {
-            name = industry.name,
-            label = industry.label,
-            tier = industry.tier,
-            type = industry.type,
-            status = industry.status
-            -- Adicione mais campos se necessário no futuro
+
+    if allIndustries and next(allIndustries) ~= nil then
+        for name, industry in pairs(allIndustries) do
+            if type(industry) == 'table' and industry.name and industry.label then
+                table.insert(simplifiedIndustries, {
+                    name = industry.name,
+                    label = industry.label,
+                    tier = industry.tier,
+                    type = industry.type,
+                    status = industry.status
+                })
+            end
+        end
+        
+        local jsonData = json.encode(simplifiedIndustries)
+        -- EM VEZ DE USAR cb(), ENVIAMOS UM EVENTO DIRETO PARA A UI
+        SendNUIMessage({
+            action = 'setCompanyIndustries',
+            data = jsonData
+        })
+        print('[gs_trucker] NUI: Foram enviadas ' .. #simplifiedIndustries .. ' indústrias para a UI via SendNUIMessage.')
+    else
+        print('[gs_trucker] NUI ERRO: A função Industries:GetIndustries() retornou vazia.')
+        SendNUIMessage({
+            action = 'setCompanyIndustries',
+            data = '[]' -- Enviamos um array vazio
         })
     end
     
-    cb(simplifiedIndustries)
+    cb('ok') -- Apenas confirmamos que o pedido foi recebido.
 end)
 -- =============================================================================
 -- * FIM DA NOVA ALTERAÇÃO
