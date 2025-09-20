@@ -1,0 +1,271 @@
+@font-face {
+  font-family: 'Signpainter';
+  src: url('./assets/fonts/signpainter.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-Black.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-Black.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-BoldItalic.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-BoldItalic.woff') format('woff');
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-ExtraBold.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-ExtraBold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-ExtraLight.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-ExtraLight.woff') format('woff');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-BlackItalic.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-BlackItalic.woff') format('woff');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-ExtraBoldItalic.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-ExtraBoldItalic.woff') format('woff');
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-Bold.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-LightItalic.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-LightItalic.woff') format('woff');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-Medium.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-Light.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-Italic.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-Italic.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-ExtraLightItalic.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-ExtraLightItalic.woff') format('woff');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-MediumItalic.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-MediumItalic.woff') format('woff');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-ThinItalic.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-ThinItalic.woff') format('woff');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-SemiBold.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-SemiBoldItalic.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-SemiBoldItalic.woff') format('woff');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-Regular.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-Thin.woff2') format('woff2'),
+      url('./assets/fonts/Poppins-Thin.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .hover-transition {
+    @apply transition-all duration-200;
+  }
+
+  .character-input {
+    @apply p-2 w-full h-[40px] outline-none bg-[#333333] opacity-90 border-b-[1px] border-solid border-zinc-400 transition-all duration-300 focus:border-blue-400;
+  }
+
+  .character-input-error {
+    @apply border-b-[1px] border-b-red-500;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+  'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  user-select: none;
+}
+
+#root {
+  height: 100%;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* ::-webkit-scrollbar {
+  display: none;
+} */
+
+::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	border-radius: 10px;
+	background-color: transparent;
+}
+
+::-webkit-scrollbar
+{
+	width: 10px;
+	background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: yellow;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+input[type="date"]::-webkit-input-placeholder {
+  visibility: hidden !important;
+}
+
+
+/* Adicionar no final de web/src/index.css */
+
+/* Estilização da Barra de Rolar para Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.5); /* bg-gray-800 com opacidade */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4f46e5; /* Cor de destaque */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6366f1;
+}
+
+/* Estilização da Barra de Rolar para Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4f46e5 rgba(31, 41, 55, 0.5);
+}
