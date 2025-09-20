@@ -12,6 +12,7 @@ import { Finance } from './Finance';
 import { Settings } from './Settings';
 import { fetchNui } from '../../../utils/fetchNui';
 import { RecruitmentAgency } from './RecruitmentAgency';
+import { Industries } from './Industries'; // Importa o novo componente
 
 const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: FullCompanyInfo) => void; }> = ({ data, updateCompanyData }) => {
   const [activeApp, setActiveApp] = useState(data.has_profile ? 'home' : 'createProfile');
@@ -60,7 +61,7 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
       case 'home':
         return <HomeScreen 
           company={data.company_data} 
-          profile={data.profile_data} // <-- CORREÇÃO APLICADA AQUI
+          profile={data.profile_data}
           isOwner={data.is_owner || false} 
           playerRole={data.player_role} 
           onAppSelect={setActiveApp} 
@@ -70,6 +71,13 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
         return <Dashboard companyData={data} onBack={goBack} />;
       case 'recruitment':
         return <RecruitmentAgency companyData={data} onBack={goBack} />;
+      
+      case 'industries':
+        // =============================================================================
+        // * ESTA É A LINHA QUE FOI CORRIGIDA E ATUALIZADA
+        // =============================================================================
+        return <Industries onBack={goBack} companyData={data.company_data!} onRefresh={handleRefresh} />;
+
       case 'employees':
         return <Employees companyData={data} updateCompanyData={safeUpdateCompanyData} onBack={goBack} />;
       case 'fleet':
@@ -82,7 +90,7 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
       default:
         return <HomeScreen 
             company={data.company_data} 
-            profile={data.profile_data} // <-- CORREÇÃO APLICADA AQUI
+            profile={data.profile_data}
             isOwner={data.is_owner || false} 
             playerRole={data.player_role} 
             onAppSelect={setActiveApp} 

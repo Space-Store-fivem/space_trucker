@@ -236,3 +236,54 @@ RegisterNUICallback('returnVehicleToOwner', function(data, cb)
     local result = TriggerCallbackAwait('gs_trucker:callback:returnVehicleToOwner', data)
     cb(result)
 end)
+
+-- =============================================================================
+-- * NOVA ALTERAÇÃO ADICIONADA AQUI
+-- =============================================================================
+RegisterNUICallback('getCompanyIndustries', function(data, cb)
+    -- A variável global 'Industries' está disponível aqui graças aos shared_scripts
+    local allIndustries = Industries:GetIndustries()
+    
+    local simplifiedIndustries = {}
+    
+    -- Convertemos os dados complexos para uma tabela simples que o JSON consegue entender
+    for name, industry in pairs(allIndustries) do
+        table.insert(simplifiedIndustries, {
+            name = industry.name,
+            label = industry.label,
+            tier = industry.tier,
+            type = industry.type,
+            status = industry.status
+            -- Adicione mais campos se necessário no futuro
+        })
+    end
+    
+    cb(simplifiedIndustries)
+end)
+-- =============================================================================
+-- * FIM DA NOVA ALTERAÇÃO
+-- =============================================================================
+
+-- =============================================================================
+-- * NOVAS ALTERAÇÕES PARA COMPRA/VENDA DE INDÚSTRIAS
+-- =============================================================================
+RegisterNUICallback('buyIndustry', function(data, cb)
+    if not data or not data.industryName then
+        return cb({ success = false, message = "Nome da indústria inválido." })
+    end
+    
+    -- Chama o callback do servidor para tentar comprar a indústria
+    local result = TriggerCallbackAwait('gs_trucker:callback:buyIndustry', { industryName = data.industryName })
+    cb(result)
+end)
+
+RegisterNUICallback('sellIndustry', function(data, cb)
+    if not data or not data.industryName then
+        return cb({ success = false, message = "Nome da indústria inválido." })
+    end
+    
+    -- Chama o callback do servidor para tentar vender a indústria
+    local result = TriggerCallbackAwait('gs_trucker:callback:sellIndustry', { industryName = data.industryName })
+    cb(result)
+end)
+

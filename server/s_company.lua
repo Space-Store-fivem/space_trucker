@@ -1047,3 +1047,104 @@ CreateCallback('gs_trucker:callback:returnVehicleToOwner', function(source, cb, 
         cb({ success = false, message = "Ocorreu um erro no servidor. Verifique a consola do servidor." })
     end
 end)
+
+
+-- =============================================================================
+-- * NOVAS FUNÇÕES PARA GESTÃO DE INDÚSTRIAS
+-- =============================================================================
+
+-- NOTA IMPORTANTE:
+-- Para que a compra e venda funcionem, você precisa de definir os preços das indústrias
+-- no seu ficheiro de configuração (ex: shared/gst_config.lua ou onde as indústrias são registadas).
+-- Exemplo:
+-- Industries:AddIndustry('nome_da_industria', 'Label', ...):SetPurchasePrice(1000000) -- Preço de 1,000,000
+
+-- Callback para a UI saber quem é o dono de cada indústria
+CreateCallback('gs_trucker:callback:getIndustryOwnershipData', function(source, cb)
+    local ownerships = MySQL.query.await('SELECT comp.name, ind.industry_name FROM gs_trucker_company_industries ind LEFT JOIN gs_trucker_companies comp ON ind.company_id = comp.id', {})
+    
+    local data = {}
+    if ownerships and #ownerships > 0 then
+        for _, owner in ipairs(ownerships) do
+            data[owner.industry_name] = owner.name
+        end
+    end
+    
+    cb(data)
+end)
+
+-- Callback para comprar uma indústria
+CreateCallback('gs_trucker:callback:buyIndustry', function(source, cb, data)
+    local ownerIdentifier = GetPlayerUniqueId(source)
+    local industryName = data.industryName
+
+    -- 1. Verificar se o jogador é dono de uma empresa
+    local company = MySQL.query.await('SELECT id, name, balance FROM gs_trucker_companies WHERE owner_identifier = ?', { ownerIdentifier })
+    if not company or not company[1] then
+        return cb({ success = false, message = "Você não é o dono de uma empresa." })
+    end
+    local companyData = company[1]
+
+    -- 2. Verificar se a indústria existe e obter o seu preço
+    local industry = Industries:GetIndustry(industryName)
+    if not industry or not industry:GetPurchasePrice() then
+        return cb({ success = false, message = "Esta indústria não está à venda." })
+    end
+    local industryPrice = industry:GetPurchasePrice()
+
+    -- 3. Verificar se a indústria já tem dono
+    local isOwned = MySQL.query.await('SELECT id FROM gs_trucker_company_industries WHERE industry_name = ?', { industryName })
+    if isOwned and isOwned[1] then
+        return cb({ success = false, message = "Esta indústria já foi comprada por outra empresa." })
+    end
+
+    -- 4. Verificar se a empresa tem saldo suficiente
+    if companyData.balance < industryPrice then
+        return cb({ success = false, message = "A sua empresa não tem saldo suficiente para esta compra." })
+    end
+
+    -- 5. Executar a transação
+    MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance - ? WHERE id = ?', { industryPrice, companyData.id })
+    MySQL.insert.await('INSERT INTO gs_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { companyData.id, 'industry_purchase', -industryPrice, 'Compra da indústria: ' .. industry:GetLabel() })
+    MySQL.insert.await('INSERT INTO gs_trucker_company_industries (company_id, industry_name, purchase_price) VALUES (?, ?, ?)', { companyData.id, industryName, industryPrice })
+    
+    -- Atualiza o status da indústria em tempo real (ex: para owned)
+    Industries:SetIndustryStatus(industryName, 2) -- Assumindo que 2 = Owned
+
+    local updatedData = GetFullCompanyData(companyData.id)
+    cb({ success = true, message = "Indústria comprada com sucesso!", updatedData = updatedData })
+end)
+
+-- Callback para vender uma indústria
+CreateCallback('gs_trucker:callback:sellIndustry', function(source, cb, data)
+    local ownerIdentifier = GetPlayerUniqueId(source)
+    local industryName = data.industryName
+
+    -- 1. Verificar se o jogador é dono de uma empresa
+    local company = MySQL.query.await('SELECT id, name FROM gs_trucker_companies WHERE owner_identifier = ?', { ownerIdentifier })
+    if not company or not company[1] then
+        return cb({ success = false, message = "Você não é o dono de uma empresa." })
+    end
+    local companyData = company[1]
+
+    -- 2. Verificar se a empresa do jogador é realmente a dona desta indústria
+    local ownership = MySQL.query.await('SELECT id, purchase_price FROM gs_trucker_company_industries WHERE industry_name = ? AND company_id = ?', { industryName, companyData.id })
+    if not ownership or not ownership[1] then
+        return cb({ success = false, message = "Você não tem permissão para vender esta indústria." })
+    end
+
+    -- 3. Calcular o preço de venda (ex: 70% do preço de compra)
+    local sellPrice = math.floor(ownership[1].purchase_price * 0.70)
+    local industry = Industries:GetIndustry(industryName)
+
+    -- 4. Executar a transação
+    MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance + ? WHERE id = ?', { sellPrice, companyData.id })
+    MySQL.update.await('DELETE FROM gs_trucker_company_industries WHERE id = ?', { ownership[1].id })
+    MySQL.insert.await('INSERT INTO gs_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { companyData.id, 'industry_sale', sellPrice, 'Venda da indústria: ' .. industry:GetLabel() })
+    
+    -- Atualiza o status da indústria em tempo real (ex: para for_sale)
+    Industries:SetIndustryStatus(industryName, 1) -- Assumindo que 1 = For Sale
+
+    local updatedData = GetFullCompanyData(companyData.id)
+    cb({ success = true, message = "Indústria vendida por $" .. sellPrice .. "!", updatedData = updatedData })
+end)
