@@ -99,7 +99,7 @@ local function updateIndustry()
         end
     end
 
-    TriggerClientEvent('gs_trucker:client:updateIndustriesData', -1, update_industries_data)
+    TriggerClientEvent('Space_trucker:client:updateIndustriesData', -1, update_industries_data)
 end
 
 -- Every 1 hour update industry production and cosumption
@@ -123,11 +123,11 @@ CreateThread(function()
         local QBCore = exports['qb-core']:GetCoreObject()
 
         if QBCore and QBCore.Functions then
-            local companiesToPay = MySQL.query.await('SELECT id, balance, owner_identifier FROM gs_trucker_companies WHERE salary_payment_enabled = 1', {})
+            local companiesToPay = MySQL.query.await('SELECT id, balance, owner_identifier FROM Space_trucker_companies WHERE salary_payment_enabled = 1', {})
 
             if companiesToPay and #companiesToPay > 0 then
                 for i, company in ipairs(companiesToPay) do
-                    local employees = MySQL.query.await("SELECT identifier, name, salary FROM gs_trucker_employees WHERE company_id = ? AND is_npc = 0 AND role <> 'owner'", { company.id })
+                    local employees = MySQL.query.await("SELECT identifier, name, salary FROM Space_trucker_employees WHERE company_id = ? AND is_npc = 0 AND role <> 'owner'", { company.id })
                     
                     if employees and #employees > 0 then
                         local totalSalaryCost = 0
@@ -138,8 +138,8 @@ CreateThread(function()
                         local ownerPlayer = QBCore.Functions.GetPlayerByCitizenId(company.owner_identifier)
 
                         if company.balance >= totalSalaryCost then
-                            MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance - ? WHERE id = ?', { totalSalaryCost, company.id })
-                            MySQL.insert.await('INSERT INTO gs_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { company.id, 'salaries', -totalSalaryCost, 'Pagamento de salários a ' .. #employees .. ' funcionários' })
+                            MySQL.update.await('UPDATE Space_trucker_companies SET balance = balance - ? WHERE id = ?', { totalSalaryCost, company.id })
+                            MySQL.insert.await('INSERT INTO Space_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { company.id, 'salaries', -totalSalaryCost, 'Pagamento de salários a ' .. #employees .. ' funcionários' })
 
                             if ownerPlayer then
                                 TriggerClientEvent('QBCore:Notify', ownerPlayer.PlayerData.source, 'O pagamento automático de salários foi efetuado a ' .. #employees .. ' funcionários. Custo: $' .. totalSalaryCost, 'success', 10000)

@@ -5,7 +5,7 @@ local vehModels = {}
 function AddTruckPDAOption()
     -- Add Radial Menu Options
     local gsTruckOption = {
-        id = 'gs-trucker',
+        id = 'space-trucker',
         title = Lang:t('tpda_main_menu_title'),
         icon = 'truck-pickup',
         type = 'client',

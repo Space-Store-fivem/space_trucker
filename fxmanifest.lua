@@ -4,10 +4,10 @@ lua54 "yes"
 
 --[[ Resource Information ]]
 --
-name "gs_trucker"
+name "Space_trucker"
 author "Gasman"
 version "3.0.1"
-description "GS Trucker Job V3 - Simulator, Dynamic, Skills, Over 1000 Truck Routes"
+description "Space Trucker Job V3 - Simulator, Dynamic, Skills, Over 1000 Truck Routes"
 
 --[[ Manifest ]]
 --
@@ -28,7 +28,7 @@ ui_page "web/build/index.html"
 
 shared_scripts {
 	"shared/locale.lua",
-	"shared/gst_config.lua",
+	"shared/config.lua",
 	"shared/class/industry.lua",
 	"shared/class/industries.lua",
 	"shared/industries/register_primary_industries.lua",

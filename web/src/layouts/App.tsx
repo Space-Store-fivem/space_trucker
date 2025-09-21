@@ -1,4 +1,4 @@
-// gs_trucker/web/src/layouts/App.tsx
+// Space_trucker/web/src/layouts/App.tsx
 
 import { useNuiEvent } from '../hooks/useNuiEvent';
 import React, { useEffect, useState } from 'react';
@@ -56,7 +56,7 @@ export const App: React.FC = () => {
 
   const handleCloseGarage = () => {
     setGarageVisible(false);
-    fetchNui('gs_trucker:garage_close');
+    fetchNui('Space_trucker:garage_close');
   }
 
   // Listener para o painel da empresa

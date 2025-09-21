@@ -2684,7 +2684,7 @@ spaceconfig.TruckerHandbook = {
     }
 }
 
-spaceconfig.SkillTable = 'gs_trucker_skills'
+spaceconfig.SkillTable = 'Space_trucker_skills'
 
 spaceconfig.SkillTypeField = {
     totalProfit = 'totalProfit',

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `gs_trucker_skills` (
+CREATE TABLE IF NOT EXISTS `Space_trucker_skills` (
   `citizenId` varchar(50) NOT NULL,
   `totalProfit` decimal(20,6) DEFAULT NULL,
   `totalPackage` int(11) DEFAULT NULL,
