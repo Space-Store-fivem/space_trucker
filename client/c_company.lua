@@ -302,3 +302,15 @@ RegisterNUICallback('sellIndustry', function(data, cb)
     cb(result)
 end)
 
+RegisterNetEvent('gs_trucker:client:receiveOwnershipData', function(ownershipData)
+    SendNUIMessage({
+        action = 'setIndustryOwnership',
+        data = ownershipData
+    })
+end)
+
+-- 2. Ouve o pedido da interface (UI) e reencaminha para o servidor
+RegisterNUICallback('requestIndustryOwnership', function(data, cb)
+    TriggerServerEvent('gs_trucker:server:requestOwnershipData')
+    cb('ok') -- Apenas confirma que o pedido foi recebido
+end)

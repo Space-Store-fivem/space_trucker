@@ -105,3 +105,15 @@ CREATE TABLE `gs_trucker_company_industries` (
   UNIQUE KEY `industry_name` (`industry_name`),
   KEY `company_id` (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE `gs_trucker_industry_management` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `industry_name` varchar(50) NOT NULL,
+  `investment_level` int(11) NOT NULL DEFAULT 1,
+  `npc_workers` int(11) NOT NULL DEFAULT 0,
+  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `company_industry` (`company_id`,`industry_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -3,17 +3,20 @@ local tpdaRadialOption
 local vehModels = {}
 
 function AddTruckPDAOption()
-    -- Add Radial Menu Options
-    local gsTruckOption = {
-        id = 'gs-trucker',
-        title = Lang:t('tpda_main_menu_title'),
-        icon = 'truck-pickup',
-        type = 'client',
-        event = 'gstrucker:client:showTruckerPDA',
-        shouldClose = true
-    }
-    tpdaRadialOption = exports['qb-radialmenu']:AddOption(gsTruckOption, nil)
+    -- Adiciona opções no Radial Menu do ox_lib
+    lib.addRadialItem({
+        {
+            id = 'gs-trucker',
+            label = Lang:t('tpda_main_menu_title'),
+            icon = 'truck-pickup',
+            onSelect = function()
+                TriggerEvent('gstrucker:client:showTruckerPDA')
+            end,
+            close = true
+        }
+    })
 end
+
 
 -- Notify
 function Notify(notifyMsg, notifyType)

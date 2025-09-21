@@ -6,16 +6,20 @@
 function RegisterIndustryCallbacks()
     print('[gs_trucker] A registar callbacks das indústrias...')
     
-    CreateCallback('gs_trucker:callback:getIndustryOwnershipData', function(source, cb)
-        local ownerships = MySQL.query.await('SELECT comp.name, ind.industry_name FROM gs_trucker_company_industries ind LEFT JOIN gs_trucker_companies comp ON ind.company_id = comp.id', {})
-        local data = {}
-        if ownerships and #ownerships > 0 then
-            for _, owner in ipairs(ownerships) do
+RegisterNetEvent('gs_trucker:server:requestOwnershipData', function()
+    local src = source
+    local ownerships = MySQL.query.await('SELECT comp.name, ind.industry_name FROM gs_trucker_company_industries ind LEFT JOIN gs_trucker_companies comp ON ind.company_id = comp.id', {})
+    local data = {}
+    if ownerships and #ownerships > 0 then
+        for _, owner in ipairs(ownerships) do
+            if owner.name then
                 data[owner.industry_name] = owner.name
             end
         end
-        cb(data)
-    end)
+    end
+    -- Enviamos os dados para o cliente específico que os pediu
+    TriggerClientEvent('gs_trucker:client:receiveOwnershipData', src, data)
+end)
 
     CreateCallback('gs_trucker:callback:buyIndustry', function(source, cb, data)
         local ownerIdentifier = GetPlayerUniqueId(source)

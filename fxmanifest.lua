@@ -49,6 +49,7 @@ client_scripts {
 	"client/c_nui.lua",
 	"client/c_rental.lua",
 "client/c_company.lua",
+'client/c_industry_management.lua',
 'client/c_settings.lua',
 'client/c_finance.lua',
 	"client/c_tablet.lua",
@@ -64,6 +65,7 @@ server_scripts {
 	"server/s_cronjob.lua",
 	"server/s_anticheat.lua",
 	"server/s_company.lua",
+	'server/s_industry_management.lua',
 	'server/s_settings.lua',
 	'server/s_finance.lua',
 	"server/s_rental.lua"
