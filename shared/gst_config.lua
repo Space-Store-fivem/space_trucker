@@ -5,7 +5,7 @@ spaceconfig.ShowTradePointBlipOnMinimap = true --SET = true or false (To enable 
 spaceconfig.AddVehicleProps = true             --SET = true or false (To enable or disabled Add vehicle crate/pallet props)
 
 spaceconfig.JobName = 'trucker'           --SET = string name of job you wanted
-spaceconfig.JobRequired = true           --SET = true or false (To enable job require or not)
+spaceconfig.JobRequired = false           --SET = true or false (To enable job require or not)
 -- Industries spaceconfig
 spaceconfig.Company = {
     CreateCost = 50000, -- O custo para criar uma nova empresa

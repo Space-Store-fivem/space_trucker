@@ -1,11 +1,10 @@
-// web/src/layouts/pages/company/Industries.tsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchNui } from '../../../utils/fetchNui';
 import { CompanyData } from '../../../types';
 import { useNuiEvent } from '../../../hooks/useNuiEvent';
 import ConfirmationModal from '../../components/ConfirmationModal';
 
+// --- TIPAGEM E COMPONENTES AUXILIARES ---
 interface Industry {
   name: string;
   label: string;
@@ -18,25 +17,25 @@ interface IndustriesProps {
   onBack: () => void;
   companyData: CompanyData;
   onRefresh: () => void;
+  onManage: (industry: Industry) => void; // <-- Nova propriedade para chamar o painel de gestão
 }
 
 const AppHeader: React.FC<{ title: string; onBack: () => void }> = ({ title, onBack }) => (
     <header className="flex items-center p-4 border-b border-white/10 sticky top-0 bg-gray-900/80 backdrop-blur-sm z-10">
         <button onClick={onBack} className="mr-4 text-white hover:text-blue-400 transition-colors">
-            {/* CORREÇÃO: Garantido que o viewBox está sempre correto */}
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
         </button>
         <h1 className="text-xl font-bold text-white">{title}</h1>
     </header>
 );
 
-export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onRefresh }) => {
+// --- COMPONENTE PRINCIPAL ---
+export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onRefresh, onManage }) => {
   const [industries, setIndustries] = useState<Industry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [ownershipData, setOwnershipData] = useState<Record<string, string>>({});
   const [modalState, setModalState] = useState<{isOpen: boolean; title: string; description: string; onConfirm: () => void} | null>(null);
 
-  // Ouve o evento com a lista de indústrias e monta os dados finais
   useNuiEvent<string>('setCompanyIndustries', (jsonData) => {
     try {
         const industryList = JSON.parse(jsonData);
@@ -44,19 +43,17 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
         combinedData.sort((a: Industry, b: Industry) => a.label.localeCompare(b.label));
         setIndustries(combinedData);
     } catch (e) {
-        console.error("Falha ao processar lista de indústrias:", e);
+        console.error("Falha ao processar a lista de indústrias recebida:", e);
     } finally {
         setIsLoading(false);
     }
   });
 
-  // Ouve o evento com os dados dos proprietários e depois pede a lista de indústrias
   useNuiEvent<Record<string, string>>('setIndustryOwnership', (owners) => {
       setOwnershipData(owners || {});
       fetchNui('requestCompanyIndustries');
   });
 
-  // Função que inicia o carregamento dos dados
   const fetchAllData = useCallback(() => {
     setIsLoading(true);
     fetchNui('requestIndustryOwnership');
@@ -66,14 +63,12 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
     fetchAllData();
   }, [fetchAllData]);
 
-  // Funções do Modal e Ações
-  const openBuyModal = (industry: Industry) => setModalState({ isOpen: true, title: "Confirmar Compra", description: `Deseja comprar a indústria ${industry.label}?`, onConfirm: () => handleBuyIndustry(industry.name) });
   const openSellModal = (industry: Industry) => setModalState({ isOpen: true, title: "Confirmar Venda", description: `Deseja vender a indústria ${industry.label}?`, onConfirm: () => handleSellIndustry(industry.name) });
 
   const handleBuyIndustry = async (industryName: string) => {
     const result = await fetchNui<{ success: boolean; message: string }>('buyIndustry', { industryName });
     if (result?.message) {
-        if (result.success) { onRefresh(); fetchAllData(); }
+      if (result.success) { onRefresh(); fetchAllData(); }
     }
     setModalState(null);
   };
@@ -81,7 +76,7 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
   const handleSellIndustry = async (industryName: string) => {
     const result = await fetchNui<{ success: boolean; message: string }>('sellIndustry', { industryName });
     if (result?.message) {
-        if (result.success) { onRefresh(); fetchAllData(); }
+      if (result.success) { onRefresh(); fetchAllData(); }
     }
     setModalState(null);
   };
@@ -96,12 +91,21 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
   const renderActionButton = (industry: Industry) => {
     if (industry.ownerName) {
       if (industry.ownerName === companyData.name) {
-        return <button onClick={() => openSellModal(industry)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Vender</button>;
+        return (
+          <div className="flex items-center gap-2">
+            <button onClick={() => onManage(industry)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">
+              Gerir
+            </button>
+            <button onClick={() => openSellModal(industry)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">
+              Vender
+            </button>
+          </div>
+        );
       } else {
         return <p className="text-sm text-gray-400 text-right">Proprietário:<br/><span className="font-bold">{industry.ownerName}</span></p>;
       }
     } else {
-      return <button onClick={() => openBuyModal(industry)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Comprar</button>;
+      return <button onClick={() => handleBuyIndustry(industry.name)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Comprar</button>;
     }
   };
 
