@@ -138,3 +138,28 @@ CREATE TABLE IF NOT EXISTS `Space_trucker_skills` (
   `level` INT(11) DEFAULT NULL,
   PRIMARY KEY (`citizenId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- Tabela para registar quais empresas são donas de quais indústrias
+CREATE TABLE `space_trucker_company_industries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `industry_name` varchar(50) NOT NULL,
+  `purchase_price` int(11) NOT NULL,
+  `purchase_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `industry_name` (`industry_name`),
+  KEY `company_id` (`company_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabela para guardar os dados de gestão (investimento, NPCs) de cada indústria possuída
+CREATE TABLE `space_trucker_industry_management` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `industry_name` varchar(50) NOT NULL,
+  `investment_level` int(11) NOT NULL DEFAULT 1,
+  `npc_workers` int(11) NOT NULL DEFAULT 0,
+  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `company_industry` (`company_id`,`industry_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

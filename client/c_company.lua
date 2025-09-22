@@ -241,39 +241,39 @@ end)
 -- * NOVA ALTERAÇÃO ADICIONADA AQUI
 -- =============================================================================
 RegisterNUICallback('requestCompanyIndustries', function(data, cb)
-    print('[Space_trucker] NUI: A interface pediu a lista de indústrias.')
+    print('[space_trucker] NUI: A interface pediu a lista de indústrias.')
     local allIndustries = Industries:GetIndustries()
     local simplifiedIndustries = {}
 
     if allIndustries and next(allIndustries) ~= nil then
         for name, industry in pairs(allIndustries) do
-            if type(industry) == 'table' and industry.name and industry.label then
-                table.insert(simplifiedIndustries, {
-                    name = industry.name,
-                    label = industry.label,
-                    tier = industry.tier,
-                    type = industry.type,
-                    status = industry.status
-                })
+            -- CORREÇÃO: Adicionada verificação para incluir apenas indústrias primárias (1) e secundárias (2)
+            if industry.tier == Config.Industry.Tier.PRIMARY or industry.tier == Config.Industry.Tier.SECONDARY then
+                if type(industry) == 'table' and industry.name and industry.label then
+                    table.insert(simplifiedIndustries, {
+                        name = industry.name,
+                        label = industry.label,
+                        tier = industry.tier,
+                        status = industry.status
+                    })
+                end
             end
         end
         
         local jsonData = json.encode(simplifiedIndustries)
-        -- EM VEZ DE USAR cb(), ENVIAMOS UM EVENTO DIRETO PARA A UI
         SendNUIMessage({
             action = 'setCompanyIndustries',
             data = jsonData
         })
-        print('[Space_trucker] NUI: Foram enviadas ' .. #simplifiedIndustries .. ' indústrias para a UI via SendNUIMessage.')
+        print('[space_trucker] NUI: Foram enviadas ' .. #simplifiedIndustries .. ' indústrias (primárias/secundárias) para a UI.')
     else
-        print('[Space_trucker] NUI ERRO: A função Industries:GetIndustries() retornou vazia.')
         SendNUIMessage({
             action = 'setCompanyIndustries',
-            data = '[]' -- Enviamos um array vazio
+            data = '[]'
         })
     end
     
-    cb('ok') -- Apenas confirmamos que o pedido foi recebido.
+    cb('ok')
 end)
 -- =============================================================================
 -- * FIM DA NOVA ALTERAÇÃO
