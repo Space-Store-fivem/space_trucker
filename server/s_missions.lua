@@ -5,13 +5,12 @@ local AvailableMissions = {}
 local MISSION_GENERATION_INTERVAL = 5 * 60 * 1000 -- 5 minutos
 
 local function generateMissions()
-    print('[s_missions] A gerar novas missões de transporte...')
+    print('[s_missions] Gerando novas missões de transporte...')
     local newMissions = {}
     local allIndustries = Industries:GetIndustries()
-    
+
     local sourceIndustries, destinationBusinesses = {}, {}
 
-    -- CORREÇÃO: A lógica foi simplificada para separar corretamente as indústrias
     for name, industry in pairs(allIndustries) do
         if industry.tier == spaceconfig.Industry.Tier.PRIMARY or industry.tier == spaceconfig.Industry.Tier.SECONDARY then
             table.insert(sourceIndustries, industry)
@@ -32,7 +31,7 @@ local function generateMissions()
         if #sourceIndustries > 0 and #destinationBusinesses > 0 then
             local source = sourceIndustries[math.random(#sourceIndustries)]
             local destination = destinationBusinesses[math.random(#destinationBusinesses)]
-            
+
             local forSaleItems = {}
             if source.tradeData and source.tradeData[spaceconfig.Industry.TradeType.FORSALE] then
                 for itemName, _ in pairs(source.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do table.insert(forSaleItems, itemName) end
@@ -41,8 +40,8 @@ local function generateMissions()
             if #forSaleItems > 0 then
                 local itemToTransport = forSaleItems[math.random(#forSaleItems)]
                 local distance = #(source.location - destination.location)
-                
-                table.insert(newMissions, {
+
+                local mission = {
                     id = 'mission_'..i..'_'..math.random(1000, 9999),
                     sourceIndustry = source.name,
                     sourceLabel = source.label,
@@ -51,7 +50,9 @@ local function generateMissions()
                     item = itemToTransport,
                     itemLabel = Lang:t('item_name_' .. itemToTransport) or itemToTransport,
                     reputation = math.floor(distance / 150) + 5,
-                })
+                }
+                table.insert(newMissions, mission)
+                print('[s_missions] Missão gerada:', json.encode(mission))
             end
         end
     end
@@ -61,7 +62,7 @@ local function generateMissions()
 end
 
 Citizen.CreateThread(function()
-    Citizen.Wait(3000) -- Aumentado para garantir que tudo carregou
+    Citizen.Wait(3000)
     generateMissions()
     CreateThread(function()
         while true do
@@ -71,11 +72,11 @@ Citizen.CreateThread(function()
     end)
 end)
 
-CreateCallback('gs_trucker:callback:getMissions', function(source, cb)
+QBCore.Functions.CreateCallback('gs_trucker:callback:getMissions', function(source, cb)
     cb(AvailableMissions)
 end)
 
-CreateCallback('gs_trucker:callback:getMissionDetails', function(source, cb, data)
+QBCore.Functions.CreateCallback('gs_trucker:callback:getMissionDetails', function(source, cb, data)
     local missionId = data.id
     for _, mission in ipairs(AvailableMissions) do
         if mission.id == missionId then
@@ -97,7 +98,6 @@ RegisterNetEvent('gs_trucker:server:missionCompleted', function(missionData)
         local reputationGained = missionData.reputation or 5
         MySQL.update.await('UPDATE gs_trucker_companies SET reputation = reputation + ? WHERE id = ?', { reputationGained, companyId })
         print('[s_missions] Empresa '..companyId..' ganhou '..reputationGained..' de reputação.')
-        -- Opcional: Notificar o jogador sobre a recompensa
         TriggerClientEvent('QBCore:Notify', src, "A sua empresa ganhou +" .. reputationGained .. " de reputação!", "success")
     end
 end)

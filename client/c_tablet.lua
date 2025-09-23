@@ -53,3 +53,5 @@ function ToggleTablet(toggle)
         tablet = false
     end
 end
+
+exports('SetTabletOpened', SetTabletOpened)
