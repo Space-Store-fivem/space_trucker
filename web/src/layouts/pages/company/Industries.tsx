@@ -5,6 +5,7 @@ import { fetchNui } from '../../../utils/fetchNui';
 import { CompanyData } from '../../../types';
 import { useNuiEvent } from '../../../hooks/useNuiEvent';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import IndustryManagement from './IndustryManagement'; // Importe o novo component
 
 interface Industry {
   name: string;
@@ -35,6 +36,7 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
   const [isLoading, setIsLoading] = useState(true);
   const [ownershipData, setOwnershipData] = useState<Record<string, string>>({});
   const [modalState, setModalState] = useState<{isOpen: boolean; title: string; description: string; onConfirm: () => void} | null>(null);
+  const [managingIndustry, setManagingIndustry] = useState<Industry | null>(null); // Novo estado
 
   // Ouve o evento com a lista de indústrias e monta os dados finais
   useNuiEvent<string>('setCompanyIndustries', (jsonData) => {
@@ -96,7 +98,12 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
   const renderActionButton = (industry: Industry) => {
     if (industry.ownerName) {
       if (industry.ownerName === companyData.name) {
-        return <button onClick={() => openSellModal(industry)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Vender</button>;
+        return (
+          <div className="flex space-x-2">
+            <button onClick={() => setManagingIndustry(industry)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Gerenciar</button>
+            <button onClick={() => openSellModal(industry)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">Vender</button>
+          </div>
+        );
       } else {
         return <p className="text-sm text-gray-400 text-right">Proprietário:<br/><span className="font-bold">{industry.ownerName}</span></p>;
       }
@@ -105,6 +112,10 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
     }
   };
 
+  if (managingIndustry) {
+    // CORREÇÃO: Adicione a propriedade onRefresh={onRefresh} aqui
+    return <IndustryManagement industry={managingIndustry} onBack={() => setManagingIndustry(null)} companyData={companyData} onRefresh={onRefresh} />;
+}
   return (
     <>
       <ConfirmationModal

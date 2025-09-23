@@ -275,6 +275,14 @@ export interface CompanyData {
   garage_location?: string; // <-- ADICIONE ESTA LINHA
 }
 
+export interface Industry {
+  name: string;
+  label: string;
+  tier: number;
+  status: number;
+  ownerName?: string;
+}
+
 export interface FleetVehicle {
   id: number;
   company_id: number;

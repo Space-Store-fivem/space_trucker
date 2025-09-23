@@ -117,3 +117,17 @@ CREATE TABLE `gs_trucker_industry_management` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `company_industry` (`company_id`,`industry_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `gs_trucker_company_industries`
+ADD COLUMN `investment_level` INT(11) NOT NULL DEFAULT 0,
+ADD COLUMN `npc_workers` INT(11) NOT NULL DEFAULT 0;
+
+CREATE TABLE `gs_trucker_industry_stock` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `company_id` INT(11) NOT NULL,
+  `industry_name` VARCHAR(50) NOT NULL,
+  `item_name` VARCHAR(50) NOT NULL,
+  `stock` INT(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_stock_item` (`company_id`,`industry_name`,`item_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
