@@ -1,7 +1,7 @@
--- space-store-fivem/space_trucker/space_trucker-mais2/client/c_missions.lua
+-- space-store-fivem/space_trucker/space_trucker-mais2/client/c_missions.lua (VERSÃO FINAL E ROBUSTA)
 
 local QBCore = exports['qb-core']:GetCoreObject()
-local currentMission = nil
+currentMission = nil
 local missionPoints = { collect = nil, deliver = nil }
 local activeCargoProps = {}
 
@@ -13,7 +13,7 @@ local function DrawText3D(x, y, z, text)
     DrawRect(0.0, 0.0 + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 75); ClearDrawOrigin()
 end
 
-local function clearMission()
+function clearMission()
     if missionPoints.collect then
         missionPoints.collect:remove()
         if missionPoints.collect.blip then RemoveBlip(missionPoints.collect.blip) end
@@ -29,6 +29,7 @@ local function clearMission()
     end
     activeCargoProps = {}
     currentMission = nil
+    QBCore.Functions.Notify("Missão cancelada.", "error")
 end
 
 RegisterNUICallback('getMissions', function(_, cb)
@@ -41,9 +42,9 @@ RegisterNUICallback('acceptMission', function(data, cb)
 
     QBCore.Functions.TriggerCallback('gs_trucker:callback:getMissionDetails', function(missionDetails)
         if missionDetails then
-            startMission(missionDetails)
+            TriggerEvent('gs_trucker:client:startMission', missionDetails)
             QBCore.Functions.Notify("Missão aceita! Verifique o seu mapa para o ponto de coleta.", "success")
-            TriggerEvent('gs_trucker:client:toggleTablet', false) -- << CORREÇÃO DO TABLET
+            TriggerEvent('gs_trucker:client:toggleTablet', false)
             cb({ success = true })
         else
             QBCore.Functions.Notify("Esta missão já não está mais disponível.", "error")
@@ -52,18 +53,20 @@ RegisterNUICallback('acceptMission', function(data, cb)
     end, data)
 end)
 
-function startMission(missionData)
+RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
+    if currentMission then return end
     local sourceIndustry = Industries:GetIndustry(missionData.sourceIndustry)
     local destinationBusiness = Industries:GetIndustry(missionData.destinationBusiness)
     if not sourceIndustry or not destinationBusiness then QBCore.Functions.Notify("Erro ao iniciar a missão. Indústria não encontrada.", "error"); return end
+
     currentMission = missionData
-    
     local collectPoint = Point.add({
-        coords = sourceIndustry.location, distance = 5.0,
+        coords = sourceIndustry.location,
+        distance = 5.0,
         onPedStanding = function()
             DrawMarker(2, sourceIndustry.location.x, sourceIndustry.location.y, sourceIndustry.location.z - 0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 255, 200, 0, 100, false, true, 2, false, nil, nil, false)
             DrawText3D(sourceIndustry.location.x, sourceIndustry.location.y, sourceIndustry.location.z, '[E] - Carregar Carga')
-            if IsControlJustReleased(0, 38) then TriggerEvent('gs_trucker:client:startShipping') end
+            if IsControlJustReleased(0, 38) then TriggerEvent('gs_trucker:client:attemptToLoadCargo') end
         end,
     })
     local blip = AddBlipForCoord(sourceIndustry.location)
@@ -71,13 +74,13 @@ function startMission(missionData)
     BeginTextCommandSetBlipName("STRING"); AddTextComponentString('Coletar Carga (' .. missionData.itemLabel .. ')'); EndTextCommandSetBlipName(blip)
     collectPoint.blip = blip
     missionPoints.collect = collectPoint
-end
+end)
 
-RegisterNetEvent('gs_trucker:client:startShipping', function()
+RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
     if not currentMission or not missionPoints.collect then return end
     local playerPed = PlayerPedId()
     local truck = GetVehiclePedIsIn(playerPed, false)
-    if not truck then QBCore.Functions.Notify("Você precisa estar em um veículo para carregar a carga.", "error"); return end
+    if not truck or truck == 0 then QBCore.Functions.Notify("Você precisa estar em um veículo para carregar a carga.", "error"); return end
 
     local vehicleToCheck = truck
     if IsVehicleAttachedToTrailer(truck) then
@@ -86,40 +89,58 @@ RegisterNetEvent('gs_trucker:client:startShipping', function()
     end
 
     local vehicleModelHash = GetEntityModel(vehicleToCheck)
+    local modelName = GetDisplayNameFromVehicleModel(vehicleModelHash)
     local vehicleConfig
+
+    --- [[ INÍCIO DA VERIFICAÇÃO INTELIGENTE ]] ---
     for spawnName, config in pairs(spaceconfig.VehicleTransport) do
-        if GetHashKey(spawnName) == vehicleModelHash then
+        -- Método 1: Tenta da forma normal (se a chave for 'pounder')
+        if GetHashKey(tostring(spawnName)) == vehicleModelHash then
             vehicleConfig = config
-            print("[c_missions] Veículo compatível encontrado na config: " .. spawnName)
+            print("[c_missions] Veículo encontrado pelo Método #1 (Nome de Spawn)")
+            break
+        end
+
+        -- Método 2: Tenta da forma corrompida (se a chave for '2112052861')
+        if tonumber(spawnName) and tonumber(spawnName) == vehicleModelHash then
+            vehicleConfig = config
+            print("[c_missions] Veículo encontrado pelo Método #2 (Chave de Hash)")
             break
         end
     end
+    --- [[ FIM DA VERIFICAÇÃO INTELIGENTE ]] ---
 
     if not vehicleConfig then
-        local modelName = GetDisplayNameFromVehicleModel(vehicleModelHash)
         QBCore.Functions.Notify("Este veículo ("..modelName..") não é compatível com o sistema de cargas.", "error")
-        print("[c_missions] ERRO: O veículo "..modelName.." (hash: "..vehicleModelHash..") não foi encontrado no ficheiro de configuração.")
+        print("[c_missions] ERRO FINAL: O veículo "..modelName.." (hash: "..vehicleModelHash..") não foi encontrado na config por nenhum dos métodos.")
         return
     end
     
     local itemInfo = spaceconfig.IndustryItems[currentMission.item]
     local transportType = itemInfo.transType
+    local transportTypeName = spaceconfig.VehicleTransportTypeLabel[transportType] or "Tipo Desconhecido"
+
     if not vehicleConfig.transType or not vehicleConfig.transType[transportType] then
-        QBCore.Functions.Notify("Este veículo ("..vehicleConfig.label..") não pode transportar este tipo de carga.", "error")
+        QBCore.Functions.Notify("O seu "..vehicleConfig.label.." não pode transportar este tipo de carga ("..transportTypeName..").", "error")
         return
     end
 
+    TriggerEvent('gs_trucker:client:loadCargo', vehicleToCheck, vehicleConfig, itemInfo)
+end)
+
+RegisterNetEvent('gs_trucker:client:loadCargo', function(vehicle, config, item)
+    local transportType = item.transType
     if transportType ~= spaceconfig.ItemTransportType.LIQUIDS and transportType ~= spaceconfig.ItemTransportType.LOOSE and transportType ~= spaceconfig.ItemTransportType.CONCRETE then
-        if vehicleConfig.props and vehicleConfig.props[transportType] then
-            local propModel = itemInfo.prop and itemInfo.prop.model or `hei_prop_heist_wooden_box`
+        if config.props and config.props[transportType] then
+            local propModel = item.prop and item.prop.model or `hei_prop_heist_wooden_box`
             RequestModel(propModel); while not HasModelLoaded(propModel) do Wait(10) end
-            local boneName = vehicleConfig.props.bone or 'chassis'
-            local boneIndex = GetEntityBoneIndexByName(vehicleToCheck, boneName)
+            local boneName = config.props.bone or 'chassis'
+            local boneIndex = GetEntityBoneIndexByName(vehicle, boneName)
             if boneIndex == -1 then boneIndex = 0 end
             
-            for _, pos in ipairs(vehicleConfig.props[transportType]) do
-                local prop = CreateObject(propModel, GetEntityCoords(vehicleToCheck), true, true, true)
-                AttachEntityToEntity(prop, vehicleToCheck, boneIndex, pos.x, pos.y, pos.z, 0, 0, 0, true, true, false, true, 2, true)
+            for _, pos in ipairs(config.props[transportType]) do
+                local prop = CreateObject(propModel, GetEntityCoords(vehicle), true, true, true)
+                AttachEntityToEntity(prop, vehicle, boneIndex, pos.x, pos.y, pos.z, 0, 0, 0, true, true, false, true, 2, true)
                 table.insert(activeCargoProps, prop)
             end
             SetModelAsNoLongerNeeded(propModel)
@@ -153,6 +174,11 @@ RegisterNetEvent('gs_trucker:client:finishShipping', function()
 end)
 
 RegisterCommand('cancelarmissao', function()
-    if currentMission then clearMission(); QBCore.Functions.Notify("Missão de transporte cancelada.", "error")
-    else QBCore.Functions.Notify("Você não tem nenhuma missão ativa.", "primary") end
+    if currentMission then clearMission() end
 end, false)
+
+AddEventHandler('onResourceStop', function(resourceName)
+    if GetCurrentResourceName() == resourceName and currentMission then
+        clearMission()
+    end
+end)

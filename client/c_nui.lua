@@ -2,6 +2,7 @@
 -- Variables
 local modalResponse = nil
 local truckRentalData = {}
+
 --
 RegisterNUICallback('loadLocale', function(_, cb)
     cb(1)
@@ -21,7 +22,7 @@ end)
 RegisterNUICallback('loadTruckRental', function(_, cb)
     if not next(truckRentalData) then
         for _, value in pairs(spaceconfig.VehicleRentLocations) do
-            if not value.private then 
+            if not value.private then
                 truckRentalData[#truckRentalData + 1] = {
                     id = value.id,
                     title = value.title,
@@ -29,7 +30,7 @@ RegisterNUICallback('loadTruckRental', function(_, cb)
                 }
             end
         end
-        table.sort(truckRentalData, function (a, b)
+        table.sort(truckRentalData, function(a, b)
             return a.id < b.id
         end)
     end
@@ -70,7 +71,7 @@ RegisterNUICallback('loadIndustryList', function(data, cb)
         listData[#listData + 1] = buildData
     end
 
-    table.sort(listData, function (a, b)
+    table.sort(listData, function(a, b)
         return a.title < b.title
     end)
 
@@ -91,14 +92,22 @@ RegisterNUICallback('loadIndustryInformation', function(data, cb)
     cb(information)
 end)
 
+--- [[ INÍCIO DA CORREÇÃO IMPORTANTE ]] ---
 RegisterNUICallback('loadVehicleCapacityList', function(data, cb)
     local vehicle_capacities = {}
     for k, v in pairs(spaceconfig.VehicleTransport) do
+        -- Criar uma cópia profunda de 'v.transType' para evitar corromper a tabela original
+        local transTypeCopy = {}
+        for transKey, transVal in pairs(v.transType) do
+            transTypeCopy[transKey] = transVal
+        end
+
         vehicle_capacities[#vehicle_capacities + 1] = {
             image = spaceconfig.VehicleImageUrl:format(v.name),
             name = v.label,
             capacity = v.capacity,
-            transType = GetVehicleTransportTypeLabel(v.transType),
+            -- Usar a cópia em vez da original
+            transType = GetVehicleTransportTypeLabel(transTypeCopy),
             level = v.level or 1
         }
     end
@@ -109,6 +118,7 @@ RegisterNUICallback('loadVehicleCapacityList', function(data, cb)
 
     cb(vehicle_capacities)
 end)
+--- [[ FIM DA CORREÇÃO IMPORTANTE ]] ---
 
 RegisterNUICallback('hideFrame', function(data, cb)
     cb(1)
