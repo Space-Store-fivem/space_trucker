@@ -243,12 +243,13 @@ end)
 RegisterNUICallback('requestCompanyIndustries', function(data, cb)
     print('[gs_trucker] NUI: A interface pediu a lista de indústrias.')
     local allIndustries = Industries:GetIndustries()
-    local simplifiedIndustries = {}
+    local purchasableIndustries = {} -- Tabela para guardar apenas as indústrias compráveis
 
     if allIndustries and next(allIndustries) ~= nil then
         for name, industry in pairs(allIndustries) do
-            if type(industry) == 'table' and industry.name and industry.label then
-                table.insert(simplifiedIndustries, {
+            -- ADICIONA A VERIFICAÇÃO DE PREÇO AQUI
+            if type(industry) == 'table' and industry.name and industry.label and industry:GetPurchasePrice() then
+                table.insert(purchasableIndustries, {
                     name = industry.name,
                     label = industry.label,
                     tier = industry.tier,
@@ -258,22 +259,21 @@ RegisterNUICallback('requestCompanyIndustries', function(data, cb)
             end
         end
         
-        local jsonData = json.encode(simplifiedIndustries)
-        -- EM VEZ DE USAR cb(), ENVIAMOS UM EVENTO DIRETO PARA A UI
+        local jsonData = json.encode(purchasableIndustries)
         SendNUIMessage({
             action = 'setCompanyIndustries',
             data = jsonData
         })
-        print('[gs_trucker] NUI: Foram enviadas ' .. #simplifiedIndustries .. ' indústrias para a UI via SendNUIMessage.')
+        print('[gs_trucker] NUI: Foram enviadas ' .. #purchasableIndustries .. ' indústrias compráveis para a UI.')
     else
         print('[gs_trucker] NUI ERRO: A função Industries:GetIndustries() retornou vazia.')
         SendNUIMessage({
             action = 'setCompanyIndustries',
-            data = '[]' -- Enviamos um array vazio
+            data = '[]'
         })
     end
     
-    cb('ok') -- Apenas confirmamos que o pedido foi recebido.
+    cb('ok')
 end)
 -- =============================================================================
 -- * FIM DA NOVA ALTERAÇÃO
