@@ -53,6 +53,7 @@ client_scripts {
 'client/c_settings.lua',
 'client/c_finance.lua',
 	"client/c_tablet.lua",
+	"client/c_missions.lua",
 	"client/c_fleet.lua"
 }
 
@@ -68,6 +69,7 @@ server_scripts {
 	'server/s_industry_management.lua',
 	'server/s_settings.lua',
 	'server/s_finance.lua',
+	'server/s_missions.lua',
 	"server/s_rental.lua"
 }
 

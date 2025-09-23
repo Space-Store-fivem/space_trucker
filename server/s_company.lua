@@ -1148,3 +1148,27 @@ CreateCallback('gs_trucker:callback:getIndustryOwnershipData', function(source, 
 end)
 
 
+
+
+CreateCallback('gs_trucker:callback:isVehicleInMyCompanyFleet', function(source, cb, plate)
+    -- Verifica se o jogador trabalha para alguma empresa
+    local isEmployed, companyId = CheckIfPlayerWorksForCompany(source)
+    if not isEmployed then 
+        cb(false) 
+        return
+    end
+
+    -- VERIFICAÇÃO SIMPLIFICADA:
+    -- Apenas confirma se o veículo com esta matrícula pertence à frota da empresa do jogador.
+    local vehicle = MySQL.query.await('SELECT id FROM gs_trucker_fleet WHERE plate = ? AND company_id = ?', { plate, companyId })
+    
+    if vehicle and vehicle[1] then
+        -- Se o veículo for encontrado na frota da empresa, a verificação é bem-sucedida.
+        cb(true)
+    else
+        -- Caso contrário, falha.
+        cb(false)
+    end
+end)
+
+exports('CheckIfPlayerWorksForCompany', CheckIfPlayerWorksForCompany)

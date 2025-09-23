@@ -12,7 +12,8 @@ import { Finance } from './Finance';
 import { Settings } from './Settings';
 import { fetchNui } from '../../../utils/fetchNui';
 import { RecruitmentAgency } from './RecruitmentAgency';
-import { Industries } from './Industries'; // Importa o novo componente
+import { Industries } from './Industries';
+import { TransportMissions } from './TransportMissions'; // 1. Importe o novo componente
 
 const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: FullCompanyInfo) => void; }> = ({ data, updateCompanyData }) => {
   const [activeApp, setActiveApp] = useState(data.has_profile ? 'home' : 'createProfile');
@@ -73,10 +74,11 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
         return <RecruitmentAgency companyData={data} onBack={goBack} />;
       
       case 'industries':
-        // =============================================================================
-        // * ESTA É A LINHA QUE FOI CORRIGIDA E ATUALIZADA
-        // =============================================================================
         return <Industries onBack={goBack} companyData={data.company_data!} onRefresh={handleRefresh} />;
+
+      // 2. Adicione a nova condição de renderização para as missões
+      case 'missions':
+        return <TransportMissions onBack={goBack} />;
 
       case 'employees':
         return <Employees companyData={data} updateCompanyData={safeUpdateCompanyData} onBack={goBack} />;
