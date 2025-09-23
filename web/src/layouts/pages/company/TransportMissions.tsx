@@ -2,16 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { fetchNui } from '../../../utils/fetchNui';
-// CORREÇÃO: Remova as chaves {} da importação
-import  AppHeader  from '../../components/AppHeader'; // Reutilizando o cabeçalho
+import AppHeader from '../../components/AppHeader'; // Reutilizando o cabeçalho
 
-// Definindo a estrutura de uma missão
+// Definindo a estrutura de uma missão (com o novo campo)
 interface Mission {
   id: string;
   sourceLabel: string;
   destinationLabel: string;
   itemLabel: string;
   reputation: number;
+  vehicleRequirement: string; // <-- NOVO CAMPO ADICIONADO AQUI
 }
 
 interface TransportMissionsProps {
@@ -53,12 +53,14 @@ export const TransportMissions: React.FC<TransportMissionsProps> = ({ onBack }) 
               missions.map(mission => (
                 <div key={mission.id} className="bg-gray-800 p-4 rounded-lg border border-white/5 shadow-md">
                   <div className="flex justify-between items-center">
-                    <div>
+                    <div className="flex-grow">
                       <h3 className="text-lg font-bold text-blue-400">Transportar: {mission.itemLabel}</h3>
                       <p className="text-sm text-gray-300">De: <span className="font-semibold">{mission.sourceLabel}</span></p>
                       <p className="text-sm text-gray-300">Para: <span className="font-semibold">{mission.destinationLabel}</span></p>
+                      {/* LINHA ADICIONADA AQUI PARA MOSTRAR O REQUISITO */}
+                      <p className="text-xs text-yellow-400 mt-1 font-semibold">Requisito: {mission.vehicleRequirement}</p>
                     </div>
-                    <div className="text-right flex flex-col items-end space-y-2">
+                    <div className="text-right flex flex-col items-end space-y-2 flex-shrink-0 ml-4">
                        <p className="text-md font-bold text-green-400">+{mission.reputation} RP</p>
                        <button 
                          onClick={() => handleAcceptMission(mission.id)} 

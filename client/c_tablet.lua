@@ -53,5 +53,7 @@ function ToggleTablet(toggle)
         tablet = false
     end
 end
-
-exports('SetTabletOpened', SetTabletOpened)
+RegisterNetEvent('gs_trucker:client:toggleTablet', function(state)
+    ToggleTablet(state)
+end)
+TriggerEvent('gs_trucker:client:toggleTablet', false)

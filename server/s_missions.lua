@@ -4,13 +4,13 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local AvailableMissions = {}
 local MISSION_GENERATION_INTERVAL = 5 * 60 * 1000 -- 5 minutos
 
+-- Substitua esta função em server/s_missions.lua
 local function generateMissions()
-    print('[s_missions] Gerando novas missões de transporte...')
-    local newMissions = {}
+    print('[s_missions] A gerar novas missões de transporte...')
+    AvailableMissions = {}
     local allIndustries = Industries:GetIndustries()
-
+    
     local sourceIndustries, destinationBusinesses = {}, {}
-
     for name, industry in pairs(allIndustries) do
         if industry.tier == spaceconfig.Industry.Tier.PRIMARY or industry.tier == spaceconfig.Industry.Tier.SECONDARY then
             table.insert(sourceIndustries, industry)
@@ -19,19 +19,16 @@ local function generateMissions()
         end
     end
 
-    if #sourceIndustries == 0 then
-        print('[s_missions] AVISO: Nenhuma indústria Primária ou Secundária encontrada para servir como origem de missões.')
-    end
-    if #destinationBusinesses == 0 then
-        print('[s_missions] AVISO: Nenhuma indústria de Negócios (Business) encontrada para servir como destino.')
+    if #sourceIndustries == 0 or #destinationBusinesses == 0 then
+        print('[s_missions] AVISO: Indústrias de origem ou destino insuficientes.')
+        return
     end
 
-    local missionsToGenerate = 15
-    for i = 1, missionsToGenerate do
+    for i = 1, 15 do
         if #sourceIndustries > 0 and #destinationBusinesses > 0 then
             local source = sourceIndustries[math.random(#sourceIndustries)]
             local destination = destinationBusinesses[math.random(#destinationBusinesses)]
-
+            
             local forSaleItems = {}
             if source.tradeData and source.tradeData[spaceconfig.Industry.TradeType.FORSALE] then
                 for itemName, _ in pairs(source.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do table.insert(forSaleItems, itemName) end
@@ -39,25 +36,36 @@ local function generateMissions()
 
             if #forSaleItems > 0 then
                 local itemToTransport = forSaleItems[math.random(#forSaleItems)]
-                local distance = #(source.location - destination.location)
-
-                local mission = {
+                local itemInfo = spaceconfig.IndustryItems[itemToTransport]
+                
+                local vehicleRequirement = "Veículo de Carga Padrão" -- Fallback
+                if itemInfo and itemInfo.transType then
+                    local compatibleVehicles = {}
+                    for vehicleName, vehicleData in pairs(spaceconfig.VehicleTransport) do
+                        if vehicleData.transType and vehicleData.transType[itemInfo.transType] then
+                            table.insert(compatibleVehicles, vehicleData.label)
+                            if #compatibleVehicles >= 2 then break end -- Pega no máximo 2 exemplos
+                        end
+                    end
+                    if #compatibleVehicles > 0 then
+                        vehicleRequirement = table.concat(compatibleVehicles, ' / ')
+                    end
+                end
+                
+                table.insert(AvailableMissions, {
                     id = 'mission_'..i..'_'..math.random(1000, 9999),
-                    sourceIndustry = source.name,
+                    sourceIndustry = source.name, -- <-- LINHA CORRIGIDA
                     sourceLabel = source.label,
-                    destinationBusiness = destination.name,
+                    destinationBusiness = destination.name, -- <-- LINHA CORRIGIDA
                     destinationLabel = destination.label,
                     item = itemToTransport,
                     itemLabel = Lang:t('item_name_' .. itemToTransport) or itemToTransport,
-                    reputation = math.floor(distance / 150) + 5,
-                }
-                table.insert(newMissions, mission)
-                print('[s_missions] Missão gerada:', json.encode(mission))
+                    reputation = math.floor(#(source.location - destination.location) / 150) + 5,
+                    vehicleRequirement = vehicleRequirement,
+                })
             end
         end
     end
-
-    AvailableMissions = newMissions
     print('[s_missions] ' .. #AvailableMissions .. ' novas missões geradas.')
 end
 
