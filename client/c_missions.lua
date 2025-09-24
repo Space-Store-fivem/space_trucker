@@ -1,4 +1,4 @@
--- space-store-fivem/space_trucker/space_trucker-mais2/client/c_missions.lua (VERSÃO FINAL E ROBUSTA)
+-- space-store-fivem/space_trucker/space_trucker-mais2/client/c_missions.lua (VERSÃO DE DIAGNÓSTICO DE PROPS)
 
 local QBCore = exports['qb-core']:GetCoreObject()
 currentMission = nil
@@ -92,27 +92,19 @@ RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
     local modelName = GetDisplayNameFromVehicleModel(vehicleModelHash)
     local vehicleConfig
 
-    --- [[ INÍCIO DA VERIFICAÇÃO INTELIGENTE ]] ---
     for spawnName, config in pairs(spaceconfig.VehicleTransport) do
-        -- Método 1: Tenta da forma normal (se a chave for 'pounder')
         if GetHashKey(tostring(spawnName)) == vehicleModelHash then
             vehicleConfig = config
-            print("[c_missions] Veículo encontrado pelo Método #1 (Nome de Spawn)")
             break
         end
-
-        -- Método 2: Tenta da forma corrompida (se a chave for '2112052861')
         if tonumber(spawnName) and tonumber(spawnName) == vehicleModelHash then
             vehicleConfig = config
-            print("[c_missions] Veículo encontrado pelo Método #2 (Chave de Hash)")
             break
         end
     end
-    --- [[ FIM DA VERIFICAÇÃO INTELIGENTE ]] ---
 
     if not vehicleConfig then
         QBCore.Functions.Notify("Este veículo ("..modelName..") não é compatível com o sistema de cargas.", "error")
-        print("[c_missions] ERRO FINAL: O veículo "..modelName.." (hash: "..vehicleModelHash..") não foi encontrado na config por nenhum dos métodos.")
         return
     end
     
@@ -129,16 +121,28 @@ RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
 end)
 
 RegisterNetEvent('gs_trucker:client:loadCargo', function(vehicle, config, item)
+    print("--- DIAGNÓSTICO DE PROPS ---")
     local transportType = item.transType
-    if transportType ~= spaceconfig.ItemTransportType.LIQUIDS and transportType ~= spaceconfig.ItemTransportType.LOOSE and transportType ~= spaceconfig.ItemTransportType.CONCRETE then
-        if config.props and config.props[transportType] then
+    local transportTypeName = spaceconfig.VehicleTransportTypeLabel[transportType] or "Tipo Desconhecido"
+    print("Tipo de transporte da missão: " .. transportTypeName .. " ("..tostring(transportType)..")")
+
+    if transportType == spaceconfig.ItemTransportType.LIQUIDS or transportType == spaceconfig.ItemTransportType.LOOSE or transportType == spaceconfig.ItemTransportType.CONCRETE then
+        print("Este tipo de carga não gera props. A ignorar a criação de props.")
+    else
+        if not config.props then
+            print("ERRO DE PROPS: A configuração do veículo '"..config.label.."' não tem uma tabela 'props' definida em gst_config.lua.")
+        elseif not config.props[transportType] then
+            print("ERRO DE PROPS: A tabela 'props' do veículo '"..config.label.."' não tem uma entrada para o tipo de carga '"..transportTypeName.."'")
+        else
+            print("SUCESSO DE PROPS: Configuração de props encontrada para este veículo e tipo de carga. A criar os adereços...")
             local propModel = item.prop and item.prop.model or `hei_prop_heist_wooden_box`
             RequestModel(propModel); while not HasModelLoaded(propModel) do Wait(10) end
             local boneName = config.props.bone or 'chassis'
             local boneIndex = GetEntityBoneIndexByName(vehicle, boneName)
             if boneIndex == -1 then boneIndex = 0 end
             
-            for _, pos in ipairs(config.props[transportType]) do
+            for i, pos in ipairs(config.props[transportType]) do
+                print("A criar prop #"..i.." no veículo.")
                 local prop = CreateObject(propModel, GetEntityCoords(vehicle), true, true, true)
                 AttachEntityToEntity(prop, vehicle, boneIndex, pos.x, pos.y, pos.z, 0, 0, 0, true, true, false, true, 2, true)
                 table.insert(activeCargoProps, prop)
@@ -146,6 +150,7 @@ RegisterNetEvent('gs_trucker:client:loadCargo', function(vehicle, config, item)
             SetModelAsNoLongerNeeded(propModel)
         end
     end
+    print("--- FIM DO DIAGNÓSTICO DE PROPS ---")
     
     QBCore.Functions.Notify("Carga coletada! Siga para o ponto de entrega.", "primary")
     missionPoints.collect:remove(); RemoveBlip(missionPoints.collect.blip); missionPoints.collect = nil
