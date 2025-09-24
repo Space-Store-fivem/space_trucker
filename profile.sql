@@ -131,3 +131,6 @@ CREATE TABLE `gs_trucker_industry_stock` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_stock_item` (`company_id`,`industry_name`,`item_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE gs_trucker_employees
+ADD COLUMN salary INT DEFAULT 0;
