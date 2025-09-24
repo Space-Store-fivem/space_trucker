@@ -1,9 +1,15 @@
--- space-store-fivem/space_trucker/space_trucker-mais2/client/c_missions.lua (VERSÃO DE DIAGNÓSTICO DE PROPS)
+-- space-store-fivem/space_trucker/space_trucker-mais2/client/c_missions.lua (VERSÃO COM ANIMAÇÕES CORRIGIDAS)
 
 local QBCore = exports['qb-core']:GetCoreObject()
 currentMission = nil
-local missionPoints = { collect = nil, deliver = nil }
+local missionPoints = { collect = nil, deliver = nil, store = nil }
 local activeCargoProps = {}
+local isPlayerCarryingMissionProp = false
+local missionCargoLoaded = 0
+
+-- Variáveis para a animação
+local carryingAnimDict = "anim@heists@box_carry@"
+local carryingAnimName = "idle"
 
 local function DrawText3D(x, y, z, text)
     SetTextScale(0.35, 0.35); SetTextFont(4); SetTextProportional(1); SetTextColour(255, 255, 255, 215)
@@ -24,11 +30,18 @@ function clearMission()
         if missionPoints.deliver.blip then RemoveBlip(missionPoints.deliver.blip) end
         missionPoints.deliver = nil
     end
+    if missionPoints.store then
+        missionPoints.store:remove()
+        missionPoints.store = nil
+    end
     for _, prop in ipairs(activeCargoProps) do
         if DoesEntityExist(prop) then DeleteEntity(prop) end
     end
     activeCargoProps = {}
     currentMission = nil
+    isPlayerCarryingMissionProp = false
+    missionCargoLoaded = 0
+    ClearPedTasks(PlayerPedId())
     QBCore.Functions.Notify("Missão cancelada.", "error")
 end
 
@@ -56,16 +69,17 @@ end)
 RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
     if currentMission then return end
     local sourceIndustry = Industries:GetIndustry(missionData.sourceIndustry)
-    local destinationBusiness = Industries:GetIndustry(missionData.destinationBusiness)
-    if not sourceIndustry or not destinationBusiness then QBCore.Functions.Notify("Erro ao iniciar a missão. Indústria não encontrada.", "error"); return end
+    if not sourceIndustry then return end
 
     currentMission = missionData
+    missionCargoLoaded = 0
+
     local collectPoint = Point.add({
         coords = sourceIndustry.location,
         distance = 5.0,
         onPedStanding = function()
             DrawMarker(2, sourceIndustry.location.x, sourceIndustry.location.y, sourceIndustry.location.z - 0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 255, 200, 0, 100, false, true, 2, false, nil, nil, false)
-            DrawText3D(sourceIndustry.location.x, sourceIndustry.location.y, sourceIndustry.location.z, '[E] - Carregar Carga')
+            DrawText3D(sourceIndustry.location.x, sourceIndustry.location.y, sourceIndustry.location.z, '[E] - Coletar Carga')
             if IsControlJustReleased(0, 38) then TriggerEvent('gs_trucker:client:attemptToLoadCargo') end
         end,
     })
@@ -77,15 +91,32 @@ RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
 end)
 
 RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
-    if not currentMission or not missionPoints.collect then return end
-    local playerPed = PlayerPedId()
-    local truck = GetVehiclePedIsIn(playerPed, false)
-    if not truck or truck == 0 then QBCore.Functions.Notify("Você precisa estar em um veículo para carregar a carga.", "error"); return end
+    if not currentMission or isPlayerCarryingMissionProp then return end
 
-    local vehicleToCheck = truck
-    if IsVehicleAttachedToTrailer(truck) then
-        local _, trailer = GetVehicleAttachedToTrailer(truck)
-        if trailer and trailer ~= 0 then vehicleToCheck = trailer end
+    local itemInfo = spaceconfig.IndustryItems[currentMission.item]
+    local transportType = itemInfo.transType
+    local playerPed = PlayerPedId()
+    local vehicleToCheck
+
+    local truckCab = GetVehiclePedIsIn(playerPed, false)
+
+    if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
+        vehicleToCheck = GetClosestVehicle(GetEntityCoords(playerPed), 15.0, 0, 70)
+        if not DoesEntityExist(vehicleToCheck) then
+            QBCore.Functions.Notify("Você precisa de um veículo de carga por perto.", "error")
+            return
+        end
+    else
+        if not DoesEntityExist(truckCab) then
+            QBCore.Functions.Notify("Você precisa estar dentro do seu veículo de carga.", "error")
+            return
+        end
+        if IsVehicleAttachedToTrailer(truckCab) then
+            local isTrailer, trailer = GetVehicleTrailerVehicle(truckCab)
+            if isTrailer then vehicleToCheck = trailer else vehicleToCheck = truckCab end
+        else
+            vehicleToCheck = truckCab
+        end
     end
 
     local vehicleModelHash = GetEntityModel(vehicleToCheck)
@@ -93,70 +124,134 @@ RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
     local vehicleConfig
 
     for spawnName, config in pairs(spaceconfig.VehicleTransport) do
-        if GetHashKey(tostring(spawnName)) == vehicleModelHash then
-            vehicleConfig = config
-            break
-        end
-        if tonumber(spawnName) and tonumber(spawnName) == vehicleModelHash then
+        if GetHashKey(tostring(spawnName)) == vehicleModelHash or (tonumber(spawnName) and tonumber(spawnName) == vehicleModelHash) then
             vehicleConfig = config
             break
         end
     end
 
     if not vehicleConfig then
-        QBCore.Functions.Notify("Este veículo ("..modelName..") não é compatível com o sistema de cargas.", "error")
-        return
+        QBCore.Functions.Notify("Este veículo ("..modelName..") não é compatível.", "error"); return
     end
     
-    local itemInfo = spaceconfig.IndustryItems[currentMission.item]
-    local transportType = itemInfo.transType
-    local transportTypeName = spaceconfig.VehicleTransportTypeLabel[transportType] or "Tipo Desconhecido"
-
     if not vehicleConfig.transType or not vehicleConfig.transType[transportType] then
-        QBCore.Functions.Notify("O seu "..vehicleConfig.label.." não pode transportar este tipo de carga ("..transportTypeName..").", "error")
-        return
+        QBCore.Functions.Notify("O seu "..vehicleConfig.label.." não pode transportar este tipo de carga.", "error"); return
     end
 
-    TriggerEvent('gs_trucker:client:loadCargo', vehicleToCheck, vehicleConfig, itemInfo)
+    if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
+        TriggerEvent('gs_trucker:client:startManualLoading', vehicleToCheck, vehicleConfig, itemInfo)
+    else
+        TriggerEvent('gs_trucker:client:startAutomaticLoading', vehicleToCheck, vehicleConfig, itemInfo)
+    end
 end)
 
-RegisterNetEvent('gs_trucker:client:loadCargo', function(vehicle, config, item)
-    print("--- DIAGNÓSTICO DE PROPS ---")
-    local transportType = item.transType
-    local transportTypeName = spaceconfig.VehicleTransportTypeLabel[transportType] or "Tipo Desconhecido"
-    print("Tipo de transporte da missão: " .. transportTypeName .. " ("..tostring(transportType)..")")
-
-    if transportType == spaceconfig.ItemTransportType.LIQUIDS or transportType == spaceconfig.ItemTransportType.LOOSE or transportType == spaceconfig.ItemTransportType.CONCRETE then
-        print("Este tipo de carga não gera props. A ignorar a criação de props.")
-    else
-        if not config.props then
-            print("ERRO DE PROPS: A configuração do veículo '"..config.label.."' não tem uma tabela 'props' definida em gst_config.lua.")
-        elseif not config.props[transportType] then
-            print("ERRO DE PROPS: A tabela 'props' do veículo '"..config.label.."' não tem uma entrada para o tipo de carga '"..transportTypeName.."'")
-        else
-            print("SUCESSO DE PROPS: Configuração de props encontrada para este veículo e tipo de carga. A criar os adereços...")
-            local propModel = item.prop and item.prop.model or `hei_prop_heist_wooden_box`
-            RequestModel(propModel); while not HasModelLoaded(propModel) do Wait(10) end
-            local boneName = config.props.bone or 'chassis'
-            local boneIndex = GetEntityBoneIndexByName(vehicle, boneName)
-            if boneIndex == -1 then boneIndex = 0 end
-            
-            for i, pos in ipairs(config.props[transportType]) do
-                print("A criar prop #"..i.." no veículo.")
-                local prop = CreateObject(propModel, GetEntityCoords(vehicle), true, true, true)
-                AttachEntityToEntity(prop, vehicle, boneIndex, pos.x, pos.y, pos.z, 0, 0, 0, true, true, false, true, 2, true)
-                table.insert(activeCargoProps, prop)
-            end
-            SetModelAsNoLongerNeeded(propModel)
-        end
-    end
-    print("--- FIM DO DIAGNÓSTICO DE PROPS ---")
+function HandlePropCarrying(prop, vehicle, config, item)
+    RequestAnimDict(carryingAnimDict)
+    while not HasAnimDictLoaded(carryingAnimDict) do Wait(100) end
     
-    QBCore.Functions.Notify("Carga coletada! Siga para o ponto de entrega.", "primary")
-    missionPoints.collect:remove(); RemoveBlip(missionPoints.collect.blip); missionPoints.collect = nil
+    local playerPed = PlayerPedId()
+    AttachEntityToEntity(prop, playerPed, GetPedBoneIndex(playerPed, item.prop.boneId or 28422), item.prop.x or -0.05, item.prop.y or 0.0, item.prop.z or -0.10, item.prop.rx or 0.0, item.prop.ry or 0.0, item.prop.rz or 0.0, true, true, false, true, 2, true)
+    TaskPlayAnim(playerPed, carryingAnimDict, carryingAnimName, 8.0, -8.0, -1, 49, 0, false, false, false)
+    isPlayerCarryingMissionProp = true
+
+    local trunkOffset = GetOffsetFromEntityInWorldCoords(vehicle, config.trunkOffset or vector3(0.0, -2.5, 0.5))
+    missionPoints.store = Point.add({
+        coords = trunkOffset, distance = 2.5,
+        onPedStanding = function()
+            DrawText3D(trunkOffset.x, trunkOffset.y, trunkOffset.z, "[E] Guardar Carga")
+            if IsControlJustReleased(0, 38) then
+                DeleteEntity(prop)
+                ClearPedTasks(playerPed)
+                isPlayerCarryingMissionProp = false
+                missionCargoLoaded = missionCargoLoaded + 1
+                QBCore.Functions.Notify("Caixa guardada ("..missionCargoLoaded.."/"..currentMission.amount..").", "success")
+
+                if missionPoints.store then missionPoints.store:remove(); missionPoints.store = nil end
+                if missionCargoLoaded >= currentMission.amount then
+                    TriggerEvent("gs_trucker:client:startDeliveryPhase")
+                else
+                    QBCore.Functions.Notify("Volte ao ponto de coleta para pegar a próxima caixa.", "primary")
+                end
+            end
+        end
+    })
+
+    CreateThread(function()
+        local droppedPropPoint = nil
+        while isPlayerCarryingMissionProp do
+            if IsControlJustReleased(0, 47) then -- Tecla G
+                DetachEntity(prop, false, false)
+                PlaceObjectOnGroundProperly(prop)
+                ClearPedTasks(playerPed)
+                isPlayerCarryingMissionProp = false
+                if missionPoints.store then missionPoints.store:remove(); missionPoints.store = nil end
+                
+                droppedPropPoint = Point.add({
+                    coords = GetEntityCoords(prop),
+                    distance = 2.0,
+                    onPedStanding = function()
+                        --- [[ INÍCIO DA CORREÇÃO IMPORTANTE ]] ---
+                        local propCoords = GetEntityCoords(prop)
+                        DrawText3D(propCoords.x, propCoords.y, propCoords.z, "[E] Apanhar Carga")
+                        --- [[ FIM DA CORREÇÃO IMPORTANTE ]] ---
+                        if IsControlJustReleased(0, 38) then
+                            if droppedPropPoint then droppedPropPoint:remove(); droppedPropPoint = nil end
+                            HandlePropCarrying(prop, vehicle, config, item)
+                        end
+                    end
+                })
+                break
+            end
+            Wait(0)
+        end
+    end)
+end
+
+RegisterNetEvent('gs_trucker:client:startManualLoading', function(vehicle, config, item)
+    QBCore.Functions.Progressbar("load_mission_crate", "Apanhando a caixa...", 1500, false, true, {
+        disableMovement = true, disableCarMovement = true,
+    }, {}, {}, {}, function() -- on success
+        local playerPed = PlayerPedId()
+        local propModel = item.prop and item.prop.model or `hei_prop_heist_wooden_box`
+        RequestModel(propModel); while not HasModelLoaded(propModel) do Wait(10) end
+        
+        local prop = CreateObject(propModel, GetEntityCoords(playerPed), true, true, true)
+        HandlePropCarrying(prop, vehicle, config, item)
+    end, function() QBCore.Functions.Notify("Falhou ao apanhar a caixa.", "error") end)
+end)
+
+RegisterNetEvent('gs_trucker:client:startAutomaticLoading', function(vehicle, config, item)
+    QBCore.Functions.Progressbar("load_mission_auto", "A carregar o veículo...", 5000, false, true, {
+        disableMovement = true, disableCarMovement = true,
+    }, {}, {}, {}, function() -- on success
+        if item.transType ~= spaceconfig.ItemTransportType.LIQUIDS and item.transType ~= spaceconfig.ItemTransportType.LOOSE and item.transType ~= spaceconfig.ItemTransportType.CONCRETE then
+            if config.props and config.props[item.transType] then
+                local propModel = item.prop and item.prop.model or `hei_prop_heist_wooden_box`
+                RequestModel(propModel); while not HasModelLoaded(propModel) do Wait(10) end
+                local boneName = config.props.bone or 'chassis'
+                local boneIndex = GetEntityBoneIndexByName(vehicle, boneName)
+                if boneIndex == -1 then boneIndex = 0 end
+                
+                for _, pos in ipairs(config.props[item.transType]) do
+                    local prop = CreateObject(propModel, GetEntityCoords(vehicle), true, true, true)
+                    AttachEntityToEntity(prop, vehicle, boneIndex, pos.x, pos.y, pos.z, 0, 0, 0, true, true, false, true, 2, true)
+                    table.insert(activeCargoProps, prop)
+                end
+                SetModelAsNoLongerNeeded(propModel)
+            end
+        end
+        TriggerEvent("gs_trucker:client:startDeliveryPhase")
+    end, function() QBCore.Functions.Notify("Carregamento cancelado.", "error") end)
+end)
+
+RegisterNetEvent("gs_trucker:client:startDeliveryPhase", function()
+    QBCore.Functions.Notify("Carga completa! Siga para o ponto de entrega.", "primary")
+    if missionPoints.collect then
+        missionPoints.collect:remove(); RemoveBlip(missionPoints.collect.blip); missionPoints.collect = nil
+    end
 
     local destinationBusiness = Industries:GetIndustry(currentMission.destinationBusiness)
-    local deliverPoint = Point.add({
+    missionPoints.deliver = Point.add({
         coords = destinationBusiness.location, distance = 5.0,
         onPedStanding = function()
             DrawMarker(2, destinationBusiness.location.x, destinationBusiness.location.y, destinationBusiness.location.z-0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 0, 255, 0, 100, false, true, 2, false, nil, nil, false)
@@ -167,12 +262,17 @@ RegisterNetEvent('gs_trucker:client:loadCargo', function(vehicle, config, item)
     local blip = AddBlipForCoord(destinationBusiness.location)
     SetBlipSprite(blip, 51); SetBlipColour(blip, 2); SetBlipRoute(blip, true)
     BeginTextCommandSetBlipName("STRING"); AddTextComponentString('Entregar Carga (' .. currentMission.itemLabel .. ')'); EndTextCommandSetBlipName(blip)
-    deliverPoint.blip = blip
-    missionPoints.deliver = deliverPoint
+    missionPoints.deliver.blip = blip
 end)
 
 RegisterNetEvent('gs_trucker:client:finishShipping', function()
     if not currentMission or not missionPoints.deliver then return end
+    
+    for _, prop in ipairs(activeCargoProps) do
+        if DoesEntityExist(prop) then DeleteEntity(prop) end
+    end
+    activeCargoProps = {}
+    
     TriggerServerEvent('gs_trucker:server:missionCompleted', currentMission)
     QBCore.Functions.Notify("Entrega concluída! Reputação da empresa aumentada.", "success")
     clearMission()
@@ -181,9 +281,3 @@ end)
 RegisterCommand('cancelarmissao', function()
     if currentMission then clearMission() end
 end, false)
-
-AddEventHandler('onResourceStop', function(resourceName)
-    if GetCurrentResourceName() == resourceName and currentMission then
-        clearMission()
-    end
-end)

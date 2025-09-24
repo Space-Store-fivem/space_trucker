@@ -1,10 +1,9 @@
--- space-store-fivem/space_trucker/space_trucker-mais2/server/s_missions.lua
+-- space-store-fivem/space_trucker/space_trucker-mais2/server/s_missions.lua (VERSÃO CORRIGIDA)
 
 local QBCore = exports['qb-core']:GetCoreObject()
 local AvailableMissions = {}
 local MISSION_GENERATION_INTERVAL = 5 * 60 * 1000 -- 5 minutos
 
--- Substitua esta função em server/s_missions.lua
 local function generateMissions()
     print('[s_missions] A gerar novas missões de transporte...')
     AvailableMissions = {}
@@ -44,7 +43,7 @@ local function generateMissions()
                     for vehicleName, vehicleData in pairs(spaceconfig.VehicleTransport) do
                         if vehicleData.transType and vehicleData.transType[itemInfo.transType] then
                             table.insert(compatibleVehicles, vehicleData.label)
-                            if #compatibleVehicles >= 2 then break end -- Pega no máximo 2 exemplos
+                            if #compatibleVehicles >= 2 then break end
                         end
                     end
                     if #compatibleVehicles > 0 then
@@ -52,17 +51,20 @@ local function generateMissions()
                     end
                 end
                 
+                --- [[ INÍCIO DA CORREÇÃO IMPORTANTE ]] ---
                 table.insert(AvailableMissions, {
                     id = 'mission_'..i..'_'..math.random(1000, 9999),
-                    sourceIndustry = source.name, -- <-- LINHA CORRIGIDA
+                    sourceIndustry = source.name,
                     sourceLabel = source.label,
-                    destinationBusiness = destination.name, -- <-- LINHA CORRIGIDA
+                    destinationBusiness = destination.name,
                     destinationLabel = destination.label,
                     item = itemToTransport,
                     itemLabel = Lang:t('item_name_' .. itemToTransport) or itemToTransport,
                     reputation = math.floor(#(source.location - destination.location) / 150) + 5,
                     vehicleRequirement = vehicleRequirement,
+                    amount = math.random(5, 15) -- Adiciona uma quantidade aleatória à missão
                 })
+                --- [[ FIM DA CORREÇÃO IMPORTANTE ]] ---
             end
         end
     end
