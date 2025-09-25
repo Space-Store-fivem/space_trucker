@@ -1,4 +1,4 @@
--- gs_trucker/client/c_fleet.lua (VERSÃO COM ORDEM CORRIGIDA)
+-- gs_trucker/client/c_fleet.lua
 
 local QBCore = exports['qb-core']:GetCoreObject()
 local CurrentCompanyGarage = nil
@@ -6,25 +6,16 @@ local PlayerCompanyId = nil
 local BlipGaragem = nil
 local hasPlayerLoaded = false -- Variável de controlo
 
--- =============================================================================
--- DEFINIÇÃO DA FUNÇÃO (MOVIDA PARA CIMA PARA CORRIGIR O ERRO)
--- =============================================================================
 local function checkJobAndGarage()
-    print("^2[GS-TRUCKER DIAGNÓSTICO - CLIENTE]^7: A executar checkJobAndGarage...")
     QBCore.Functions.TriggerCallback('gs_trucker:callback:checkEmployment', function(isEmployed, companyId)
-        print(string.format("^2[GS-TRUCKER DIAGNÓSTICO - CLIENTE]^7: Resposta do Servidor -> Empregado: ^3%s^7, ID da Empresa: ^3%s^7.", tostring(isEmployed), tostring(companyId)))
-        
         PlayerCompanyId = isEmployed and companyId or nil
         
         if PlayerCompanyId then
-            print("^2[GS-TRUCKER DIAGNÓSTICO - CLIENTE]^7: A pedir localização da garagem ao servidor...")
             QBCore.Functions.TriggerCallback('gs_trucker:callback:getGarageLocation', function(loc)
                 if loc and loc.x then
-                    print("^2[GS-TRUCKER DIAGNÓSTICO - CLIENTE]^7: ^2SUCESSO!^7 Coordenadas recebidas: ^3" .. json.encode(loc) .. "^7")
                     CurrentCompanyGarage = loc
                     updateBlip(PlayerCompanyId, loc)
                 else
-                    print("^1[GS-TRUCKER DIAGNÓSTICO - CLIENTE]^7: ^1FALHA!^7 O servidor respondeu, mas as coordenadas são inválidas ou nulas.")
                     CurrentCompanyGarage = nil
                     updateBlip(nil, nil)
                 end
@@ -36,31 +27,22 @@ local function checkJobAndGarage()
     end)
 end
 
--- =============================================================================
--- LÓGICA DE INICIALIZAÇÃO (AGORA CHAMA A FUNÇÃO QUE JÁ EXISTE)
--- =============================================================================
 CreateThread(function()
-    -- Este loop espera até que os dados do jogador estejam disponíveis
     while not hasPlayerLoaded do
         if QBCore and QBCore.Functions.GetPlayerData().citizenid then
-            print("^2[GS-TRUCKER DIAGNÓSTICO - CLIENTE]^7: Dados do jogador carregados! A iniciar a verificação da garagem pela primeira vez.")
-            hasPlayerLoaded = true -- Impede que o loop corra novamente
-            Wait(2000) -- Uma pequena espera para garantir que outros scripts carregaram
+            hasPlayerLoaded = true
+            Wait(2000) 
             checkJobAndGarage()
         end
-        Wait(1000) -- Tenta novamente a cada segundo
+        Wait(1000)
     end
 end)
 
--- Mantemos o evento de atualização de emprego como um gatilho secundário
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(job)
-    print("^2[GS-TRUCKER DIAGNÓSTICO - CLIENTE]^7: O emprego do jogador foi atualizado. A verificar novamente a garagem...")
     checkJobAndGarage()
 end)
 
--- COMANDO DE DEBUG MANUAL
 RegisterCommand('checkgarage', function()
-    print("^3[GS-TRUCKER DIAGNÓSTICO - CLIENTE]^7: O comando /checkgarage foi executado. A forçar a verificação.")
     checkJobAndGarage()
 end, false)
 
@@ -69,7 +51,6 @@ function updateBlip(companyId, location)
     if BlipGaragem then RemoveBlip(BlipGaragem) end
 
     if location and companyId and companyId == PlayerCompanyId then
-        print("^2[GS-TRUCKER DIAGNÓSTICO - CLIENTE]^7: A criar/atualizar o blip no mapa.")
         BlipGaragem = AddBlipForCoord(location.x, location.y, location.z)
         SetBlipSprite(BlipGaragem, 357)
         SetBlipColour(BlipGaragem, 2)
@@ -145,6 +126,40 @@ end)
 RegisterNUICallback('gs_trucker:garage_close', function(data, cb)
     SetNuiFocus(false, false)
     cb({ ok = true })
+end)
+
+-- LÓGICA ALTERADA: Busca a reputação da empresa em vez da skill do jogador
+RegisterNUICallback('getCompanyRentableVehicles', function(_, cb)
+    QBCore.Functions.TriggerCallback('gs_trucker:callback:getCompanyReputation', function(reputation)
+        local rentableTrucks = {}
+        for hash, vehicleData in pairs(spaceconfig.VehicleTransport) do
+            if not vehicleData.isTrailer and vehicleData.level and vehicleData.level >= 30 then
+                local rentPrice = vehicleData.rentPrice or (spaceconfig.VehicleRentBaseCost * vehicleData.capacity)
+                table.insert(rentableTrucks, {
+                    name = vehicleData.name,
+                    label = vehicleData.label,
+                    capacity = vehicleData.capacity,
+                    level = vehicleData.level,
+                    rentPrice = rentPrice,
+                    transType = GetVehicleTransportTypeLabel(vehicleData.transType)
+                })
+            end
+        end
+
+        table.sort(rentableTrucks, function(a, b)
+            return a.rentPrice < b.rentPrice
+        end)
+
+        cb({
+            trucks = rentableTrucks,
+            playerLevel = reputation or 0 -- Envia a reputação da empresa para a UI
+        })
+    end)
+end)
+
+RegisterNUICallback('rentCompanyVehicle', function(data, cb)
+    TriggerServerEvent('gs_trucker:server:rentCompanyVehicle', data.vehicleName)
+    cb({ ok = true, message = "Pedido de aluguel enviado."})
 end)
 
 function DrawText3D(x, y, z, text)

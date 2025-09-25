@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { FullCompanyInfo, FleetVehicle } from '../../../types';
 import AppHeader from '../../components/AppHeader';
 import { fetchNui } from '../../../utils/fetchNui';
-import { IconPlus, IconMapPin, IconListDetails, IconRotateClockwise } from '@tabler/icons-react';
+import { IconPlus, IconMapPin, IconListDetails, IconRotateClockwise, IconTruck } from '@tabler/icons-react';
 import { AddVehicleModal } from './AddVehicleModal';
 import { SetGarageModal } from './SetGarageModal';
+import { RentVehicleModal } from './RentVehicleModal'; // Importa o novo modal
 import ConfirmationModal from '../../components/ConfirmationModal';
 
-// CORREÇÃO: A palavra 'export' foi removida desta linha
 const Fleet: React.FC<{ 
     companyData: FullCompanyInfo; 
     onBack: () => void;
@@ -18,6 +18,7 @@ const Fleet: React.FC<{
     
     const [isAddVehicleModalOpen, setAddVehicleModalOpen] = useState(false);
     const [isSetGarageModalOpen, setSetGarageModalOpen] = useState(false);
+    const [isRentVehicleModalOpen, setRentVehicleModalOpen] = useState(false); // Estado para o novo modal
     const [notification, setNotification] = useState<string | null>(null);
     const [confirmModal, setConfirmModal] = useState<{ show: boolean; vehicle: FleetVehicle | null }>({ show: false, vehicle: null });
 
@@ -37,7 +38,7 @@ const Fleet: React.FC<{
 
     const onConfirmReturn = async () => {
         if (confirmModal.vehicle) {
- const result = await fetchNui<any>('returnVehicleToOwner', {
+            const result = await fetchNui<any>('returnVehicleToOwner', {
                 fleetId: confirmModal.vehicle.id,
             });
 
@@ -78,6 +79,9 @@ const Fleet: React.FC<{
                 <div className="flex gap-2">
                     <button onClick={() => setSetGarageModalOpen(true)} className="py-2 px-4 bg-yellow-600 hover:bg-yellow-500 rounded-lg font-semibold flex items-center gap-2">
                         <IconMapPin size={18} /> Definir Garagem
+                    </button>
+                    <button onClick={() => setRentVehicleModalOpen(true)} className="py-2 px-4 bg-green-600 hover:bg-green-500 rounded-lg font-semibold flex items-center gap-2">
+                        <IconTruck size={18} /> Alugar Veículos
                     </button>
                     <button onClick={() => setAddVehicleModalOpen(true)} className="py-2 px-4 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold flex items-center gap-2">
                         <IconPlus size={18} /> Adicionar Veículo
@@ -129,6 +133,11 @@ const Fleet: React.FC<{
                 onClose={() => setSetGarageModalOpen(false)}
                 onSuccess={handleSuccess}
             />
+            <RentVehicleModal 
+                isOpen={isRentVehicleModalOpen}
+                onClose={() => setRentVehicleModalOpen(false)}
+                onSuccess={handleSuccess}
+            />
             
             {confirmModal.show && (
                 <ConfirmationModal
@@ -143,5 +152,4 @@ const Fleet: React.FC<{
     );
 };
 
-// CORREÇÃO: Adicionada a exportação padrão no final do ficheiro
 export default Fleet;

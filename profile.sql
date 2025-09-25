@@ -134,3 +134,5 @@ CREATE TABLE `gs_trucker_industry_stock` (
 
 ALTER TABLE gs_trucker_employees
 ADD COLUMN salary INT DEFAULT 0;
+
+ALTER TABLE `gs_trucker_fleet` ADD COLUMN `rent_expires_at` DATETIME NULL DEFAULT NULL;

@@ -1,4 +1,3 @@
-
 ---@param _industry Industry
 local function updatePrimaryIndustry(_industry)
 
@@ -56,11 +55,11 @@ local function updateSecondaryIndustry(_industry)
         if _industry:GetInStockAmount(spaceconfig.Industry.TradeType.WANTED, itemName) >= value.consumption then
             -- Nếu Đủ thì xóa đúng số lượng và count++ không đủ thì bỏ qua.
             _industry:RemoveItemAmount(spaceconfig.Industry.TradeType.WANTED, itemName, value.consumption, false)
-       
+        
             updateData[spaceconfig.Industry.TradeType.WANTED][itemName] = {
                 amount = _industry:GetInStockAmount(spaceconfig.Industry.TradeType.WANTED, itemName)
             }
-         
+        
             resourceCanConsumptionCount = resourceCanConsumptionCount + 1
         end
     end
@@ -167,6 +166,30 @@ CreateThread(function()
                     end
                 end
             end
+        end
+    end
+end)
+
+-- Adicionado: Verificação de alugueres de frota expirados
+CreateThread(function()
+    while true do
+        -- A verificação será feita a cada 5 minutos (300,000 ms)
+        Wait(300000)
+
+        print("[GS-TRUCKER CRON] A verificar alugueres de frota expirados...")
+        
+        -- Usa a tabela correta 'gs_trucker_fleet'
+        local expiredVehicles = MySQL.Sync.fetchAll('SELECT id, model, plate, company_id FROM gs_trucker_fleet WHERE rent_expires_at IS NOT NULL AND rent_expires_at < NOW()')
+
+        if #expiredVehicles > 0 then
+            print(("[GS-TRUCKER CRON] %d alugueres expirados encontrados. A removê-los..."):format(#expiredVehicles))
+            for _, vehicle in ipairs(expiredVehicles) do
+                -- Remove o veículo da tabela correta
+                MySQL.Async.execute('DELETE FROM gs_trucker_fleet WHERE id = ?', { vehicle.id })
+                print(("[GS-TRUCKER CRON] Veículo alugado '%s' (%s) da empresa %d foi removido por expiração."):format(vehicle.model, vehicle.plate, vehicle.company_id))
+            end
+        else
+            print("[GS-TRUCKER CRON] Nenhum aluguer expirado encontrado.")
         end
     end
 end)
