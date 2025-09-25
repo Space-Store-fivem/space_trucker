@@ -1210,76 +1210,68 @@ CreateCallback('gs_trucker:callback:getCompanyReputation', function(source, cb)
     end)
 end)
 
-RegisterNetEvent('gs_trucker:server:rentCompanyVehicle', function(vehicleName)
+CreateCallback('gs_trucker:callback:rentCompanyVehicle', function(source, cb, vehicleKey) -- Recebemos a chave/identificador
     local src = source
-    print("[GS-TRUCKER LOG] Evento 'rentCompanyVehicle' iniciado. Veículo: " .. tostring(vehicleName))
-
     local QBCore = exports['qb-core']:GetCoreObject()
     local qbPlayer = QBCore.Functions.GetPlayer(src)
     if not qbPlayer then
-        print("[GS-TRUCKER ERRO] Falha crítica: qbPlayer não encontrado.")
-        return
+        return cb({ success = false, message = "Jogador não encontrado." })
     end
     local identifier = qbPlayer.PlayerData.citizenid
 
     MySQL.Async.fetchAll('SELECT company_id FROM gs_trucker_employees WHERE identifier = ?', { identifier }, function(employees)
         if not employees or not employees[1] then
-            return TriggerClientEvent('gs_trucker:client:notify', src, 'Você não é funcionário de nenhuma empresa.', 'error')
+            return cb({ success = false, message = "Você não é funcionário de nenhuma empresa." })
         end
         local companyId = employees[1].company_id
 
         MySQL.Async.fetchAll('SELECT * FROM gs_trucker_companies WHERE id = ?', { companyId }, function(companies)
             if not companies or not companies[1] then
-                return TriggerClientEvent('gs_trucker:client:notify', src, 'Erro interno: A sua empresa não foi encontrada.', 'error')
+                return cb({ success = false, message = "Erro interno: A sua empresa não foi encontrada." })
             end
             
             local companyData = companies[1]
-            local vehicleData = spaceconfig.VehicleTransport[vehicleName]
+            -- Usamos a chave para encontrar os dados do veículo. ISTO VAI RESOLVER O ERRO.
+            local vehicleData = spaceconfig.VehicleTransport[vehicleKey]
             if not vehicleData then
-                return TriggerClientEvent('gs_trucker:client:notify', src, "Veículo inválido.", 'error')
+                return cb({ success = false, message = "Veículo inválido." })
             end
 
-            -- Validações de reputação e saldo
             if (companyData.reputation or 0) < (vehicleData.level or 0) then
-                return TriggerClientEvent('gs_trucker:client:notify', src, ('Reputação %d necessária para alugar este veículo.'):format(vehicleData.level), 'error')
+                return cb({ success = false, message = ('Reputação %d necessária para alugar este veículo.'):format(vehicleData.level) })
             end
 
             local rentPrice = vehicleData.rentPrice or (spaceconfig.VehicleRentBaseCost * vehicleData.capacity)
             if (companyData.balance or 0) < rentPrice then
-                return TriggerClientEvent('gs_trucker:client:notify', src, "A sua empresa não tem saldo suficiente.", 'error')
+                return cb({ success = false, message = "A sua empresa não tem saldo suficiente." })
             end
             
-            print("[GS-TRUCKER LOG] Validações passaram. A processar transação...")
-
-            -- Executa a transação diretamente na DB
             local newBalance = companyData.balance - rentPrice
             local description = ('Aluguer do veículo: %s'):format(vehicleData.label)
 
-            -- 1. Atualiza o saldo da empresa
             MySQL.Async.execute('UPDATE gs_trucker_companies SET balance = ? WHERE id = ?', { newBalance, companyId }, function(affectedRows)
                 if affectedRows > 0 then
-                    print("[GS-TRUCKER LOG] Saldo da empresa atualizado com sucesso.")
-                    
-                    -- 2. Adiciona o registo da transação
                     MySQL.Async.execute('INSERT INTO gs_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { companyId, 'rental', -rentPrice, description })
                     
-                    -- 3. Adiciona o veículo à frota
                     local plate = "LOC" .. math.random(100, 999) .. companyId
                     local rentalHours = spaceconfig.Company.RentalDurationHours or 24
+                    
+                    -- ## CORREÇÃO FINAL AQUI ##
+                    -- Usamos 'vehicleData.name' para guardar o NOME DO MODELO (texto) na base de dados
+                    local vehicleModelNameToSave = vehicleData.name 
+                    
                     local query = "INSERT INTO gs_trucker_fleet (company_id, model, plate, status, damage, rent_expires_at) VALUES (?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL ? HOUR))"
-                    local params = { companyId, vehicleData.name, plate, 'Na Garagem', '{}', rentalHours }
+                    local params = { companyId, vehicleModelNameToSave, plate, 'Na Garagem', '{}', rentalHours }
 
                     MySQL.Async.execute(query, params, function(insertResult)
-                        if insertResult.affectedRows > 0 then
-                            print("[GS-TRUCKER SUCESSO] Veículo " .. vehicleData.name .. " inserido na DB.")
-                            TriggerClientEvent('gs_trucker:client:notify', src, ('Veículo %s alugado por $%s! Expira em %d horas.'):format(vehicleData.label, rentPrice, rentalHours), 'success')
+                        if insertResult and insertResult > 0 then
+                            cb({ success = true, message = ('Veículo %s alugado por $%s! Expira em %d horas.'):format(vehicleData.label, rentPrice, rentalHours) })
                         else
-                            print("[GS-TRUCKER ERRO] Falha ao inserir veículo na frota.")
+                            cb({ success = false, message = "Falha ao adicionar o veículo à frota." })
                         end
                     end)
                 else
-                    print("[GS-TRUCKER ERRO] Falha ao atualizar o saldo da empresa na DB.")
-                    TriggerClientEvent('gs_trucker:client:notify', src, 'Ocorreu um erro ao processar o pagamento.', 'error')
+                    cb({ success = false, message = "Ocorreu um erro ao processar o pagamento." })
                 end
             end)
         end)

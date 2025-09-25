@@ -193,3 +193,18 @@ CreateThread(function()
         end
     end
 end)
+
+-- CRON JOB PARA REMOVER VEÍCULOS ALUGADOS EXPIRADOS
+CreateThread(function()
+    while true do
+        -- A verificação acontece a cada 15 minutos (900000 ms)
+        Wait(900000)
+
+        -- Procura na base de dados por veículos que tenham uma data de expiração e que essa data já tenha passado.
+        local expiredVehicles = MySQL.update.await('DELETE FROM gs_trucker_fleet WHERE rent_expires_at IS NOT NULL AND rent_expires_at < NOW()')
+
+        if expiredVehicles > 0 then
+            print(('[gs_trucker] Cron: Foram removidos %d veículos alugados expirados da frota de empresas.'):format(expiredVehicles))
+        end
+    end
+end)

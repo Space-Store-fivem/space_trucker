@@ -159,6 +159,7 @@ export interface FleetVehicle {
   vehicle_model: string;
   status: string;
   maintenance: number;
+ rent_expires_at?: string; // <-- Adicione esta linha
 }
 
 export interface Transaction {

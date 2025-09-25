@@ -1,24 +1,69 @@
 // src/layouts/pages/company/Fleet.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FullCompanyInfo, FleetVehicle } from '../../../types';
 import AppHeader from '../../components/AppHeader';
 import { fetchNui } from '../../../utils/fetchNui';
-import { IconPlus, IconMapPin, IconListDetails, IconRotateClockwise, IconTruck } from '@tabler/icons-react';
+import { IconPlus, IconMapPin, IconListDetails, IconRotateClockwise, IconTruck, IconClock, IconPhotoOff } from '@tabler/icons-react';
 import { AddVehicleModal } from './AddVehicleModal';
 import { SetGarageModal } from './SetGarageModal';
-import { RentVehicleModal } from './RentVehicleModal'; // Importa o novo modal
+import { RentVehicle } from './RentVehicle';
 import ConfirmationModal from '../../components/ConfirmationModal';
 
-const Fleet: React.FC<{ 
-    companyData: FullCompanyInfo; 
-    onBack: () => void;
-    onSuccess: () => void; 
-}> = ({ companyData, onBack, onSuccess }) => {
+// Componente para buscar a imagem do veículo
+const VehicleImage: React.FC<{ modelName: string; vehicleLabel: string }> = ({ modelName, vehicleLabel }) => {
+    const [error, setError] = useState(false);
+    const imgSrc = `https://docs.fivem.net/vehicles/${modelName.toLowerCase()}.webp`;
+
+    if (error) {
+        return (
+            <div className="w-24 h-16 bg-gray-900/50 flex items-center justify-center rounded-md">
+                <IconPhotoOff size={32} className="text-gray-600" />
+            </div>
+        );
+    }
     
+    return <img src={imgSrc} alt={vehicleLabel} className="w-24 h-16 object-cover rounded-md" onError={() => setError(true)} />;
+};
+
+
+// Componente para gerir a exibição do tempo de aluguer
+const RentalInfo: React.FC<{ expiresAt: string }> = ({ expiresAt }) => {
+    const calculateTimeLeft = () => {
+        const difference = +new Date(expiresAt) - +new Date();
+        let timeLeft: { [key: string]: number } = {};
+        if (difference > 0) {
+            timeLeft = {
+                h: Math.floor(difference / (1000 * 60 * 60)),
+                m: Math.floor((difference / 1000 / 60) % 60),
+            };
+        }
+        return timeLeft;
+    };
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+    useEffect(() => {
+        const timer = setTimeout(() => setTimeLeft(calculateTimeLeft()), 60000);
+        return () => clearTimeout(timer);
+    });
+    const timerComponents = Object.entries(timeLeft)
+        .filter(([, value]) => value > 0)
+        .map(([unit, value]) => `${value}${unit}`);
+    return (
+        <span className="text-xs text-cyan-300 flex items-center gap-1 font-mono">
+            <IconClock size={14} />
+            {timerComponents.length ? `Expira em: ${timerComponents.join(' ')}` : 'Expirado'}
+        </span>
+    );
+};
+
+const Fleet: React.FC<{
+    companyData: FullCompanyInfo;
+    onBack: () => void;
+    onSuccess: () => void;
+}> = ({ companyData, onBack, onSuccess }) => {
+    const [view, setView] = useState<'list' | 'rent'>('list');
     const [isAddVehicleModalOpen, setAddVehicleModalOpen] = useState(false);
     const [isSetGarageModalOpen, setSetGarageModalOpen] = useState(false);
-    const [isRentVehicleModalOpen, setRentVehicleModalOpen] = useState(false); // Estado para o novo modal
     const [notification, setNotification] = useState<string | null>(null);
     const [confirmModal, setConfirmModal] = useState<{ show: boolean; vehicle: FleetVehicle | null }>({ show: false, vehicle: null });
 
@@ -38,10 +83,7 @@ const Fleet: React.FC<{
 
     const onConfirmReturn = async () => {
         if (confirmModal.vehicle) {
-            const result = await fetchNui<any>('returnVehicleToOwner', {
-                fleetId: confirmModal.vehicle.id,
-            });
-
+            const result = await fetchNui<any>('returnVehicleToOwner', { fleetId: confirmModal.vehicle.id });
             if (result && result.success) {
                 handleSuccess(result.message || "Veículo devolvido com sucesso!");
             }
@@ -59,6 +101,16 @@ const Fleet: React.FC<{
             garageCoords = JSON.parse(companyData.company_data.garage_location);
         }
     } catch (e) {}
+
+    if (view === 'rent') {
+        return (
+            <RentVehicle
+                companyData={companyData}
+                onSuccess={handleSuccess}
+                onBack={() => setView('list')}
+            />
+        );
+    }
 
     return (
         <div className="w-full h-full p-8 flex flex-col bg-gray-900 relative">
@@ -80,7 +132,7 @@ const Fleet: React.FC<{
                     <button onClick={() => setSetGarageModalOpen(true)} className="py-2 px-4 bg-yellow-600 hover:bg-yellow-500 rounded-lg font-semibold flex items-center gap-2">
                         <IconMapPin size={18} /> Definir Garagem
                     </button>
-                    <button onClick={() => setRentVehicleModalOpen(true)} className="py-2 px-4 bg-green-600 hover:bg-green-500 rounded-lg font-semibold flex items-center gap-2">
+                    <button onClick={() => setView('rent')} className="py-2 px-4 bg-green-600 hover:bg-green-500 rounded-lg font-semibold flex items-center gap-2">
                         <IconTruck size={18} /> Alugar Veículos
                     </button>
                     <button onClick={() => setAddVehicleModalOpen(true)} className="py-2 px-4 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold flex items-center gap-2">
@@ -88,15 +140,21 @@ const Fleet: React.FC<{
                     </button>
                 </div>
             </div>
-            
+
             <main className="flex-1 bg-black/20 rounded-lg p-4 overflow-y-auto">
                 <div className="space-y-3">
                     {companyData.fleet.length > 0 ? (
                         companyData.fleet.map(vehicle => (
                             <div key={vehicle.id} className="flex justify-between items-center bg-gray-800/80 p-3 rounded-lg">
-                                <div>
-                                    <p className="font-bold text-white">{vehicle.model}</p>
-                                    <p className="text-sm text-gray-400 font-mono bg-gray-900 px-2 py-1 rounded-md inline-block">{vehicle.plate}</p>
+                                <div className="flex items-center gap-4">
+                                    <VehicleImage modelName={vehicle.model} vehicleLabel={vehicle.model} />
+                                    <div>
+                                        <p className="font-bold text-white">{vehicle.model}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <p className="text-sm text-gray-400 font-mono bg-gray-900 px-2 py-1 rounded-md inline-block">{vehicle.plate}</p>
+                                            {vehicle.rent_expires_at && <RentalInfo expiresAt={vehicle.rent_expires_at} />}
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className={`px-3 py-1 text-xs font-semibold rounded-full ${vehicle.status === 'Na Garagem' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
@@ -105,10 +163,10 @@ const Fleet: React.FC<{
                                     <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-md" title="Ver Histórico">
                                         <IconListDetails size={20} />
                                     </button>
-                                    {companyData.is_owner && (
-                                        <button 
+                                    {companyData.is_owner && !vehicle.rent_expires_at && (
+                                        <button
                                             onClick={() => handleReturnVehicle(vehicle)}
-                                            className="p-2 text-red-400 hover:text-white hover:bg-red-600/50 rounded-md" 
+                                            className="p-2 text-red-400 hover:text-white hover:bg-red-600/50 rounded-md"
                                             title="Devolver Veículo ao Dono"
                                         >
                                             <IconRotateClockwise size={20} />
@@ -123,22 +181,17 @@ const Fleet: React.FC<{
                 </div>
             </main>
 
-            <AddVehicleModal 
+            <AddVehicleModal
                 isOpen={isAddVehicleModalOpen}
                 onClose={() => setAddVehicleModalOpen(false)}
                 onSuccess={handleSuccess}
             />
-            <SetGarageModal 
+            <SetGarageModal
                 isOpen={isSetGarageModalOpen}
                 onClose={() => setSetGarageModalOpen(false)}
                 onSuccess={handleSuccess}
             />
-            <RentVehicleModal 
-                isOpen={isRentVehicleModalOpen}
-                onClose={() => setRentVehicleModalOpen(false)}
-                onSuccess={handleSuccess}
-            />
-            
+
             {confirmModal.show && (
                 <ConfirmationModal
                     isOpen={confirmModal.show}

@@ -128,38 +128,51 @@ RegisterNUICallback('gs_trucker:garage_close', function(data, cb)
     cb({ ok = true })
 end)
 
--- LÓGICA ALTERADA: Busca a reputação da empresa em vez da skill do jogador
+
+
 RegisterNUICallback('getCompanyRentableVehicles', function(_, cb)
     QBCore.Functions.TriggerCallback('gs_trucker:callback:getCompanyReputation', function(reputation)
         local rentableTrucks = {}
-        for hash, vehicleData in pairs(spaceconfig.VehicleTransport) do
+        for vehicleKey, vehicleData in pairs(spaceconfig.VehicleTransport) do
             if not vehicleData.isTrailer and vehicleData.level and vehicleData.level >= 30 then
                 local rentPrice = vehicleData.rentPrice or (spaceconfig.VehicleRentBaseCost * vehicleData.capacity)
                 table.insert(rentableTrucks, {
-                    name = vehicleData.name,
+                    -- ## CORREÇÃO PRINCIPAL ##
+                    key = vehicleKey,             -- O identificador para o servidor (pode ser número ou texto)
+                    model = vehicleData.name,     -- O nome do modelo para a imagem (é sempre texto)
                     label = vehicleData.label,
                     capacity = vehicleData.capacity,
                     level = vehicleData.level,
-                    rentPrice = rentPrice,
-                    transType = GetVehicleTransportTypeLabel(vehicleData.transType)
+                    rentPrice = rentPrice
                 })
             end
         end
 
-        table.sort(rentableTrucks, function(a, b)
-            return a.rentPrice < b.rentPrice
-        end)
+        table.sort(rentableTrucks, function(a, b) return a.rentPrice < b.rentPrice end)
 
-        cb({
-            trucks = rentableTrucks,
-            playerLevel = reputation or 0 -- Envia a reputação da empresa para a UI
-        })
+        cb({ trucks = rentableTrucks, playerLevel = reputation or 0 })
     end)
 end)
 
 RegisterNUICallback('rentCompanyVehicle', function(data, cb)
-    TriggerServerEvent('gs_trucker:server:rentCompanyVehicle', data.vehicleName)
-    cb({ ok = true, message = "Pedido de aluguel enviado."})
+    -- 'data.vehicleName' é a chave que recebemos da UI (pode ser um hash numérico ou um nome de modelo)
+    local vehicleKey = data.vehicleName 
+    
+    -- Apenas verificamos se a chave existe na configuração para evitar erros
+    if not spaceconfig.VehicleTransport[vehicleKey] then
+        QBCore.Functions.Notify("Erro: Chave do veículo inválida na configuração do cliente.", 'error', 8000)
+        return cb({ success = false, message = "Erro de configuração." })
+    end
+
+    -- Chamamos o servidor e enviamos a CHAVE (o identificador) diretamente
+    QBCore.Functions.TriggerCallback('gs_trucker:callback:rentCompanyVehicle', function(result)
+        if result and result.success then
+            QBCore.Functions.Notify(result.message, 'success', 7500)
+        else
+            QBCore.Functions.Notify(result.message or "Ocorreu um erro no servidor.", 'error', 7500)
+        end
+        cb(result)
+    end, vehicleKey) -- << ENVIAMOS A CHAVE/IDENTIFICADOR DIRETAMENTE PARA O SERVIDOR
 end)
 
 function DrawText3D(x, y, z, text)
@@ -194,5 +207,15 @@ RegisterNetEvent('gs_trucker:client:deleteVehicleByPlate', function(plate)
             QBCore.Functions.DeleteVehicle(veh)
             return
         end
+    end
+end)
+
+-- Adicione este evento no final do ficheiro client/c_fleet.lua
+RegisterNetEvent('gs_trucker:client:updateGarageLocation', function(companyId, location)
+    -- Verifica se a atualização é para a empresa do jogador atual
+    if PlayerCompanyId and companyId == PlayerCompanyId then
+        print("[GS-TRUCKER] Recebida atualização da localização da garagem em tempo real.")
+        CurrentCompanyGarage = location
+        updateBlip(companyId, location)
     end
 end)
