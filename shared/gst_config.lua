@@ -1205,7 +1205,7 @@ spaceconfig.VehicleTransport = {
         name = 'dloader',                              --SET = string (vehicle_model)
         label = 'Duneloader',                          --SET = string (Label of vehicle)
         capacity = 6,                                  --SET = number (Vehicle Storage Capacities related with item capacity)
-        level = 1,                                     --SET = number (Level Required Player Can Use This Vehicle)
+        level = 100,                                     --SET = number (Level Required Player Can Use This Vehicle)
         transType = {                                  --SET = table (Table of transport type)
             [spaceconfig.ItemTransportType.CRATE] = true --SET = [ITEM_TRANSPORT_TYPE] = true or false (Transport type vehicle can handler)
         },
@@ -1226,7 +1226,7 @@ spaceconfig.VehicleTransport = {
         name = 'kalahari',
         label = 'Kalahari',
         capacity = 3,
-        level = 1,
+        level = 100,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1244,7 +1244,7 @@ spaceconfig.VehicleTransport = {
         name = 'caracara2',
         label = 'Caracara 4x4',
         capacity = 4,
-        level = 1,
+        level = 100,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1263,7 +1263,7 @@ spaceconfig.VehicleTransport = {
         name = 'dubsta3',
         label = 'Dubsta 6x6',
         capacity = 3,
-        level = 1,
+        level = 100,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1281,7 +1281,7 @@ spaceconfig.VehicleTransport = {
         name = 'patriot3',
         label = 'Patriot Mil-Spec',
         capacity = 4,
-        level = 1,
+        level = 100,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1300,7 +1300,7 @@ spaceconfig.VehicleTransport = {
         name = 'riata',
         label = 'Riata',
         capacity = 6,
-        level = 1,
+        level = 100,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1321,7 +1321,7 @@ spaceconfig.VehicleTransport = {
         name = 'everon',
         label = 'Everon',
         capacity = 7,
-        level = 1,
+        level = 100,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1343,7 +1343,7 @@ spaceconfig.VehicleTransport = {
         name = 'bodhi2',
         label = 'Bodhi',
         capacity = 11,
-        level = 10,
+        level = 200,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1369,7 +1369,7 @@ spaceconfig.VehicleTransport = {
         name = 'bobcatxl',
         label = 'Bobcat XL',
         capacity = 7,
-        level = 1,
+        level = 100,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1391,7 +1391,7 @@ spaceconfig.VehicleTransport = {
         name = 'yosemite3',
         label = 'Yosemite Rancher',
         capacity = 5,
-        level = 1,
+        level = 100,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1411,7 +1411,7 @@ spaceconfig.VehicleTransport = {
         name = 'rebel',
         label = 'Rusty Rebel',
         capacity = 6,
-        level = 1,
+        level = 150,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1432,7 +1432,7 @@ spaceconfig.VehicleTransport = {
         name = 'rebel2',
         label = 'Rebel',
         capacity = 6,
-        level = 1,
+        level = 150,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1453,7 +1453,7 @@ spaceconfig.VehicleTransport = {
         name = 'kamacho',
         label = 'Kamacho',
         capacity = 4,
-        level = 1,
+        level = 120,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1473,7 +1473,7 @@ spaceconfig.VehicleTransport = {
     [`bison`] = {
         name = 'bison',
         label = 'Bison',
-        capacity = 5,
+        capacity = 300,
         level = 1,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
@@ -1493,7 +1493,7 @@ spaceconfig.VehicleTransport = {
     [`bison2`] = {
         name = 'bison2',
         label = 'Bison MC',
-        capacity = 4,
+        capacity = 250,
         level = 1,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
@@ -1514,7 +1514,7 @@ spaceconfig.VehicleTransport = {
         name = 'boxville',
         label = 'Boxville',
         capacity = 18,
-        level = 20,
+        level = 600,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1547,7 +1547,7 @@ spaceconfig.VehicleTransport = {
         name = 'boxville2',
         label = 'Boxville',
         capacity = 18,
-        level = 20,
+        level = 650,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1580,7 +1580,7 @@ spaceconfig.VehicleTransport = {
         name = 'boxville3',
         label = 'Boxville',
         capacity = 18,
-        level = 20,
+        level = 650,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1613,7 +1613,7 @@ spaceconfig.VehicleTransport = {
         name = 'boxville4',
         label = 'Boxville',
         capacity = 18,
-        level = 20,
+        level = 650,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1646,7 +1646,7 @@ spaceconfig.VehicleTransport = {
         name = 'burrito',
         label = 'Burrito',
         capacity = 10,
-        level = 1,
+        level = 100,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1671,7 +1671,7 @@ spaceconfig.VehicleTransport = {
         name = 'burrito',
         label = 'Bugstars Burrito',
         capacity = 10,
-        level = 1,
+        level = 150,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1696,7 +1696,7 @@ spaceconfig.VehicleTransport = {
         name = 'burrito3',
         label = 'Burrito',
         capacity = 10,
-        level = 1,
+        level = 150,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1721,7 +1721,7 @@ spaceconfig.VehicleTransport = {
         name = 'burrito4',
         label = 'Burrito',
         capacity = 10,
-        level = 1,
+        level = 180,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1746,7 +1746,7 @@ spaceconfig.VehicleTransport = {
         name = 'burrito5',
         label = 'Burrito',
         capacity = 10,
-        level = 1,
+        level = 180,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1771,7 +1771,7 @@ spaceconfig.VehicleTransport = {
         name = 'gburrito',
         label = 'Gang Burrito',
         capacity = 10,
-        level = 1,
+        level = 190,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1796,7 +1796,7 @@ spaceconfig.VehicleTransport = {
         name = 'gburrito2',
         label = 'Gang Burrito',
         capacity = 10,
-        level = 1,
+        level = 200,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1821,7 +1821,7 @@ spaceconfig.VehicleTransport = {
         name = 'paradise',
         label = 'Paradise',
         capacity = 12,
-        level = 20,
+        level = 500,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1848,7 +1848,7 @@ spaceconfig.VehicleTransport = {
         name = 'minivan',
         label = 'Minivan',
         capacity = 4,
-        level = 1,
+        level = 300,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1867,7 +1867,7 @@ spaceconfig.VehicleTransport = {
         name = 'minivan2',
         label = 'Minivan 2',
         capacity = 4,
-        level = 1,
+        level = 300,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1886,7 +1886,7 @@ spaceconfig.VehicleTransport = {
         name = 'pony',
         label = 'Pony',
         capacity = 13,
-        level = 10,
+        level = 350,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1914,7 +1914,7 @@ spaceconfig.VehicleTransport = {
         name = 'pony2',
         label = 'Pony',
         capacity = 13,
-        level = 10,
+        level = 350,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1942,7 +1942,7 @@ spaceconfig.VehicleTransport = {
         name = 'rumpo',
         label = 'Rumpo',
         capacity = 12,
-        level = 10,
+        level = 400,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1969,7 +1969,7 @@ spaceconfig.VehicleTransport = {
         name = 'rumpo2',
         label = 'Rumpo',
         capacity = 12,
-        level = 10,
+        level = 410,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -1996,7 +1996,7 @@ spaceconfig.VehicleTransport = {
         name = 'rumpo3',
         label = 'Rumpo',
         capacity = 12,
-        level = 10,
+        level = 415,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -2023,7 +2023,7 @@ spaceconfig.VehicleTransport = {
         name = 'speedo',
         label = 'Speedo',
         capacity = 13,
-        level = 10,
+        level = 450,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -2051,7 +2051,7 @@ spaceconfig.VehicleTransport = {
         name = 'speedo2',
         label = 'Speedo',
         capacity = 13,
-        level = 10,
+        level = 450,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -2079,7 +2079,7 @@ spaceconfig.VehicleTransport = {
         name = 'speedo4',
         label = 'Speedo',
         capacity = 13,
-        level = 10,
+        level = 450,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -2107,7 +2107,7 @@ spaceconfig.VehicleTransport = {
         name = 'youga',
         label = 'Youga',
         capacity = 8,
-        level = 1,
+        level = 120,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -2130,7 +2130,7 @@ spaceconfig.VehicleTransport = {
         name = 'youga2',
         label = 'Youga',
         capacity = 8,
-        level = 1,
+        level = 130,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true
         },
@@ -2153,7 +2153,7 @@ spaceconfig.VehicleTransport = {
         name = 'Benson',
         label = 'Benson',
         capacity = 40,
-        level = 30,
+        level = 700,
         rentPrice = 18000,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
@@ -2165,7 +2165,7 @@ spaceconfig.VehicleTransport = {
         name = 'pounder',
         label = 'Pounder',
         capacity = 46,
-        level = 40,
+        level = 700,
         rentPrice = 20000,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
@@ -2177,7 +2177,7 @@ spaceconfig.VehicleTransport = {
         name = 'pounder2',
         label = 'Pounder',
         capacity = 46,
-        level = 40,
+        level = 750,
         rentPrice = 20000,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
@@ -2189,7 +2189,7 @@ spaceconfig.VehicleTransport = {
         name = 'mule',
         label = 'Mule',
         capacity = 36,
-        level = 30,
+        level = 800,
         rentPrice = 17000,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
@@ -2201,7 +2201,7 @@ spaceconfig.VehicleTransport = {
         name = 'mule2',
         label = 'Mule',
         capacity = 36,
-        level = 30,
+        level = 850,
         rentPrice = 17000,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
@@ -2213,7 +2213,7 @@ spaceconfig.VehicleTransport = {
         name = 'mule3',
         label = 'Mule',
         capacity = 36,
-        level = 30,
+        level = 860,
         rentPrice = 17000,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
@@ -2225,7 +2225,7 @@ spaceconfig.VehicleTransport = {
         name = 'mule4',
         label = 'Mule',
         capacity = 36,
-        level = 30,
+        level = 890,
         rentPrice = 17000,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
@@ -2237,7 +2237,7 @@ spaceconfig.VehicleTransport = {
         name = 'vetir',
         label = 'Vetir',
         capacity = 20,
-        level = 30,
+        level = 900,
         rentPrice = 14000,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
@@ -2288,8 +2288,8 @@ spaceconfig.VehicleTransport = {
         label = 'Trailer',
         isTrailer = true,
         capacity = 48,
-        level = 40,
-        rentPrice = 20000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
             [spaceconfig.ItemTransportType.PALLET] = true
@@ -2301,8 +2301,8 @@ spaceconfig.VehicleTransport = {
         label = 'Trailer',
         isTrailer = true,
         capacity = 48,
-        level = 40,
-        rentPrice = 20000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
             [spaceconfig.ItemTransportType.PALLET] = true
@@ -2314,8 +2314,8 @@ spaceconfig.VehicleTransport = {
         label = 'Trailer',
         isTrailer = true,
         capacity = 48,
-        level = 40,
-        rentPrice = 20000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
             [spaceconfig.ItemTransportType.PALLET] = true
@@ -2327,8 +2327,8 @@ spaceconfig.VehicleTransport = {
         label = 'Trailer',
         isTrailer = true,
         capacity = 48,
-        level = 40,
-        rentPrice = 20000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.CRATE] = true,
             [spaceconfig.ItemTransportType.PALLET] = true
@@ -2340,8 +2340,8 @@ spaceconfig.VehicleTransport = {
         label = 'Trailer',
         isTrailer = true,
         capacity = 48,
-        level = 40,
-        rentPrice = 20000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.PALLET] = true,
             [spaceconfig.ItemTransportType.WOODLOG] = true
@@ -2381,7 +2381,7 @@ spaceconfig.VehicleTransport = {
         name = 'tiptruck',
         label = 'Tiptruck',
         capacity = 14,
-        level = 30,
+        level = 900,
         transType = {
             [spaceconfig.ItemTransportType.LOOSE] = true
         }
@@ -2390,7 +2390,7 @@ spaceconfig.VehicleTransport = {
         name = 'tiptruck2',
         label = 'Tiptruck',
         capacity = 14,
-        level = 30,
+        level = 950,
         transType = {
             [spaceconfig.ItemTransportType.LOOSE] = true
         }
@@ -2399,7 +2399,7 @@ spaceconfig.VehicleTransport = {
         name = 'rubble',
         label = 'Rubble',
         capacity = 16,
-        level = 30,
+        level = 950,
         transType = {
             [spaceconfig.ItemTransportType.LOOSE] = true
         }
@@ -2408,7 +2408,7 @@ spaceconfig.VehicleTransport = {
         name = 'biff',
         label = 'Biff',
         capacity = 16,
-        level = 30,
+        level = 950,
         transType = {
             [spaceconfig.ItemTransportType.LOOSE] = true
         }
@@ -2418,7 +2418,7 @@ spaceconfig.VehicleTransport = {
         label = 'Grain Trailer',
         isTrailer = true,
         capacity = 16,
-        level = 30,
+        level = 0,
         transType = {
             [spaceconfig.ItemTransportType.LOOSE] = true
         }
@@ -2427,7 +2427,7 @@ spaceconfig.VehicleTransport = {
         name = 'mixer',
         label = 'Mixer',
         capacity = 16,
-        level = 30,
+        level = 950,
         transType = {
             [spaceconfig.ItemTransportType.CONCRETE] = true
         }
@@ -2436,7 +2436,7 @@ spaceconfig.VehicleTransport = {
         name = 'mixer2',
         label = 'Mixer',
         capacity = 16,
-        level = 30,
+        level = 950,
         transType = {
             [spaceconfig.ItemTransportType.CONCRETE] = true
         }
@@ -2446,7 +2446,7 @@ spaceconfig.VehicleTransport = {
         name = 'stockade',
         label = 'Stockade',
         capacity = 8,
-        level = 30,
+        level = 600,
         transType = {
             [spaceconfig.ItemTransportType.STRONGBOX] = true,
             [spaceconfig.ItemTransportType.CRATE] = true
@@ -2477,7 +2477,7 @@ spaceconfig.VehicleTransport = {
         name = 'stockade3',
         label = 'Stockade',
         capacity = 8,
-        level = 30,
+        level = 610,
         transType = {
             [spaceconfig.ItemTransportType.STRONGBOX] = true,
             [spaceconfig.ItemTransportType.CRATE] = true
@@ -2509,8 +2509,8 @@ spaceconfig.VehicleTransport = {
         label = 'Armytanker',
         isTrailer = true,
         capacity = 40,
-        level = 50,
-        rentPrice = 20000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.LIQUIDS] = true
         }
@@ -2520,8 +2520,8 @@ spaceconfig.VehicleTransport = {
         label = 'Tanker',
         isTrailer = true,
         capacity = 40,
-        level = 50,
-        rentPrice = 10000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.LIQUIDS] = true
         }
@@ -2531,8 +2531,8 @@ spaceconfig.VehicleTransport = {
         label = 'Tanker',
         isTrailer = true,
         capacity = 40,
-        level = 50,
-        rentPrice = 10000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.LIQUIDS] = true
         }
@@ -2543,8 +2543,8 @@ spaceconfig.VehicleTransport = {
         label = 'Trailer',
         isTrailer = true,
         capacity = 40,
-        level = 50,
-        rentPrice = 10000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.VEHICLE] = true
         }
@@ -2554,8 +2554,8 @@ spaceconfig.VehicleTransport = {
         label = 'Trailer',
         isTrailer = true,
         capacity = 60,
-        level = 50,
-        rentPrice = 10000,
+        level = 0,
+        rentPrice = 0,
         transType = {
             [spaceconfig.ItemTransportType.VEHICLE] = true
         },
@@ -2575,7 +2575,42 @@ spaceconfig.VehicleTransport = {
         name = 'flatbed',
         label = 'Flatbed',
         capacity = 20,
-        level = 45,
+        level = 1000,
+        rentPrice = 15000,
+        transType = {
+            [spaceconfig.ItemTransportType.VEHICLE] = true
+        },
+        props = {
+            bone = 'chassic',
+            [spaceconfig.ItemTransportType.VEHICLE] = {
+                vector3(0.0, -0.95, 0.425),
+                vector3(0.01, -4.7699999999999, 0.425),
+            }
+        }
+    },
+        [`hauler`] = {
+        name = 'hauler',
+        label = 'hauler',
+        capacity = 0,
+        level = 1000,
+        rentPrice = 15000,
+        transType = {
+            [spaceconfig.ItemTransportType.VEHICLE] = true
+        },
+        props = {
+            bone = 'chassic',
+            [spaceconfig.ItemTransportType.VEHICLE] = {
+                vector3(0.0, -0.95, 0.425),
+                vector3(0.01, -4.7699999999999, 0.425),
+            }
+        }
+    },
+    
+            [`phantom`] = {
+        name = 'phantom',
+        label = 'phantom',
+        capacity = 0,
+        level = 1000,
         rentPrice = 15000,
         transType = {
             [spaceconfig.ItemTransportType.VEHICLE] = true
@@ -2593,7 +2628,7 @@ spaceconfig.VehicleTransport = {
         name = 'forklift',                              --SET = string (vehicle_model)
         label = 'Forklift',                             --SET = string (Label of vehicle)
         capacity = 8,                                   --SET = number (Vehicle Storage Capacities related with item capacity)
-        level = 5,                                      --SET = number (Level Required Player Can Use This Vehicle)
+        level = 100,                                      --SET = number (Level Required Player Can Use This Vehicle)
         rentPrice = 300,
         transType = {                                   --SET = table (Table of transport type)
             [spaceconfig.ItemTransportType.CRATE] = true, --SET = [ITEM_TRANSPORT_TYPE] = true or false (Transport type vehicle can handler)

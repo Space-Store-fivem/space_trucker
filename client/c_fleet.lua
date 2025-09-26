@@ -134,10 +134,12 @@ RegisterNUICallback('getCompanyRentableVehicles', function(_, cb)
     QBCore.Functions.TriggerCallback('gs_trucker:callback:getCompanyReputation', function(reputation)
         local rentableTrucks = {}
         for vehicleKey, vehicleData in pairs(spaceconfig.VehicleTransport) do
-            if not vehicleData.isTrailer and vehicleData.level and vehicleData.level >= 30 then
+            -- ## LÓGICA CORRIGIDA AQUI ##
+            -- O filtro agora inclui qualquer veículo que tenha um requisito de 'level'.
+            -- Isto garante que tanto os camiões rígidos como os que precisam de reboque apareçam.
+            if vehicleData.level and vehicleData.level >= 30 then
                 local rentPrice = vehicleData.rentPrice or (spaceconfig.VehicleRentBaseCost * vehicleData.capacity)
                 table.insert(rentableTrucks, {
-                    -- ## CORREÇÃO PRINCIPAL ##
                     key = vehicleKey,             -- O identificador para o servidor (pode ser número ou texto)
                     model = vehicleData.name,     -- O nome do modelo para a imagem (é sempre texto)
                     label = vehicleData.label,

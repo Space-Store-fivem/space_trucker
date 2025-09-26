@@ -7,6 +7,7 @@ import { useNuiEvent } from '../../../hooks/useNuiEvent';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import IndustryManagement from './IndustryManagement'; // Importe o novo component
 
+
 interface Industry {
   name: string;
   label: string;
@@ -18,20 +19,19 @@ interface Industry {
 interface IndustriesProps {
   onBack: () => void;
   companyData: CompanyData;
-  onRefresh: () => void;
+  onSuccess: () => void; // CORREÇÃO: Alterado de onRefresh para onSuccess
 }
 
 const AppHeader: React.FC<{ title: string; onBack: () => void }> = ({ title, onBack }) => (
     <header className="flex items-center p-4 border-b border-white/10 sticky top-0 bg-gray-900/80 backdrop-blur-sm z-10">
         <button onClick={onBack} className="mr-4 text-white hover:text-blue-400 transition-colors">
-            {/* CORREÇÃO: Garantido que o viewBox está sempre correto */}
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
         </button>
         <h1 className="text-xl font-bold text-white">{title}</h1>
     </header>
 );
 
-export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onRefresh }) => {
+export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onSuccess }) => { // CORREÇÃO: Alterado de onRefresh para onSuccess
   const [industries, setIndustries] = useState<Industry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [ownershipData, setOwnershipData] = useState<Record<string, string>>({});
@@ -75,7 +75,7 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
   const handleBuyIndustry = async (industryName: string) => {
     const result = await fetchNui<{ success: boolean; message: string }>('buyIndustry', { industryName });
     if (result?.message) {
-        if (result.success) { onRefresh(); fetchAllData(); }
+        if (result.success) { onSuccess(); fetchAllData(); } // CORREÇÃO: Alterado de onRefresh para onSuccess
     }
     setModalState(null);
   };
@@ -83,7 +83,7 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
   const handleSellIndustry = async (industryName: string) => {
     const result = await fetchNui<{ success: boolean; message: string }>('sellIndustry', { industryName });
     if (result?.message) {
-        if (result.success) { onRefresh(); fetchAllData(); }
+        if (result.success) { onSuccess(); fetchAllData(); } // CORREÇÃO: Alterado de onRefresh para onSuccess
     }
     setModalState(null);
   };
@@ -113,9 +113,8 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onR
   };
 
   if (managingIndustry) {
-    // CORREÇÃO: Adicione a propriedade onRefresh={onRefresh} aqui
-    return <IndustryManagement industry={managingIndustry} onBack={() => setManagingIndustry(null)} companyData={companyData} onRefresh={onRefresh} />;
-}
+    return <IndustryManagement industry={managingIndustry} onBack={() => setManagingIndustry(null)} companyData={companyData} onRefresh={onSuccess} />; // CORREÇÃO: Alterado de onRefresh para onSuccess
+  }
   return (
     <>
       <ConfirmationModal

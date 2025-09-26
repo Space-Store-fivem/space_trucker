@@ -1,5 +1,3 @@
-// src/layouts/pages/company/CompanyPanel.tsx
-
 import React, { useState, useEffect } from 'react';
 import { FullCompanyInfo } from '../../../types';
 import HomeScreen from './HomeScreen';
@@ -13,7 +11,7 @@ import { Settings } from './Settings';
 import { fetchNui } from '../../../utils/fetchNui';
 import { RecruitmentAgency } from './RecruitmentAgency';
 import { Industries } from './Industries';
-import { TransportMissions } from './TransportMissions'; // 1. Importe o novo componente
+import { TransportMissions } from './TransportMissions';
 
 const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: FullCompanyInfo) => void; }> = ({ data, updateCompanyData }) => {
   const [activeApp, setActiveApp] = useState(data.has_profile ? 'home' : 'createProfile');
@@ -74,11 +72,13 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
         return <RecruitmentAgency companyData={data} onBack={goBack} />;
       
       case 'industries':
-        return <Industries onBack={goBack} companyData={data.company_data!} onRefresh={handleRefresh} />;
+        // A prop 'onRefresh' foi ajustada para 'onSuccess' para manter a consistência
+        return <Industries companyData={data.company_data!} onBack={goBack} onSuccess={handleRefresh} />;
 
-      // 2. Adicione a nova condição de renderização para as missões
       case 'missions':
-        return <TransportMissions onBack={goBack} />;
+        // ## CORREÇÃO APLICADA AQUI ##
+        // Usando a variável 'data' que contém os dados da empresa.
+        return <TransportMissions onBack={goBack} companyData={data} />;
 
       case 'employees':
         return <Employees companyData={data} updateCompanyData={safeUpdateCompanyData} onBack={goBack} />;

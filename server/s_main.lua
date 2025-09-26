@@ -1053,3 +1053,20 @@ CreateThread(function()
     -- Agora que temos a certeza que as indústrias existem, registamos as funções que dependem delas.
     exports.gs_trucker:RegisterIndustryCallbacks()
 end)
+
+CreateThread(function()
+    -- Espera 5 segundos para garantir que o MySQL esteja totalmente carregado
+    Wait(5000) 
+
+    print('[gs_trucker] A verificar o estado dos veículos da frota no reinício...')
+    
+    -- ## LÓGICA ATUALIZADA AQUI ##
+    -- A query agora também define 'last_driver' como NULL para limpar o registro.
+    local rowsAffected = MySQL.update.await('UPDATE gs_trucker_fleet SET status = ?, last_driver = NULL WHERE status != ?', { 'Na Garagem', 'Na Garagem' })
+
+    if rowsAffected > 0 then
+        print(('[gs_trucker] Sucesso: %d veículos da frota foram devolvidos para a garagem e redefinidos.'):format(rowsAffected))
+    else
+        print('[gs_trucker] Nenhum veículo da frota precisou ser redefinido.')
+    end
+end)
