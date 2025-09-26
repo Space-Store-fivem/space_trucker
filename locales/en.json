@@ -268,6 +268,8 @@
     "vehicle_not_found": "Vehicle not found",
     "industry_tier_label_primary": "Primary",
     "industry_tier_label_secondary": "Secondary",
+     "logistics_company": "Logistics Company",
+    "tertiary_industries": "Tertiary Industries",
     "industry_tier_label_business": "Business",
     "industry_type_label_oilfield": "Oil Field",
     "industry_type_label_chemical": "Chemical Factory",

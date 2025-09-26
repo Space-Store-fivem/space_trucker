@@ -32,6 +32,7 @@ shared_scripts {
 	"shared/class/industry.lua",
 	"shared/class/industries.lua",
 	"shared/industries/register_primary_industries.lua",
+		'shared/industries/register_tertiary_industries.lua',
 	"shared/industries/register_secondary_industries.lua",
 	"shared/industries/register_businesses.lua",
 }

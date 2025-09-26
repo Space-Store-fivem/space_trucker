@@ -132,7 +132,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
                     <h2 className="text-lg font-semibold text-gray-400 mb-3">Geral</h2>
                     <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                         <AppButton iconPath="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" iconClassName="text-blue-400 w-9 h-9" label="Recrutamento" onClick={() => onAppSelect('recruitment')} />
-                        <AppButton iconPath="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m0 10V7m0 10L9 7" iconClassName="text-teal-400 w-9 h-9" label="Missões" onClick={() => onAppSelect('missions')} />
+                        {/* AQUI ESTÁ A ALTERAÇÃO */}
+                        <AppButton 
+                            iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" 
+                            iconClassName="text-teal-400 w-9 h-9" 
+                            label="Contratos" 
+                            onClick={() => onAppSelect('missions')} 
+                        />
                     </div>
                 </section>
             </main>

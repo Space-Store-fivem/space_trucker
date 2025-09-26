@@ -44,7 +44,7 @@ export const TransportMissions: React.FC<TransportMissionsProps> = ({ companyDat
     // Layout principal padronizado, igual ao do Dashboard
     <div className="w-full h-full p-8 flex flex-col bg-gray-900">
       {/* Cabeçalho agora recebe o logoUrl corretamente */}
-      <AppHeader title="Missões de Transporte" onBack={onBack} logoUrl={companyData.company_data.logo_url} />
+      <AppHeader title="Contratos de Transporte" onBack={onBack} logoUrl={companyData.company_data.logo_url} />
       
       <div className="flex-grow overflow-y-auto mt-4 pr-2">
         {/* Aviso de Reboque */}

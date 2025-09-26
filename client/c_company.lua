@@ -247,12 +247,15 @@ RegisterNUICallback('requestCompanyIndustries', function(data, cb)
 
     if allIndustries and next(allIndustries) ~= nil then
         for name, industry in pairs(allIndustries) do
-            -- ADICIONA A VERIFICAÇÃO DE PREÇO AQUI
+            -- Apenas adiciona indústrias que têm um preço de compra definido
             if type(industry) == 'table' and industry.name and industry.label and industry:GetPurchasePrice() then
+                
+                -- CORREÇÃO: Removemos a lógica if/elseif desnecessária.
+                -- Agora usamos o 'tier' que foi definido diretamente no ficheiro de registo da indústria.
                 table.insert(purchasableIndustries, {
                     name = industry.name,
                     label = industry.label,
-                    tier = industry.tier,
+                    tier = industry.tier, -- Usamos o valor original e correto
                     type = industry.type,
                     status = industry.status
                 })

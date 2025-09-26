@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, company })
         { id: 'fleet', label: 'Frota', icon: <IconFleet /> },
         { id: 'finance', label: 'Finanças', icon: <IconFinance /> },
         { id: 'industries', label: 'Indústrias', icon: <IconIndustries /> }, // Item adicionado
-        { id: 'missions', label: 'Missões', icon: <IconMissions /> },       // Item adicionado
+        { id: 'missions', label: 'Contratos', icon: <IconMissions /> },       // Item adicionado
         { id: 'settings', label: 'Configurações', icon: <IconSettings /> },
     ];
 
