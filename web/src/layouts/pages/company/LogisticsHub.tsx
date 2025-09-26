@@ -1,3 +1,5 @@
+// web/src/layouts/pages/company/LogisticsHub.tsx (VERSÃO COM ECONOMIA DINÂMICA)
+
 import React, { useState, useEffect } from 'react';
 import { fetchNui } from '../../../utils/fetchNui';
 import { useNuiEvent } from '../../../hooks/useNuiEvent';
@@ -6,7 +8,7 @@ import { LogisticsOrder } from '../../../types';
 const AppHeader: React.FC<{ title: string; onBack: () => void }> = ({ title, onBack }) => (
     <header className="flex items-center p-4 border-b border-white/10 sticky top-0 bg-gray-900/80 backdrop-blur-sm z-10">
         <button onClick={onBack} className="mr-4 text-white hover:text-blue-400 transition-colors">
-            <svg xmlns="http://www.w.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
         </button>
         <h1 className="text-xl font-bold text-white">{title}</h1>
     </header>
@@ -15,7 +17,7 @@ const AppHeader: React.FC<{ title: string; onBack: () => void }> = ({ title, onB
 export const LogisticsHub: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [orders, setOrders] = useState<LogisticsOrder[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [processingId, setProcessingId] = useState<number | null>(null); // Estado para controlar o botão
+    const [processingId, setProcessingId] = useState<number | null>(null);
 
     useEffect(() => {
         fetchNui('requestLogisticsOrders');
@@ -26,14 +28,12 @@ export const LogisticsHub: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         setIsLoading(false);
     });
 
-    // Função ATUALIZADA para aceitar a encomenda
     const handleAcceptOrder = (orderId: number) => {
-        setProcessingId(orderId); // Desativa o botão para evitar cliques múltiplos
+        setProcessingId(orderId);
         fetchNui('acceptLogisticsOrder', { orderId }).then(result => {
             if (result && result.success) {
-                // O painel será fechado pelo lado do Lua, não precisamos fazer nada aqui.
+                // Sucesso
             } else {
-                // Se falhar (ex: outro jogador aceitou), reativa o botão.
                 setProcessingId(null);
             }
         });
@@ -56,20 +56,23 @@ export const LogisticsHub: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         ) : (
                             orders.map(order => (
                                 <div key={order.id} className="bg-gray-800 p-4 rounded-lg border border-white/5 shadow-md flex justify-between items-center">
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 flex-1">
                                         <h3 className="text-lg font-bold text-amber-400">{order.item_label} <span className="text-white">x{order.quantity}</span></h3>
-                                        <p className="text-sm text-gray-300">
-                                            <span className="font-semibold">De:</span> {order.pickup_industry_name}
-                                        </p>
-                                        <p className="text-sm text-gray-300">
-                                            <span className="font-semibold">Para:</span> {order.dropoff_details}
-                                        </p>
+                                        <p className="text-sm text-gray-300"><span className="font-semibold">De:</span> {order.pickup_industry_name}</p>
+                                        <p className="text-sm text-gray-300"><span className="font-semibold">Para:</span> {order.dropoff_details}</p>
                                     </div>
-                                    <div className="text-right flex flex-col items-end gap-3">
-                                        <p className="text-xl font-bold text-green-400">${order.reward.toLocaleString()}</p>
+                                    <div className="text-right flex flex-col items-end gap-3 ml-4">
+                                        {/* --- NOVO: Detalhes Financeiros para o Caminhoneiro --- */}
+                                        <div className='text-right'>
+                                            <p className="text-xl font-bold text-green-400">${order.reward.toLocaleString()}</p>
+                                            <p className="text-xs text-gray-400">Pagamento do Frete</p>
+                                        </div>
+                                        <div className='text-right'>
+                                            <p className="text-md font-semibold text-gray-300">${order.cargo_value.toLocaleString()}</p>
+                                            <p className="text-xs text-gray-400">Valor da Carga</p>
+                                        </div>
                                         <button 
                                             onClick={() => handleAcceptOrder(order.id)}
-                                            // Botão é desativado se o ID corresponder ao que está a ser processado
                                             disabled={processingId === order.id}
                                             className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm disabled:bg-gray-500 disabled:cursor-not-allowed"
                                         >

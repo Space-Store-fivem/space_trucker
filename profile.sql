@@ -156,3 +156,8 @@ CREATE TABLE `gs_trucker_logistics_orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE `gs_trucker_logistics_orders` ADD COLUMN `cargo_value` INT(11) NOT NULL DEFAULT 0 AFTER `reward`;
+
+ALTER TABLE `gs_trucker_logistics_orders`
+ADD COLUMN `company_id` INT(11) NULL DEFAULT NULL AFTER `creator_name`,
+ADD COLUMN `cargo_value` INT(11) NOT NULL DEFAULT 0 AFTER `reward`;
+

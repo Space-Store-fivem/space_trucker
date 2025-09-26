@@ -308,6 +308,7 @@ export interface LogisticsOrder {
     item_label: string;
     quantity: number;
     reward: number;
+     cargo_value: number; // << ADICIONE ESTA LINHA
     pickup_industry_name: string;
     dropoff_details: string;
 }

@@ -298,23 +298,23 @@ Industries:AddIndustry(
     }
 ):SetPurchasePrice(1500000) -- <<<<<<< ADICIONE ESTA LINHA COM O PREÇO DESEJADO
 
--- Industries:AddIndustry(
---     spaceconfig.Industry.Name.N13_FARM,
---     Lang:t('industry_name_n13_farm'),
---     spaceconfig.Industry.Status.OPEN,
---     spaceconfig.Industry.Tier.PRIMARY,
---     spaceconfig.Industry.Type.Primary.FARM,
---     vector3(2433.4119, 4983.8628, 45.9908),
---     { -- for Sale Storage Location
---         ['eggs'] = vector3(1535.7732, -2098.0173, 77.1174),
---         ['cereal'] = vector3(1535.7732, -2098.0173, 77.1174),
---         ['cotton'] = vector3(1535.7732, -2098.0173, 77.1174),
---         ['meat'] = vector3(1535.7732, -2098.0173, 77.1174),
---         ['milk'] = vector3(1535.7732, -2098.0173, 77.1174),
---         ['fruits'] = vector3(1535.7732, -2098.0173, 77.1174),
---     },
---     {} --Wanted Storage Location
--- )
+Industries:AddIndustry(
+    spaceconfig.Industry.Name.N13_FARM,
+    Lang:t('industry_name_n13_farm'),
+    spaceconfig.Industry.Status.OPEN,
+    spaceconfig.Industry.Tier.PRIMARY,
+    spaceconfig.Industry.Type.Primary.FARM,
+    vector3(2433.4119, 4983.8628, 45.9908),
+    { -- for Sale Storage Location
+        ['eggs'] = vector3(1535.7732, -2098.0173, 77.1174),
+        ['cereal'] = vector3(1535.7732, -2098.0173, 77.1174),
+        ['cotton'] = vector3(1535.7732, -2098.0173, 77.1174),
+        ['meat'] = vector3(1535.7732, -2098.0173, 77.1174),
+        ['milk'] = vector3(1535.7732, -2098.0173, 77.1174),
+        ['fruits'] = vector3(1535.7732, -2098.0173, 77.1174),
+    },
+    {} --Wanted Storage Location
+)
 
 Industries:AddIndustry(
     spaceconfig.Industry.Name.N14_FARM,
