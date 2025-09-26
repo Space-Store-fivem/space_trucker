@@ -1,29 +1,31 @@
--- space-store-fivem/space_trucker/space_trucker-mais2/client/c_industry_management.lua
+-- gs_trucker/client/c_industry_management.lua
 local QBCore = exports['qb-core']:GetCoreObject()
 
+-- NUI Callback para a interface pedir os detalhes de uma indústria específica.
 RegisterNUICallback('getIndustryDetails', function(data, cb)
-    print("[c_industry_management] Pedindo detalhes da indústria para o servidor: " .. data.industryName)
-    -- CORREÇÃO: Usando a função correta do QBCore para o lado do cliente
-    QBCore.Functions.TriggerCallback('gs_trucker:callback:getIndustryDetails', function(industryDetails)
-        print("[c_industry_management] Detalhes recebidos do servidor: ", json.encode(industryDetails))
-        cb(industryDetails)
-    end, data)
+    if not data or not data.industryName then
+        -- Se não recebermos um nome de indústria, devolvemos uma tabela vazia.
+        return cb({})
+    end
+    
+    -- Usamos o TriggerCallback para pedir os dados ao servidor de forma segura.
+    QBCore.Functions.TriggerCallback('gs_trucker:callback:getIndustryDetails', function(details)
+        -- Quando o servidor responder, esta função é executada, e nós enviamos
+        -- os detalhes de volta para a interface através do 'cb'.
+        cb(details or {})
+    end, data) -- Enviamos 'data' (que contém industryName) para o servidor.
 end)
 
+-- NUI Callback para investir numa indústria.
 RegisterNUICallback('investInIndustry', function(data, cb)
-    print("[c_industry_management] Enviando pedido de investimento para o servidor: " .. data.industryName)
-    -- CORREÇÃO: Usando a função correta do QBCore para o lado do cliente
     QBCore.Functions.TriggerCallback('gs_trucker:callback:investInIndustry', function(result)
-        print("[c_industry_management] Resultado do investimento: ", json.encode(result))
-        cb(result)
+        cb(result or { success = false, message = "Erro de comunicação." })
     end, data)
 end)
 
+-- NUI Callback para contratar um NPC para uma indústria.
 RegisterNUICallback('hireNpcForIndustry', function(data, cb)
-    print("[c_industry_management] Enviando pedido de contratação de NPC para o servidor: " .. data.industryName)
-    -- CORREÇÃO: Usando a função correta do QBCore para o lado do cliente
     QBCore.Functions.TriggerCallback('gs_trucker:callback:hireNpcForIndustry', function(result)
-        print("[c_industry_management] Resultado da contratação de NPC: ", json.encode(result))
-        cb(result)
+        cb(result or { success = false, message = "Erro de comunicação." })
     end, data)
 end)

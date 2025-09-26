@@ -225,3 +225,12 @@ function OnModalResponse(data)
         promise:resolve(data)
     end
 end
+
+-- Adicione este código no final de client/c_nui.lua
+
+RegisterNetEvent('gs_trucker:client:closeCompanyPanel', function()
+    SetNuiFocus(false, false)
+    SendNUIMessage({
+        action = 'closePanel' -- A interface irá ouvir esta ação
+    })
+end)

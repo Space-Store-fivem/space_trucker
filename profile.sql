@@ -136,3 +136,23 @@ ALTER TABLE gs_trucker_employees
 ADD COLUMN salary INT DEFAULT 0;
 
 ALTER TABLE `gs_trucker_fleet` ADD COLUMN `rent_expires_at` DATETIME NULL DEFAULT NULL;
+
+CREATE TABLE `gs_trucker_logistics_orders` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `creator_identifier` VARCHAR(100) NOT NULL,
+  `creator_name` VARCHAR(255) NOT NULL,
+  `item_name` VARCHAR(50) NOT NULL,
+  `item_label` VARCHAR(100) NOT NULL,
+  `quantity` INT(11) NOT NULL DEFAULT 1,
+  `reward` INT(11) NOT NULL DEFAULT 0,
+  `pickup_industry_name` VARCHAR(100) NOT NULL,
+  `pickup_location` TEXT NOT NULL,
+  `dropoff_location` TEXT NOT NULL,
+  `dropoff_details` VARCHAR(255) DEFAULT NULL,
+  `status` VARCHAR(50) NOT NULL DEFAULT 'OPEN',
+  `taker_identifier` VARCHAR(100) DEFAULT NULL,
+  `timestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `gs_trucker_logistics_orders` ADD COLUMN `cargo_value` INT(11) NOT NULL DEFAULT 0 AFTER `reward`;

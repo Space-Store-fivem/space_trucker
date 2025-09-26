@@ -12,6 +12,7 @@ import { fetchNui } from '../../../utils/fetchNui';
 import { RecruitmentAgency } from './RecruitmentAgency';
 import { Industries } from './Industries';
 import { TransportMissions } from './TransportMissions';
+import { LogisticsHub } from './LogisticsHub'; // 1. Importar a nova aplicação
 
 const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: FullCompanyInfo) => void; }> = ({ data, updateCompanyData }) => {
   const [activeApp, setActiveApp] = useState(data.has_profile ? 'home' : 'createProfile');
@@ -72,13 +73,14 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
         return <RecruitmentAgency companyData={data} onBack={goBack} />;
       
       case 'industries':
-        // A prop 'onRefresh' foi ajustada para 'onSuccess' para manter a consistência
         return <Industries companyData={data.company_data!} onBack={goBack} onSuccess={handleRefresh} />;
 
       case 'missions':
-        // ## CORREÇÃO APLICADA AQUI ##
-        // Usando a variável 'data' que contém os dados da empresa.
         return <TransportMissions onBack={goBack} companyData={data} />;
+
+      // 2. Adicionar o "case" para a nossa nova aplicação
+      case 'logisticsHub':
+        return <LogisticsHub onBack={goBack} />;
 
       case 'employees':
         return <Employees companyData={data} updateCompanyData={safeUpdateCompanyData} onBack={goBack} />;

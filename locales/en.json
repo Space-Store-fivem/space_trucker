@@ -380,5 +380,23 @@
     "forklift_unload_amount_label": "Unload Quantity:",
     "forklift_enter_quantity_you_want_unload": "Enter the quantity you want to unload",
     "forklift_error_when_load_item": "An error occurred while load item",
-    "forklift_too_closest_trade_point": "Please stay 5m away from the trade point"
+    "forklift_too_closest_trade_point": "Please stay 5m away from the trade point",
+
+  "industry_electronics": "Eletrônicos",
+  "industry_furniture": "Móveis de Luxo",
+  "industry_ev": "Veículos Elétricos",
+  "industry_cosmetics": "Cosméticos",
+  "industry_fashion": "Moda de Grife",
+  "industry_home_elec": "Eletrônicos Residenciais",
+  "industry_medical": "Equipamentos Médicos",
+  "industry_telecom": "Telecomunicações",
+  "industry_gaming": "Hardware de Jogos",
+  "industry_robotics": "Robótica",
+  "industry_watches": "Relógios de Luxo",
+  "industry_software": "Software & Apps",
+  "industry_accessories": "Acessórios de Moda",
+  "industry_beverage": "Bebidas Premium",
+  "industry_perfume": "Perfumes e Fragrâncias",
+
+    "logistics_hub_title": "Central de Logística"
 }

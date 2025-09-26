@@ -1,3 +1,5 @@
+-- gs_trucker/shared/class/industries.lua
+
 -- INDUSTRIES CONTAINER
 
 Industries = {}
@@ -189,3 +191,17 @@ end
 
 -- Create Instance
 Industries = Industries.new()
+
+-- ## CORREÇÃO APLICADA AQUI ##
+--- Encontra a primeira indústria que produz um determinado item
+---@param _itemName string
+---@return Industry|nil
+function Industries:GetIndustryThatProduces(_itemName)
+    -- A correção é usar "self.industries_by_name", que é a tabela correta neste script.
+    for _, industry in pairs(self.industries_by_name) do
+        if industry.tradeData and industry.tradeData[spaceconfig.Industry.TradeType.FORSALE] and industry.tradeData[spaceconfig.Industry.TradeType.FORSALE][_itemName] then
+            return industry
+        end
+    end
+    return nil
+end

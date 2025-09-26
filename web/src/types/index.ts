@@ -152,6 +152,7 @@ export interface Employee {
   salary: number; // Este já deve existir
 }
 
+
 export interface FleetVehicle {
   id: number;
   company_id: number;
@@ -300,4 +301,13 @@ export interface FleetLog {
     player_name: string;
     action: string;
     timestamp: string;
+}
+// Adicione esta nova interface no final do ficheiro
+export interface LogisticsOrder {
+    id: number;
+    item_label: string;
+    quantity: number;
+    reward: number;
+    pickup_industry_name: string;
+    dropoff_details: string;
 }

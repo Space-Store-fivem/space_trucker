@@ -64,8 +64,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
     const timeFormatter = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
     const dateFormatter = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
 
+    // A nova app de logística deve estar disponível para todos
     if (!company) {
-        return <NoCompanyView onAppSelect={onAppSelect} />;
+        return (
+            <div className="flex flex-col h-full">
+                <NoCompanyView onAppSelect={onAppSelect} />
+                <div className="p-6">
+                     <h2 className="text-lg font-semibold text-gray-400 mb-3">Serviços Públicos</h2>
+                     <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                        <AppButton 
+                            iconPath="M8 16H5.373a2 2 0 01-1.99-2.226l.5-4a2 2 0 012-1.774H14V4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M15 1v4h4" 
+                            iconClassName="text-amber-400 w-9 h-9" 
+                            label="Central de Logística" 
+                            onClick={() => onAppSelect('logisticsHub')} 
+                        />
+                     </div>
+                </div>
+            </div>
+        )
     }
 
     const permissions = useMemo(() => {
@@ -132,12 +148,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
                     <h2 className="text-lg font-semibold text-gray-400 mb-3">Geral</h2>
                     <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                         <AppButton iconPath="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" iconClassName="text-blue-400 w-9 h-9" label="Recrutamento" onClick={() => onAppSelect('recruitment')} />
-                        {/* AQUI ESTÁ A ALTERAÇÃO */}
                         <AppButton 
                             iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" 
                             iconClassName="text-teal-400 w-9 h-9" 
                             label="Contratos" 
                             onClick={() => onAppSelect('missions')} 
+                        />
+                        <AppButton 
+                            iconPath="M8 16H5.373a2 2 0 01-1.99-2.226l.5-4a2 2 0 012-1.774H14V4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M15 1v4h4" 
+                            iconClassName="text-amber-400 w-9 h-9" 
+                            label="Central de Logística" 
+                            onClick={() => onAppSelect('logisticsHub')} 
                         />
                     </div>
                 </section>
@@ -147,3 +168,4 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
 };
 
 export default HomeScreen;
+

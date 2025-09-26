@@ -1,5 +1,3 @@
-// web/src/layouts/pages/company/Industries.tsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { fetchNui } from '../../../utils/fetchNui';
 import { CompanyData } from '../../../types';
@@ -19,26 +17,25 @@ interface Industry {
 interface IndustriesProps {
   onBack: () => void;
   companyData: CompanyData;
-  onSuccess: () => void; // CORREÇÃO: Alterado de onRefresh para onSuccess
+  onSuccess: () => void;
 }
 
 const AppHeader: React.FC<{ title: string; onBack: () => void }> = ({ title, onBack }) => (
     <header className="flex items-center p-4 border-b border-white/10 sticky top-0 bg-gray-900/80 backdrop-blur-sm z-10">
         <button onClick={onBack} className="mr-4 text-white hover:text-blue-400 transition-colors">
-            <svg xmlns="http://www.w.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
         </button>
         <h1 className="text-xl font-bold text-white">{title}</h1>
     </header>
 );
 
-export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onSuccess }) => { // CORREÇÃO: Alterado de onRefresh para onSuccess
+export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onSuccess }) => {
   const [industries, setIndustries] = useState<Industry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [ownershipData, setOwnershipData] = useState<Record<string, string>>({});
   const [modalState, setModalState] = useState<{isOpen: boolean; title: string; description: string; onConfirm: () => void} | null>(null);
-  const [managingIndustry, setManagingIndustry] = useState<Industry | null>(null); // Novo estado
+  const [managingIndustry, setManagingIndustry] = useState<Industry | null>(null);
 
-  // Ouve o evento com a lista de indústrias e monta os dados finais
   useNuiEvent<string>('setCompanyIndustries', (jsonData) => {
     try {
         const industryList = JSON.parse(jsonData);
@@ -52,13 +49,11 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onS
     }
   });
 
-  // Ouve o evento com os dados dos proprietários e depois pede a lista de indústrias
   useNuiEvent<Record<string, string>>('setIndustryOwnership', (owners) => {
       setOwnershipData(owners || {});
       fetchNui('requestCompanyIndustries');
   });
 
-  // Função que inicia o carregamento dos dados
   const fetchAllData = useCallback(() => {
     setIsLoading(true);
     fetchNui('requestIndustryOwnership');
@@ -68,14 +63,13 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onS
     fetchAllData();
   }, [fetchAllData]);
 
-  // Funções do Modal e Ações
   const openBuyModal = (industry: Industry) => setModalState({ isOpen: true, title: "Confirmar Compra", description: `Deseja comprar a indústria ${industry.label}?`, onConfirm: () => handleBuyIndustry(industry.name) });
   const openSellModal = (industry: Industry) => setModalState({ isOpen: true, title: "Confirmar Venda", description: `Deseja vender a indústria ${industry.label}?`, onConfirm: () => handleSellIndustry(industry.name) });
 
   const handleBuyIndustry = async (industryName: string) => {
     const result = await fetchNui<{ success: boolean; message: string }>('buyIndustry', { industryName });
     if (result?.message) {
-        if (result.success) { onSuccess(); fetchAllData(); } // CORREÇÃO: Alterado de onRefresh para onSuccess
+        if (result.success) { onSuccess(); fetchAllData(); }
     }
     setModalState(null);
   };
@@ -83,15 +77,16 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onS
   const handleSellIndustry = async (industryName: string) => {
     const result = await fetchNui<{ success: boolean; message: string }>('sellIndustry', { industryName });
     if (result?.message) {
-        if (result.success) { onSuccess(); fetchAllData(); } // CORREÇÃO: Alterado de onRefresh para onSuccess
+        if (result.success) { onSuccess(); fetchAllData(); }
     }
     setModalState(null);
   };
 
-const getTierLabel = (tier: number) => {
+  // CORREÇÃO APLICADA AQUI
+  const getTierLabel = (tier: number) => {
     if (tier === 1) return { text: 'Primária', color: 'bg-green-500' };
     if (tier === 2) return { text: 'Secundária', color: 'bg-blue-500' };
-    if (tier === 3) return { text: 'Terciária', color: 'bg-yellow-500' }; // Renumerado de 4 para 3
+    if (tier === 3) return { text: 'Terciária', color: 'bg-yellow-500' };
     return { text: 'Desconhecido', color: 'bg-gray-500' };
   };
 
@@ -113,7 +108,7 @@ const getTierLabel = (tier: number) => {
   };
 
   if (managingIndustry) {
-    return <IndustryManagement industry={managingIndustry} onBack={() => setManagingIndustry(null)} companyData={companyData} onRefresh={onSuccess} />; // CORREÇÃO: Alterado de onRefresh para onSuccess
+    return <IndustryManagement industry={managingIndustry} onBack={() => setManagingIndustry(null)} companyData={companyData} onRefresh={onSuccess} />;
   }
   return (
     <>

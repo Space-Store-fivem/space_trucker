@@ -1,4 +1,4 @@
--- space-store-fivem/space_trucker/space_trucker-mais2/client/c_missions.lua (VERSÃO FINAL COM DESCARGA AUTOMÁTICA)
+-- gs_trucker/client/c_missions.lua (VERSÃO FINAL UNIFICADA)
 
 local QBCore = exports['qb-core']:GetCoreObject()
 currentMission = nil
@@ -30,6 +30,11 @@ function clearMission()
     end
     activeCargoProps = { onVehicle = {}, onPlayer = nil }
     
+    -- Se a missão que está a ser cancelada for uma encomenda de logística, avisa o servidor
+    if currentMission and currentMission.type == 'LOGISTICS_ORDER' then
+        TriggerServerEvent('gs_trucker:server:cancelLogisticsOrder', currentMission.orderId)
+    end
+
     currentMission = nil
     isPlayerCarryingMissionProp = false
     missionCargoLoaded = 0
@@ -79,6 +84,51 @@ RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
     BeginTextCommandSetBlipName("STRING"); AddTextComponentString('Coletar Carga (' .. missionData.itemLabel .. ')'); EndTextCommandSetBlipName(blip)
     missionPoints.collect.blip = blip
 end)
+
+-- #############################################################################
+-- ## NOVA LÓGICA PARA INICIAR UMA MISSÃO DA CENTRAL DE LOGÍSTICA (INTEGRADO) ##
+-- #############################################################################
+RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
+    if currentMission then
+        QBCore.Functions.Notify("Você já está numa missão. Termine-a primeiro.", "error")
+        return
+    end
+
+    local pickupCoords = json.decode(orderData.pickup_location)
+    local dropoffCoords = json.decode(orderData.dropoff_location)
+    
+    -- Preenche a variável global 'currentMission' com os dados da encomenda
+    currentMission = {
+        pickup = vector3(pickupCoords.x, pickupCoords.y, pickupCoords.z),
+        dropoff = vector3(dropoffCoords.x, dropoffCoords.y, dropoffCoords.z),
+        item = orderData.item_name,
+        amount = orderData.quantity, -- Garante que usamos a propriedade correta
+        itemLabel = orderData.item_label,
+        reward = orderData.reward,
+        type = 'LOGISTICS_ORDER',
+        orderId = orderData.id
+    }
+    missionCargoLoaded = 0
+    
+    QBCore.Functions.Notify(("Nova encomenda aceite! Recolha %d caixas de %s."):format(currentMission.amount, currentMission.itemLabel), "success")
+    TriggerEvent('gs_trucker:client:toggleTablet', false) -- Fecha o tablet
+
+    -- Cria o ponto de recolha, tal como nas missões normais
+    missionPoints.collect = Point.add({
+        coords = currentMission.pickup,
+        distance = 5.0,
+        onPedStanding = function()
+            DrawMarker(2, currentMission.pickup.x, currentMission.pickup.y, currentMission.pickup.z - 0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 255, 200, 0, 100, false, true, 2, false, nil, nil, false)
+            DrawText3D(currentMission.pickup.x, currentMission.pickup.y, currentMission.pickup.z, '[E] - Coletar Carga')
+            if IsControlJustReleased(0, 38) then TriggerEvent('gs_trucker:client:attemptToLoadCargo') end
+        end,
+    })
+    local blip = AddBlipForCoord(currentMission.pickup)
+    SetBlipSprite(blip, 477); SetBlipColour(blip, 2); SetBlipRoute(blip, true)
+    BeginTextCommandSetBlipName("STRING"); AddTextComponentString('Coletar Carga (' .. currentMission.itemLabel .. ')'); EndTextCommandSetBlipName(blip)
+    missionPoints.collect.blip = blip
+end)
+
 
 RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
     if not currentMission or isPlayerCarryingMissionProp then return end
@@ -226,16 +276,23 @@ RegisterNetEvent("gs_trucker:client:startDeliveryPhase", function()
     QBCore.Functions.Notify("Carga completa! Siga para o ponto de entrega.", "primary")
     if missionPoints.collect then missionPoints.collect:remove(); if missionPoints.collect.blip then RemoveBlip(missionPoints.collect.blip) end; missionPoints.collect = nil end
 
-    local destinationBusiness = Industries:GetIndustry(currentMission.destinationBusiness)
+    -- ## LÓGICA UNIFICADA PARA O PONTO DE ENTREGA ##
+    local destinationCoords = currentMission.dropoff or (Industries:GetIndustry(currentMission.destinationBusiness) and Industries:GetIndustry(currentMission.destinationBusiness).location)
+    if not destinationCoords then
+        QBCore.Functions.Notify("Erro: Destino da missão não encontrado.", "error")
+        clearMission()
+        return
+    end
+
     missionPoints.deliver = Point.add({
-        coords = destinationBusiness.location, distance = 5.0,
+        coords = destinationCoords, distance = 5.0,
         onPedStanding = function()
-            DrawMarker(2, destinationBusiness.location.x, destinationBusiness.location.y, destinationBusiness.location.z-0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 0, 255, 0, 100, false, true, 2, false, nil, nil, false)
-            DrawText3D(destinationBusiness.location.x, destinationBusiness.location.y, destinationBusiness.location.z, '[E] - Entregar Carga')
+            DrawMarker(2, destinationCoords.x, destinationCoords.y, destinationCoords.z-0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 0, 255, 0, 100, false, true, 2, false, nil, nil, false)
+            DrawText3D(destinationCoords.x, destinationCoords.y, destinationCoords.z, '[E] - Entregar Carga')
             if IsControlJustReleased(0, 38) then TriggerEvent('gs_trucker:client:finishShipping') end
         end,
     })
-    local blip = AddBlipForCoord(destinationBusiness.location); SetBlipSprite(blip, 51); SetBlipColour(blip, 2); SetBlipRoute(blip, true)
+    local blip = AddBlipForCoord(destinationCoords); SetBlipSprite(blip, 51); SetBlipColour(blip, 2); SetBlipRoute(blip, true)
     BeginTextCommandSetBlipName("STRING"); AddTextComponentString('Entregar Carga (' .. currentMission.itemLabel .. ')'); EndTextCommandSetBlipName(blip)
     missionPoints.deliver.blip = blip
 end)
@@ -249,8 +306,13 @@ RegisterNetEvent('gs_trucker:client:finishShipping', function()
     QBCore.Functions.Progressbar("unload_mission_props", "A descarregar a carga...", unloadTime, false, true, {
         disableMovement = true, disableCarMovement = true,
     }, {}, {}, {}, function() -- on success
-        TriggerServerEvent('gs_trucker:server:missionCompleted', currentMission)
-        QBCore.Functions.Notify("Entrega concluída! Reputação da empresa aumentada.", "success")
+        -- ## LÓGICA UNIFICADA PARA COMPLETAR A MISSÃO ##
+        if currentMission.type == 'LOGISTICS_ORDER' then
+            TriggerServerEvent('gs_trucker:server:completeLogisticsOrder', currentMission)
+        else
+            TriggerServerEvent('gs_trucker:server:missionCompleted', currentMission)
+            QBCore.Functions.Notify("Entrega concluída! Reputação da empresa aumentada.", "success")
+        end
         clearMission()
     end, function() -- on cancel
         QBCore.Functions.Notify("Descarga cancelada.", "error")
