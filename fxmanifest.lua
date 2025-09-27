@@ -14,6 +14,9 @@ description "GS Trucker Job V3 - Simulator, Dynamic, Skills, Over 1000 Truck Rou
 dependencies {
 	"/server:5848",
 	"/onesync",
+	"ox_lib",     -- precisa pro lib.*
+    "ox_target",  -- precisa pra integração target
+
 }
 
 escrow_ignore {

@@ -1,4 +1,4 @@
--- gs_trucker/client/c_missions.lua (VERSÃO FINAL UNIFICADA)
+-- gs_trucker/client/c_missions.lua (VERSÃO FINAL 5.0 - CORREÇÃO DEFINITIVA DO CONFLITO DE TARGET)
 
 local QBCore = exports['qb-core']:GetCoreObject()
 currentMission = nil
@@ -6,6 +6,8 @@ local missionPoints = { collect = nil, deliver = nil, store = nil }
 local activeCargoProps = { onVehicle = {}, onPlayer = nil }
 local isPlayerCarryingMissionProp = false
 local missionCargoLoaded = 0
+
+local activeDroppedProps = {}
 
 local carryingAnimDict = "anim@heists@box_carry@"
 local carryingAnimName = "idle"
@@ -30,7 +32,14 @@ function clearMission()
     end
     activeCargoProps = { onVehicle = {}, onPlayer = nil }
     
-    -- Se a missão que está a ser cancelada for uma encomenda de logística, avisa o servidor
+    for entity, _ in pairs(activeDroppedProps) do
+        if DoesEntityExist(entity) then
+            exports.ox_target:removeEntity(entity)
+            DeleteEntity(entity)
+        end
+    end
+    activeDroppedProps = {}
+
     if currentMission and currentMission.type == 'LOGISTICS_ORDER' then
         TriggerServerEvent('gs_trucker:server:cancelLogisticsOrder', currentMission.orderId)
     end
@@ -85,9 +94,6 @@ RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
     missionPoints.collect.blip = blip
 end)
 
--- #############################################################################
--- ## NOVA LÓGICA PARA INICIAR UMA MISSÃO DA CENTRAL DE LOGÍSTICA (INTEGRADO) ##
--- #############################################################################
 RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
     if currentMission then
         QBCore.Functions.Notify("Você já está numa missão. Termine-a primeiro.", "error")
@@ -97,12 +103,11 @@ RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
     local pickupCoords = json.decode(orderData.pickup_location)
     local dropoffCoords = json.decode(orderData.dropoff_location)
     
-    -- Preenche a variável global 'currentMission' com os dados da encomenda
     currentMission = {
         pickup = vector3(pickupCoords.x, pickupCoords.y, pickupCoords.z),
         dropoff = vector3(dropoffCoords.x, dropoffCoords.y, dropoffCoords.z),
         item = orderData.item_name,
-        amount = orderData.quantity, -- Garante que usamos a propriedade correta
+        amount = orderData.quantity,
         itemLabel = orderData.item_label,
         reward = orderData.reward,
         type = 'LOGISTICS_ORDER',
@@ -111,9 +116,8 @@ RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
     missionCargoLoaded = 0
     
     QBCore.Functions.Notify(("Nova encomenda aceite! Recolha %d caixas de %s."):format(currentMission.amount, currentMission.itemLabel), "success")
-    TriggerEvent('gs_trucker:client:toggleTablet', false) -- Fecha o tablet
+    TriggerEvent('gs_trucker:client:toggleTablet', false)
 
-    -- Cria o ponto de recolha, tal como nas missões normais
     missionPoints.collect = Point.add({
         coords = currentMission.pickup,
         distance = 5.0,
@@ -216,30 +220,61 @@ function HandlePropCarrying(prop, vehicle, config, item)
         end
     })
 
+    -- lógica para dropar caixa no chão e fazer target para pegar de volta
     CreateThread(function()
-        local droppedPropPoint = nil
         while isPlayerCarryingMissionProp and DoesEntityExist(prop) do
-            if IsControlJustReleased(0, 47) then -- Tecla G
-                DetachEntity(prop, false, false); PlaceObjectOnGroundProperly(prop); ClearPedTasks(playerPed)
-                isPlayerCarryingMissionProp = false; activeCargoProps.onPlayer = nil
-                if missionPoints.store then missionPoints.store:remove(); missionPoints.store = nil end
+            Wait(0)
+            if IsControlJustReleased(0, 47) then -- tecla G para dropar
+                local playerPos = GetEntityCoords(PlayerPedId())
+                local propModel = GetEntityModel(prop)
+                -- cria nova entidade no chão
+                local newPropOnGround = CreateObject(propModel, playerPos.x, playerPos.y, playerPos.z, true, true, true)
                 
-                droppedPropPoint = Point.add({
-                    coords = GetEntityCoords(prop), distance = 2.0,
-                    onPedStanding = function()
-                        local propCoords = GetEntityCoords(prop); DrawText3D(propCoords.x, propCoords.y, propCoords.z, "[E] Apanhar Carga")
-                        if IsControlJustReleased(0, 38) then
-                            if droppedPropPoint then droppedPropPoint:remove(); droppedPropPoint = nil end
-                            HandlePropCarrying(prop, vehicle, config, item)
-                        end
-                    end
+                -- registra nos dropped props
+                activeDroppedProps[newPropOnGround] = {
+                    vehicle = vehicle,
+                    config = config,
+                    item = item
+                }
+
+                -- ** aqui adiciona target para a nova prop ** 
+                exports.ox_target:addEntity(newPropOnGround, {
+                    {
+                        name = 'pickup_mission_prop_' .. tostring(newPropOnGround),
+                        event = 'gs_trucker:client:pickupDroppedProp',
+                        icon = 'fas fa-box-open',
+                        label = 'Apanhar Carga',
+                        distance = 2.5,
+                    }
                 })
+
+                -- limpar estado da prop que o jogador carregava
+                ClearPedTasks(PlayerPedId())
+                DeleteEntity(prop)
+                isPlayerCarryingMissionProp = false
+                activeCargoProps.onPlayer = nil
+                if missionPoints.store then missionPoints.store:remove(); missionPoints.store = nil end
                 break
             end
-            Wait(0)
         end
     end)
 end
+
+RegisterNetEvent('gs_trucker:client:pickupDroppedProp', function(data)
+    local entity = data.entity
+    -- se data.entity for passado, mas no seu código original você usou activeDroppedProps[entity]
+    -- ajustar: se data.entity, ou no ox_target, a entidade é passada no parâmetro? você pode também usar source
+    -- aqui assumimos que o evento dá `entity`
+    if not entity or not DoesEntityExist(entity) or not activeDroppedProps[entity] then
+        return
+    end
+    
+    local propData = activeDroppedProps[entity]
+    exports.ox_target:removeEntity(entity)
+    activeDroppedProps[entity] = nil
+
+    HandlePropCarrying(entity, propData.vehicle, propData.config, propData.item)
+end)
 
 RegisterNetEvent('gs_trucker:client:startManualLoading', function(vehicle, config, item)
     QBCore.Functions.Progressbar("load_mission_crate", "Apanhando a caixa...", 1500, false, true, {}, {}, {}, {}, function()
@@ -276,7 +311,6 @@ RegisterNetEvent("gs_trucker:client:startDeliveryPhase", function()
     QBCore.Functions.Notify("Carga completa! Siga para o ponto de entrega.", "primary")
     if missionPoints.collect then missionPoints.collect:remove(); if missionPoints.collect.blip then RemoveBlip(missionPoints.collect.blip) end; missionPoints.collect = nil end
 
-    -- ## LÓGICA UNIFICADA PARA O PONTO DE ENTREGA ##
     local destinationCoords = currentMission.dropoff or (Industries:GetIndustry(currentMission.destinationBusiness) and Industries:GetIndustry(currentMission.destinationBusiness).location)
     if not destinationCoords then
         QBCore.Functions.Notify("Erro: Destino da missão não encontrado.", "error")
@@ -306,7 +340,6 @@ RegisterNetEvent('gs_trucker:client:finishShipping', function()
     QBCore.Functions.Progressbar("unload_mission_props", "A descarregar a carga...", unloadTime, false, true, {
         disableMovement = true, disableCarMovement = true,
     }, {}, {}, {}, function() -- on success
-        -- ## LÓGICA UNIFICADA PARA COMPLETAR A MISSÃO ##
         if currentMission.type == 'LOGISTICS_ORDER' then
             TriggerServerEvent('gs_trucker:server:completeLogisticsOrder', currentMission)
         else

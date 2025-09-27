@@ -1,11 +1,11 @@
--- space-store-fivem/space_trucker/space_trucker-mais2/server/s_missions.lua (VERSÃO CORRIGIDA)
+-- space-store-fivem/space_trucker/space_trucker-mais2/server/s_missions.lua (VERSÃO REVISADA E VALIDADA)
 
 local QBCore = exports['qb-core']:GetCoreObject()
 local AvailableMissions = {}
 local MISSION_GENERATION_INTERVAL = 5 * 60 * 1000 -- 5 minutos
 
 local function generateMissions()
-    print('[s_missions] A gerar novas missões de transporte...')
+    print('[gs-trucker | s_missions] A gerar novas missões de transporte...')
     AvailableMissions = {}
     local allIndustries = Industries:GetIndustries()
     
@@ -19,7 +19,7 @@ local function generateMissions()
     end
 
     if #sourceIndustries == 0 or #destinationBusinesses == 0 then
-        print('[s_missions] AVISO: Indústrias de origem ou destino insuficientes.')
+        print('[gs-trucker | s_missions] AVISO: Indústrias de origem ou destino insuficientes para gerar missões.')
         return
     end
 
@@ -51,7 +51,6 @@ local function generateMissions()
                     end
                 end
                 
-                --- [[ INÍCIO DA CORREÇÃO IMPORTANTE ]] ---
                 table.insert(AvailableMissions, {
                     id = 'mission_'..i..'_'..math.random(1000, 9999),
                     sourceIndustry = source.name,
@@ -62,13 +61,12 @@ local function generateMissions()
                     itemLabel = Lang:t('item_name_' .. itemToTransport) or itemToTransport,
                     reputation = math.floor(#(source.location - destination.location) / 150) + 5,
                     vehicleRequirement = vehicleRequirement,
-                    amount = math.random(5, 15) -- Adiciona uma quantidade aleatória à missão
+                    amount = math.random(5, 15)
                 })
-                --- [[ FIM DA CORREÇÃO IMPORTANTE ]] ---
             end
         end
     end
-    print('[s_missions] ' .. #AvailableMissions .. ' novas missões geradas.')
+    print('[gs-trucker | s_missions] ' .. #AvailableMissions .. ' novas missões geradas.')
 end
 
 Citizen.CreateThread(function()
@@ -100,14 +98,16 @@ end)
 RegisterNetEvent('gs_trucker:server:missionCompleted', function(missionData)
     local src = source
     local player = QBCore.Functions.GetPlayer(src)
-    if not player then return end
+    
+    -- Adicionada validação para garantir que os dados recebidos do cliente são válidos
+    if not player or not missionData or type(missionData) ~= 'table' then return end
 
     local _, companyId = exports['gs_trucker']:CheckIfPlayerWorksForCompany(src)
 
     if companyId then
         local reputationGained = missionData.reputation or 5
         MySQL.update.await('UPDATE gs_trucker_companies SET reputation = reputation + ? WHERE id = ?', { reputationGained, companyId })
-        print('[s_missions] Empresa '..companyId..' ganhou '..reputationGained..' de reputação.')
+        print('[gs-trucker | s_missions] Empresa '..companyId..' ganhou '..reputationGained..' de reputação.')
         TriggerClientEvent('QBCore:Notify', src, "A sua empresa ganhou +" .. reputationGained .. " de reputação!", "success")
     end
 end)
