@@ -59,6 +59,7 @@ client_scripts {
 	"client/c_tablet.lua",
 	"client/c_missions.lua",
 	'client/c_logistics_hub.lua',
+	'client/c_company_gps.lua', -- ADICIONADO
 	"client/c_fleet.lua"
 }
 
@@ -76,6 +77,7 @@ server_scripts {
 	'server/s_finance.lua',
 	'server/s_missions.lua',
 	"server/s_rental.lua",
+	'server/s_company_gps.lua', -- ADICIONADO
 	 'server/s_logistics_hub.lua'
 }
 

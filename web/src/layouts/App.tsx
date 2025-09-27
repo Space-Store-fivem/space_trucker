@@ -114,9 +114,9 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const keyHandler = (e: KeyboardEvent) => {
+        const isOldUIVisible = visible !== VisibilityType.None;
+        
         if (['Escape'].includes(e.code)) {
-            const isOldUIVisible = visible !== VisibilityType.None;
-            
             if (garageVisible) {
                 handleCloseGarage();
             } else if (isOldUIVisible) {

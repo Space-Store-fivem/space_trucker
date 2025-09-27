@@ -70,15 +70,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
             <div className="flex flex-col h-full">
                 <NoCompanyView onAppSelect={onAppSelect} />
                 <div className="p-6">
-                     <h2 className="text-lg font-semibold text-gray-400 mb-3">Serviços Públicos</h2>
-                     <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                        <AppButton 
-                            iconPath="M8 16H5.373a2 2 0 01-1.99-2.226l.5-4a2 2 0 012-1.774H14V4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M15 1v4h4" 
-                            iconClassName="text-amber-400 w-9 h-9" 
-                            label="Central de Logística" 
-                            onClick={() => onAppSelect('logisticsHub')} 
-                        />
-                     </div>
+                         <h2 className="text-lg font-semibold text-gray-400 mb-3">Serviços Públicos</h2>
+                         <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                             <AppButton 
+                                 iconPath="M8 16H5.373a2 2 0 01-1.99-2.226l.5-4a2 2 0 012-1.774H14V4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M15 1v4h4" 
+                                 iconClassName="text-amber-400 w-9 h-9" 
+                                 label="Central de Logística" 
+                                 onClick={() => onAppSelect('logisticsHub')} 
+                             />
+                         </div>
                 </div>
             </div>
         )
@@ -92,12 +92,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
         } catch (e) {
             console.error("Falha ao fazer parse das permissões JSON:", e);
         }
-        return { canManageDashboard: false, canManageEmployees: false, canManageFleet: false, canManageFinances: false, canManageIndustries: false };
+        // Adicionando a nova permissão
+        return { canManageDashboard: false, canManageEmployees: false, canManageFleet: false, canManageFinances: false, canManageIndustries: false, canAccessGps: true }; // Por padrão, todos podem acessar
     }, [company.permissions]);
 
     const canAccess = (perm: keyof typeof permissions) => {
         if (isOwner) return true;
-        if (playerRole === 'manager') return permissions[perm];
+        // Permitir que gerentes e funcionários vejam por padrão, se a permissão não estiver definida
+        if (playerRole === 'manager' || playerRole === 'employee') {
+            return permissions[perm] !== false;
+        }
         return false;
     };
 
@@ -136,6 +140,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
                         {canAccess('canManageDashboard') && <AppButton iconPath="M9 17v-4m3 4v-2m3 2v-6m-9 8h12a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" iconClassName="text-cyan-400 w-9 h-9" label="Dashboard" onClick={() => onAppSelect('dashboard')} />}
                         {canAccess('canManageEmployees') && <AppButton iconPath="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" iconClassName="text-green-400 w-9 h-9" label="Funcionários" onClick={() => onAppSelect('employees')} />}
                         {canAccess('canManageFleet') && <AppButton iconPath="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" iconClassName="text-orange-400 w-9 h-9" label="Frota" onClick={() => onAppSelect('fleet')} />}
+                        
+                        {/* BOTÃO DO GPS DA FROTA ADICIONADO AQUI */}
+                        {canAccess('canAccessGps') && <AppButton iconPath="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" iconClassName="text-red-400 w-9 h-9" label="GPS da Frota" onClick={() => onAppSelect('gps')} />}
+
                         {canAccess('canManageFinances') && <AppButton iconPath="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" iconClassName="text-yellow-400 w-9 h-9" label="Finanças" onClick={() => onAppSelect('finance')} />}
                         {(isOwner || canAccess('canManageIndustries')) && <AppButton iconPath="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 4h5m-5 4h5" iconClassName="text-purple-400 w-9 h-9" label="Indústrias" onClick={() => onAppSelect('industries')} />}
                         {isOwner && <AppButton iconPath="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM12 15a3 3 0 100-6 3 3 0 000 6z" iconClassName="text-gray-400 w-9 h-9" label="Ajustes" onClick={() => onAppSelect('settings')} />}
@@ -168,4 +176,3 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
 };
 
 export default HomeScreen;
-

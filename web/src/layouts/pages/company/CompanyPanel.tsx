@@ -12,7 +12,8 @@ import { fetchNui } from '../../../utils/fetchNui';
 import { RecruitmentAgency } from './RecruitmentAgency';
 import { Industries } from './Industries';
 import { TransportMissions } from './TransportMissions';
-import { LogisticsHub } from './LogisticsHub'; // 1. Importar a nova aplicação
+import { LogisticsHub } from './LogisticsHub';
+import CompanyGPS from './CompanyGPS';
 
 const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: FullCompanyInfo) => void; }> = ({ data, updateCompanyData }) => {
   const [activeApp, setActiveApp] = useState(data.has_profile ? 'home' : 'createProfile');
@@ -78,9 +79,11 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
       case 'missions':
         return <TransportMissions onBack={goBack} companyData={data} />;
 
-      // 2. Adicionar o "case" para a nossa nova aplicação
       case 'logisticsHub':
         return <LogisticsHub onBack={goBack} />;
+
+      case 'gps':
+        return <CompanyGPS onBack={goBack} />;
 
       case 'employees':
         return <Employees companyData={data} updateCompanyData={safeUpdateCompanyData} onBack={goBack} />;
@@ -108,8 +111,9 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
         <div className="absolute w-[79.6%] h-[87.5%] top-[5.3%] left-[10%] bg-gray-900 rounded-2xl shadow-inner flex overflow-hidden z-10">
           {renderActiveApp()}
         </div>
+        {/* CORREÇÃO AQUI: O caminho agora é relativo */}
         <img 
-          src="./images/ifruit-air.png" 
+          src="images/ifruit-air.png" 
           alt="Moldura do Tablet" 
           className="absolute top-0 left-0 w-full h-full object-contain z-20 pointer-events-none" 
         />
