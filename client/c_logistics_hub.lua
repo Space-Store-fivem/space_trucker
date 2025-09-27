@@ -36,7 +36,8 @@ RegisterNUICallback('acceptLogisticsOrder', function(data, cb)
     QBCore.Functions.TriggerCallback('gs_trucker:callback:acceptLogisticsOrder', function(result)
         if result and result.success then
             TriggerEvent('gs_trucker:client:startLogisticsMission', result.orderData)
-            TriggerEvent('gs_trucker:client:closeCompanyPanel') 
+            TriggerEvent('gs_trucker:client:closeCompanyPanel')
+            TriggerEvent('gs_trucker:client:toggleTablet', false) -- Adicionado para fechar o tablet
         else
             QBCore.Functions.Notify(result.message or "Ocorreu um erro.", 'error')
         end

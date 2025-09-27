@@ -1,4 +1,4 @@
-// gs_trucker/web/src/layouts/App.tsx
+// gs_trucker/web/src/layouts/App.tsx (CORRIGIDO)
 
 import { useNuiEvent } from '../hooks/useNuiEvent';
 import React, { useEffect, useState } from 'react';
@@ -58,6 +58,15 @@ export const App: React.FC = () => {
     setGarageVisible(false);
     fetchNui('gs_trucker:garage_close');
   }
+
+  // ## INÍCIO DA CORREÇÃO ##
+  // Adicionado listener para o evento 'closePanel' que é enviado pelo client script (c_nui.lua)
+  useNuiEvent<void>('closePanel', () => {
+    // Esta ação irá fechar o painel da empresa
+    setShowCompanyPanel(false);
+    setCompanyData(null);
+  });
+  // ## FIM DA CORREÇÃO ##
 
   // Listener para o painel da empresa
   useNuiEvent<FullCompanyInfo>('showCompanyPanel', (data) => {
