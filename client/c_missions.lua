@@ -1,4 +1,4 @@
--- gs_trucker/client/c_missions.lua (VERSÃO FINAL 5.0 - CORREÇÃO DEFINITIVA DO CONFLITO DE TARGET)
+-- gs_trucker/client/c_missions.lua (VERSÃO 7.0 - PROTEÇÃO CONTRA SPAM DE TECLA)
 
 local QBCore = exports['qb-core']:GetCoreObject()
 currentMission = nil
@@ -7,7 +7,8 @@ local activeCargoProps = { onVehicle = {}, onPlayer = nil }
 local isPlayerCarryingMissionProp = false
 local missionCargoLoaded = 0
 
-local activeDroppedProps = {}
+local propOnGround = nil -- Variável para rastrear a caixa no chão
+local isActionInProgress = false -- Trava para prevenir spam de ações
 
 local carryingAnimDict = "anim@heists@box_carry@"
 local carryingAnimName = "idle"
@@ -32,13 +33,10 @@ function clearMission()
     end
     activeCargoProps = { onVehicle = {}, onPlayer = nil }
     
-    for entity, _ in pairs(activeDroppedProps) do
-        if DoesEntityExist(entity) then
-            exports.ox_target:removeEntity(entity)
-            DeleteEntity(entity)
-        end
+    if propOnGround and DoesEntityExist(propOnGround.entity) then
+        DeleteEntity(propOnGround.entity)
     end
-    activeDroppedProps = {}
+    propOnGround = nil
 
     if currentMission and currentMission.type == 'LOGISTICS_ORDER' then
         TriggerServerEvent('gs_trucker:server:cancelLogisticsOrder', currentMission.orderId)
@@ -47,9 +45,38 @@ function clearMission()
     currentMission = nil
     isPlayerCarryingMissionProp = false
     missionCargoLoaded = 0
+    isActionInProgress = false
     ClearPedTasks(PlayerPedId())
     QBCore.Functions.Notify("Missão cancelada.", "error")
 end
+
+CreateThread(function()
+    while true do
+        Wait(5)
+        if propOnGround and DoesEntityExist(propOnGround.entity) then
+            local playerPed = PlayerPedId()
+            local playerCoords = GetEntityCoords(playerPed)
+            local propCoords = GetEntityCoords(propOnGround.entity)
+            local distance = #(playerCoords - propCoords)
+
+            if distance < 2.0 then
+                DrawText3D(propCoords.x, propCoords.y, propCoords.z + 0.5, "[E] - Apanhar Carga")
+                if IsControlJustReleased(0, 38) and not isActionInProgress then -- Tecla E e a ação não está em progresso
+                    isActionInProgress = true -- Ativa a trava
+                    local propEntity = propOnGround.entity
+                    local propData = propOnGround.data
+                    propOnGround = nil
+                    
+                    HandlePropCarrying(propEntity, propData.vehicle, propData.config, propData.item)
+                    -- A trava será liberada dentro de HandlePropCarrying
+                end
+            end
+        else
+            Wait(500)
+        end
+    end
+end)
+
 
 RegisterNUICallback('getMissions', function(_, cb)
     QBCore.Functions.TriggerCallback('gs_trucker:callback:getMissions', function(missions) cb(missions or {}) end)
@@ -133,9 +160,9 @@ RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
     missionPoints.collect.blip = blip
 end)
 
-
 RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
-    if not currentMission or isPlayerCarryingMissionProp then return end
+    if not currentMission or isPlayerCarryingMissionProp or isActionInProgress then return end
+    isActionInProgress = true -- Ativa a trava
 
     local itemInfo = spaceconfig.IndustryItems[currentMission.item]
     local transportType = itemInfo.transType
@@ -144,10 +171,18 @@ RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
 
     if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
         vehicleToCheck = GetClosestVehicle(GetEntityCoords(playerPed), 15.0, 0, 70)
-        if not DoesEntityExist(vehicleToCheck) then QBCore.Functions.Notify("Você precisa de um veículo de carga por perto.", "error"); return end
+        if not DoesEntityExist(vehicleToCheck) then 
+            QBCore.Functions.Notify("Você precisa de um veículo de carga por perto.", "error")
+            isActionInProgress = false -- Libera a trava
+            return 
+        end
     else
         local truckCab = GetVehiclePedIsIn(playerPed, false)
-        if not DoesEntityExist(truckCab) then QBCore.Functions.Notify("Você precisa estar dentro do seu veículo de carga.", "error"); return end
+        if not DoesEntityExist(truckCab) then 
+            QBCore.Functions.Notify("Você precisa estar dentro do seu veículo de carga.", "error")
+            isActionInProgress = false -- Libera a trava
+            return
+        end
         if IsVehicleAttachedToTrailer(truckCab) then
             local isTrailer, trailer = GetVehicleTrailerVehicle(truckCab); if isTrailer then vehicleToCheck = trailer else vehicleToCheck = truckCab end
         else
@@ -166,8 +201,16 @@ RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
         end
     end
 
-    if not vehicleConfig then QBCore.Functions.Notify("Este veículo ("..modelName..") não é compatível.", "error"); return end
-    if not vehicleConfig.transType or not vehicleConfig.transType[transportType] then QBCore.Functions.Notify("O seu "..vehicleConfig.label.." não pode transportar este tipo de carga.", "error"); return end
+    if not vehicleConfig then 
+        QBCore.Functions.Notify("Este veículo ("..modelName..") não é compatível.", "error")
+        isActionInProgress = false -- Libera a trava
+        return 
+    end
+    if not vehicleConfig.transType or not vehicleConfig.transType[transportType] then 
+        QBCore.Functions.Notify("O seu "..vehicleConfig.label.." não pode transportar este tipo de carga.", "error")
+        isActionInProgress = false -- Libera a trava
+        return
+    end
 
     if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
         TriggerEvent('gs_trucker:client:startManualLoading', vehicleToCheck, vehicleConfig, itemInfo)
@@ -184,6 +227,7 @@ function HandlePropCarrying(prop, vehicle, config, item)
     TaskPlayAnim(playerPed, carryingAnimDict, carryingAnimName, 8.0, -8.0, -1, 49, 0, false, false, false)
     isPlayerCarryingMissionProp = true
     activeCargoProps.onPlayer = prop
+    isActionInProgress = false -- Libera a trava agora que a animação começou
 
     local trunkOffset = GetOffsetFromEntityInWorldCoords(vehicle, config.trunkOffset or vector3(0.0, -2.5, 0.5))
     missionPoints.store = Point.add({
@@ -220,37 +264,25 @@ function HandlePropCarrying(prop, vehicle, config, item)
         end
     })
 
-    -- lógica para dropar caixa no chão e fazer target para pegar de volta
     CreateThread(function()
         while isPlayerCarryingMissionProp and DoesEntityExist(prop) do
             Wait(0)
-            if IsControlJustReleased(0, 47) then -- tecla G para dropar
-                local playerPos = GetEntityCoords(PlayerPedId())
-                local propModel = GetEntityModel(prop)
-                -- cria nova entidade no chão
-                local newPropOnGround = CreateObject(propModel, playerPos.x, playerPos.y, playerPos.z, true, true, true)
+            if IsControlJustReleased(0, 47) then -- Tecla G para dropar
+                local playerPed = PlayerPedId()
                 
-                -- registra nos dropped props
-                activeDroppedProps[newPropOnGround] = {
-                    vehicle = vehicle,
-                    config = config,
-                    item = item
+                DetachEntity(prop, true, true)
+                PlaceObjectOnGroundProperly(prop)
+
+                propOnGround = {
+                    entity = prop,
+                    data = {
+                        vehicle = vehicle,
+                        config = config,
+                        item = item
+                    }
                 }
 
-                -- ** aqui adiciona target para a nova prop ** 
-                exports.ox_target:addEntity(newPropOnGround, {
-                    {
-                        name = 'pickup_mission_prop_' .. tostring(newPropOnGround),
-                        event = 'gs_trucker:client:pickupDroppedProp',
-                        icon = 'fas fa-box-open',
-                        label = 'Apanhar Carga',
-                        distance = 2.5,
-                    }
-                })
-
-                -- limpar estado da prop que o jogador carregava
-                ClearPedTasks(PlayerPedId())
-                DeleteEntity(prop)
+                ClearPedTasks(playerPed)
                 isPlayerCarryingMissionProp = false
                 activeCargoProps.onPlayer = nil
                 if missionPoints.store then missionPoints.store:remove(); missionPoints.store = nil end
@@ -260,22 +292,6 @@ function HandlePropCarrying(prop, vehicle, config, item)
     end)
 end
 
-RegisterNetEvent('gs_trucker:client:pickupDroppedProp', function(data)
-    local entity = data.entity
-    -- se data.entity for passado, mas no seu código original você usou activeDroppedProps[entity]
-    -- ajustar: se data.entity, ou no ox_target, a entidade é passada no parâmetro? você pode também usar source
-    -- aqui assumimos que o evento dá `entity`
-    if not entity or not DoesEntityExist(entity) or not activeDroppedProps[entity] then
-        return
-    end
-    
-    local propData = activeDroppedProps[entity]
-    exports.ox_target:removeEntity(entity)
-    activeDroppedProps[entity] = nil
-
-    HandlePropCarrying(entity, propData.vehicle, propData.config, propData.item)
-end)
-
 RegisterNetEvent('gs_trucker:client:startManualLoading', function(vehicle, config, item)
     QBCore.Functions.Progressbar("load_mission_crate", "Apanhando a caixa...", 1500, false, true, {}, {}, {}, {}, function()
         local playerPed = PlayerPedId()
@@ -284,7 +300,10 @@ RegisterNetEvent('gs_trucker:client:startManualLoading', function(vehicle, confi
         
         local prop = CreateObject(propModel, GetEntityCoords(playerPed), true, true, true)
         HandlePropCarrying(prop, vehicle, config, item)
-    end, function() QBCore.Functions.Notify("Falhou ao apanhar a caixa.", "error") end)
+    end, function() 
+        QBCore.Functions.Notify("Falhou ao apanhar a caixa.", "error")
+        isActionInProgress = false -- Libera a trava em caso de falha
+    end)
 end)
 
 RegisterNetEvent('gs_trucker:client:startAutomaticLoading', function(vehicle, config, item)
@@ -304,7 +323,11 @@ RegisterNetEvent('gs_trucker:client:startAutomaticLoading', function(vehicle, co
             end
         end
         TriggerEvent("gs_trucker:client:startDeliveryPhase")
-    end, function() QBCore.Functions.Notify("Carregamento cancelado.", "error") end)
+        isActionInProgress = false -- Libera a trava
+    end, function() 
+        QBCore.Functions.Notify("Carregamento cancelado.", "error")
+        isActionInProgress = false -- Libera a trava
+    end)
 end)
 
 RegisterNetEvent("gs_trucker:client:startDeliveryPhase", function()
