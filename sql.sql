@@ -159,3 +159,21 @@ ALTER TABLE `gs_trucker_logistics_orders` ADD COLUMN `cargo_value` INT(11) NOT N
 
 ALTER TABLE `gs_trucker_logistics_orders` ADD COLUMN `company_id` INT(11) NULL DEFAULT NULL AFTER `creator_name`;
 
+CREATE TABLE IF NOT EXISTS `gs_trucker_skills` (
+  `citizenId` varchar(50) NOT NULL,
+  `totalProfit` decimal(20,6) DEFAULT NULL,
+  `totalPackage` int(11) DEFAULT NULL,
+  `totalDistance` decimal(20,6) DEFAULT NULL,
+  `exp` decimal(20,6) DEFAULT NULL,
+  `level` int(11) DEFAULT NULL,
+  PRIMARY KEY (`citizenId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+ALTER TABLE `gs_trucker_companies`
+ADD COLUMN `permissions` TEXT DEFAULT '{}';
+
+
+-- Adiciona a nova coluna 'is_npc' à tabela de empresas
+ALTER TABLE `gs_trucker_companies` ADD COLUMN `is_npc` BOOLEAN NOT NULL DEFAULT 0;
+
+-- Agora, vamos criar a empresa do "Sistema" que será a dona de todas as indústrias não compradas
+INSERT INTO `gs_trucker_companies` (name, owner_identifier, balance, is_npc) VALUES ('Sistema', 'npc_system', 999999999, 1);  

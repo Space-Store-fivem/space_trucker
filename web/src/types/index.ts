@@ -308,7 +308,9 @@ export interface LogisticsOrder {
     item_label: string;
     quantity: number;
     reward: number;
-     cargo_value: number; // << ADICIONE ESTA LINHA
+  cargo_value: number; // Deve estar assim
+  sourceLabel?: string; // << ADICIONE ESTA LINHA SE FALTAR
+  destinationLabel?: string; // << ADICIONE ESTA LINHA SE FALTAR
     pickup_industry_name: string;
     dropoff_details: string;
 }

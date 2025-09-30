@@ -105,66 +105,127 @@ CreateCallback('gs_trucker:callback:hireNpcForIndustry', function(source, cb, da
 end)
 
 
+-- Função auxiliar para encontrar a indústria que VENDE um item específico
+local function findItemSource(itemName)
+    local allIndustries = Industries:GetIndustries()
+    for name, industry in pairs(allIndustries) do
+        -- [[ CORREÇÃO APLICADA AQUI ]] --
+        -- Validação mais robusta para garantir que a indústria e o item têm um preço definido
+        if industry.tradeData and industry.tradeData[spaceconfig.Industry.TradeType.FORSALE] and industry.tradeData[spaceconfig.Industry.TradeType.FORSALE][itemName] and industry.tradeData[spaceconfig.Industry.TradeType.FORSALE][itemName].price then
+            return industry -- Retorna o objeto completo da indústria
+        end
+    end
+    return nil
+end
+
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(60000) -- Ciclo de 1 minuto
-        
-        local ownedIndustries = MySQL.query.await('SELECT * FROM gs_trucker_company_industries', {})
-        if not ownedIndustries or #ownedIndustries == 0 then goto continue end
-        
-        for _, ownedIndustry in ipairs(ownedIndustries) do
-            local industryDef = Industries:GetIndustry(ownedIndustry.industry_name)
-            if not industryDef then goto industry_continue end
 
-            local companyId = ownedIndustry.company_id
-            local industryName = ownedIndustry.industry_name
-            local hasAllMaterials = true
-            local materialsToConsume = {}
+        -- #####################################################################
+        -- ## CICLO DE PRODUÇÃO PARA INDÚSTRIAS COMPRADAS POR JOGADORES       ##
+        -- #####################################################################
+        local ownedIndustries = MySQL.query.await('SELECT ci.* FROM gs_trucker_company_industries ci', {})
+        if ownedIndustries and #ownedIndustries > 0 then
+            for _, ownedIndustry in ipairs(ownedIndustries) do
+                local industryDef = Industries:GetIndustry(ownedIndustry.industry_name)
+                if not industryDef or not industryDef.tradeData then goto purchased_industry_continue end
 
-            if industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED] and next(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) then
-                for materialName, materialData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
-                    local requiredAmount = materialData.amount_needed or 1
-                    local stockResult = MySQL.query.await('SELECT stock FROM gs_trucker_industry_stock WHERE company_id = ? AND industry_name = ? AND item_name = ?', { companyId, industryName, materialName })
-                    local currentStock = stockResult and stockResult[1] and stockResult[1].stock or 0
-                    
-                    if currentStock < requiredAmount then
+                local companyId = ownedIndustry.company_id
+                local industryName = ownedIndustry.industry_name
+                local hasAllMaterials = true
+                local materialsToConsume = {}
+
+                if industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED] and next(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) then
+                    for materialName, materialData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
+                        local requiredAmount = materialData.amount_needed or 1
+                        local stockResult = MySQL.query.await('SELECT stock FROM gs_trucker_industry_stock WHERE company_id = ? AND industry_name = ? AND item_name = ?', { companyId, industryName, materialName })
+                        local currentStock = stockResult and stockResult[1] and stockResult[1].stock or 0
+                        
+                        if currentStock < requiredAmount then
+                            hasAllMaterials = false
+                            print(('[PRODUÇÃO JOGADOR] A indústria %s parou. Faltam materiais: %s'):format(industryName, tostring(materialName)))
+                            break
+                        else
+                            table.insert(materialsToConsume, { name = materialName, amount = requiredAmount })
+                        end
+                    end
+                else 
+                    local utilityCost = 500
+                    local company = MySQL.query.await('SELECT balance FROM gs_trucker_companies WHERE id = ?', { companyId })
+                    if not company or not company[1] or company[1].balance < utilityCost then
                         hasAllMaterials = false
-                        print(('[PRODUÇÃO] A indústria %s parou. Faltam materiais: %s'):format(industryName, materialName))
-                        break
-                    else
-                        table.insert(materialsToConsume, { name = materialName, amount = requiredAmount })
+                        print(('[PRODUÇÃO JOGADOR] A indústria primária %s parou. Saldo da empresa insuficiente.'):format(industryName))
                     end
                 end
-            else
-                local utilityCost = 500
-                local company = MySQL.query.await('SELECT balance FROM gs_trucker_companies WHERE id = ?', { companyId })
-                if not company or not company[1] or company[1].balance < utilityCost then
-                    hasAllMaterials = false
-                    print(('[PRODUÇÃO] A indústria primária %s parou. Saldo insuficiente para cobrir os custos de utilidades.'):format(industryName))
+
+                if hasAllMaterials then
+                    for _, material in ipairs(materialsToConsume) do
+                        MySQL.update.await('UPDATE gs_trucker_industry_stock SET stock = stock - ? WHERE company_id = ? AND industry_name = ? AND item_name = ?', { material.amount, companyId, industryName, material.name })
+                    end
+                    if #materialsToConsume == 0 then
+                        local utilityCost = 500
+                        MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance - ? WHERE id = ?', { utilityCost, companyId })
+                    end
+                    for itemName, itemData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
+                        local baseProduction = itemData.production or 5
+                        local investmentBonus = (ownedIndustry.investment_level or 0) * 2
+                        local npcBonus = (ownedIndustry.npc_workers or 0) * 1
+                        local finalProduction = math.floor(baseProduction + investmentBonus + npcBonus)
+                        MySQL.execute('INSERT INTO gs_trucker_industry_stock (company_id, industry_name, item_name, stock) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = LEAST(stock + ?, ?)', { companyId, industryName, itemName, finalProduction, finalProduction, itemData.storageSize or 100 })
+                        print(('[PRODUÇÃO JOGADOR] A indústria %s produziu %d de %s.'):format(industryName, finalProduction, itemName))
+                    end
+                end
+                ::purchased_industry_continue::
+            end
+        end
+
+        -- #####################################################################
+        -- ## CICLO DE ENCOMENDAS PARA INDÚSTRIAS NÃO COMPRADAS (SISTEMA)     ##
+        -- #####################################################################
+        local allDefinedIndustries = Industries:GetIndustries()
+        local purchasedIndustriesResult = MySQL.query.await('SELECT industry_name FROM gs_trucker_company_industries', {})
+        local purchasedIndustriesMap = {}
+        for _, row in ipairs(purchasedIndustriesResult) do
+            purchasedIndustriesMap[row.industry_name] = true
+        end
+
+        for name, industryDef in pairs(allDefinedIndustries) do
+            if not purchasedIndustriesMap[name] then
+                if industryDef and industryDef.tradeData then
+                    if industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED] and next(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) then
+                        for materialName, materialData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
+                            local existingOrder = MySQL.query.await('SELECT id FROM gs_trucker_logistics_orders WHERE creator_name = ? AND item_name = ? AND status = ?', { industryDef.label, materialName, 'OPEN' })
+                            
+                            if not existingOrder or #existingOrder == 0 then
+                                local sourceIndustry = findItemSource(materialName)
+                                
+                                if sourceIndustry then
+                                    local itemPrice = sourceIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][materialName].price
+
+                                    if itemPrice then
+                                        local orderAmount = materialData.storageSize or 100 
+                                        local distance = #(sourceIndustry.location - industryDef.location)
+                                        local reward = math.floor((itemPrice * orderAmount * 0.1) + (distance / 5))
+                                        local cargoValue = itemPrice * orderAmount
+                                        local itemLabel = Lang:t('item_name_' .. materialName) or materialName
+                                        
+                                        -- [[ CORREÇÃO FINAL APLICADA AQUI: Removido o '?' extra ]]
+                                        MySQL.insert.await('INSERT INTO gs_trucker_logistics_orders (creator_identifier, creator_name, item_name, item_label, quantity, reward, cargo_value, pickup_industry_name, pickup_location, dropoff_location, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', { 
+                                            'system', industryDef.label, materialName, itemLabel, orderAmount, reward, cargoValue, sourceIndustry.name, json.encode(sourceIndustry.location), json.encode(industryDef.location), 'OPEN' 
+                                        })
+                                        print(('[LOGÍSTICA DO SISTEMA] A indústria %s criou uma encomenda de %d x %s.'):format(name, orderAmount, materialName))
+                                    else
+                                        print(('[AVISO DE CONFIGURAÇÃO] O material "%s" na indústria "%s" não tem um preço definido.'):format(tostring(materialName), sourceIndustry.name))
+                                    end
+                                end
+                            end
+                        end
+                    end
                 else
-                    MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance - ? WHERE id = ?', { utilityCost, companyId })
+                    print(('[ERRO DE CONFIGURAÇÃO] A indústria "%s" não foi carregada corretamente (falta tradeData).'):format(name))
                 end
             end
-
-            if hasAllMaterials then
-                for _, material in ipairs(materialsToConsume) do
-                    MySQL.update.await('UPDATE gs_trucker_industry_stock SET stock = stock - ? WHERE company_id = ? AND industry_name = ? AND item_name = ?', { material.amount, companyId, industryName, material.name })
-                end
-
-                for itemName, itemData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
-                    local baseProduction = itemData.production or 5
-                    local investmentBonus = (ownedIndustry.investment_level or 0) * 2
-                    local npcBonus = (ownedIndustry.npc_workers or 0) * 1
-                    local finalProduction = math.floor(baseProduction + investmentBonus + npcBonus)
-                    
-                    MySQL.execute(
-                        'INSERT INTO gs_trucker_industry_stock (company_id, industry_name, item_name, stock) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = LEAST(stock + ?, ?)',
-                        { companyId, industryName, itemName, finalProduction, finalProduction, itemData.storageSize or 100 }
-                    )
-                    print(('[PRODUÇÃO] A indústria %s produziu %d de %s.'):format(industryName, finalProduction, itemName))
-                end
-            end
-            ::industry_continue::
         end
         ::continue::
     end
