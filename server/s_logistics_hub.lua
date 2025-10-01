@@ -1,46 +1,68 @@
+-- gs_trucker/server/s_logistics_hub.lua (VERSÃO COMPLETA E ATUALIZADA)
+
 local QBCore = exports['qb-core']:GetCoreObject()
 
-CreateCallback('gs_trucker:callback:getOrderItemPrice', function(source, cb, data)
-    print('--- INÍCIO DO DIAGNÓSTICO DE PREÇO ---')
-    if not data or not data.itemName then 
-        print('[LOGS-PREÇO] [FALHA 1] Pedido da UI não continha o nome do item. A devolver 0.')
-        return cb(0) 
-    end
-    print(('[LOGS-PREÇO] [PASSO 1] A UI pediu o preço para o item: "%s"'):format(data.itemName))
-    
-    local producingIndustry = Industries:GetIndustryThatProduces(data.itemName)
-    if not producingIndustry then
-        print(('[LOGS-PREÇO] [FALHA 2] Nenhuma indústria encontrada na configuração que produza "%s".'):format(data.itemName))
-        return cb(0)
-    end
-    print(('[LOGS-PREÇO] [PASSO 2] Indústria produtora encontrada: "%s"'):format(producingIndustry.name))
-    
-    if not producingIndustry.tradeData or not producingIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE] then
-        print(('[LOGS-PREÇO] [FALHA 3] A indústria "%s" não tem uma tabela "FORSALE".'):format(producingIndustry.name))
-        return cb(0)
-    end
+local SystemCompanyId = nil -- Variável para guardar o ID da empresa "Sistema"
 
-    local itemData = producingIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][data.itemName]
-    if not itemData or not itemData.price then
-        print(('[LOGS-PREÇO] [FALHA 4] O item "%s" existe na indústria "%s", mas não tem "price" definido.'):format(data.itemName, producingIndustry.name))
-        return cb(0)
+-- No início do script, encontra e guarda o ID da empresa do sistema para uso posterior
+Citizen.CreateThread(function()
+    Citizen.Wait(1000) -- Espera o MySQL estar pronto
+    local result = MySQL.query.await('SELECT id FROM gs_trucker_companies WHERE name = ?', { 'Sistema' })
+    if result and result[1] then
+        SystemCompanyId = result[1].id
+        print(('[gs-trucker] ID da empresa do Sistema carregado: %d'):format(SystemCompanyId))
+    else
+        print('[gs-trucker] ERRO CRÍTICO: Não foi possível encontrar a empresa "Sistema" na base de dados.')
     end
-    
-    print(('[LOGS-PREÇO] [SUCESSO] Preço encontrado: $%d. A enviar para a UI.'):format(itemData.price))
-    print('--- FIM DO DIAGNÓSTICO DE PREÇO ---')
+end)
+
+
+CreateCallback('gs_trucker:callback:getOrderItemPrice', function(source, cb, data)
+    if not data or not data.itemName then return cb(0) end
+    local producingIndustry = Industries:GetIndustryThatProduces(data.itemName)
+    if not producingIndustry or not producingIndustry.tradeData or not producingIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE] then return cb(0) end
+    local itemData = producingIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][data.itemName]
+    if not itemData or not itemData.price then return cb(0) end
     cb(itemData.price)
 end)
 
+-- Função corrigida para buscar e preparar os nomes das indústrias para a UI
 CreateCallback('gs_trucker:callback:getLogisticsOrders', function(source, cb)
-    local orders = MySQL.query.await('SELECT * FROM gs_trucker_logistics_orders WHERE status = ? ORDER BY timestamp DESC', { 'OPEN' })
+    -- 1. Busca as encomendas como de costume
+    local orders = MySQL.query.await('SELECT * FROM gs_trucker_logistics_orders WHERE status = ? ORDER BY created_at DESC', { 'OPEN' })
+    
     if orders then
         for i = 1, #orders do
-            local industry = Industries:GetIndustry(orders[i].pickup_industry_name)
-            if industry then
-                orders[i].pickup_industry_name = Lang:t(industry.label)
+            -- 2. Processa a INDÚSTRIA DE PARTIDA (DE:)
+            local pickupIndustry = Industries:GetIndustry(orders[i].pickup_industry_name)
+            if pickupIndustry and pickupIndustry.label then
+                -- O painel TSX espera 'sourceLabel'
+                orders[i].sourceLabel = Lang:t(pickupIndustry.label)
+            else
+                orders[i].sourceLabel = orders[i].pickup_industry_name -- Fallback
             end
+
+            -- 3. Processa a INDÚSTRIA DE CHEGADA (PARA:)
+            local destinationLabel = "Destino Desconhecido"
+            if orders[i].creator_identifier == 'system' then
+                destinationLabel = Lang:t(orders[i].creator_name)
+            else
+                local industryNameInDetails = orders[i].dropoff_details:match("%((.-)%)")
+                if industryNameInDetails then
+                    local dropoffIndustry = Industries:GetIndustry(industryNameInDetails)
+                    if dropoffIndustry and dropoffIndustry.label then
+                        destinationLabel = Lang:t(dropoffIndustry.label)
+                    else
+                        destinationLabel = industryNameInDetails -- Fallback
+                    end
+                end
+            end
+            -- O painel TSX espera 'destinationLabel'
+            orders[i].destinationLabel = destinationLabel
         end
     end
+    
+    -- 4. Envia a lista de encomendas já com os nomes corretos para a interface
     cb(orders or {})
 end)
 
@@ -81,7 +103,7 @@ CreateCallback('gs_trucker:callback:createLogisticsOrder', function(source, cb, 
             producingIndustry.name,
             json.encode(producingIndustry.location),
             json.encode(requestingIndustry.location),
-            company[1].name .. ' (' .. requestingIndustry.label .. ')'
+            company[1].name .. ' (' .. requestingIndustry.name .. ')'
         }
     )
 
@@ -93,11 +115,11 @@ CreateCallback('gs_trucker:callback:createLogisticsOrder', function(source, cb, 
     end
 end)
 
--- Aceitar ordem logística
+-- Ficheiro: s_logistics_hub.lua
+
 CreateCallback('gs_trucker:callback:acceptLogisticsOrder', function(source, cb, data)
     local player = exports['gs_trucker']:GetPlayer(source)
     if not player then return cb({ success = false, message = "Jogador não encontrado." }) end
-    local identifier = player.PlayerData.citizenid
     
     local orderId = tonumber(data.orderId)
     if not orderId then return cb({ success = false, message = "ID da encomenda inválido." }) end
@@ -108,55 +130,102 @@ CreateCallback('gs_trucker:callback:acceptLogisticsOrder', function(source, cb, 
 
     if ord.status ~= 'OPEN' then return cb({ success = false, message = "Esta encomenda já foi aceite." }) end
     
-    local producerCompanyQuery = MySQL.query.await('SELECT ind.company_id FROM gs_trucker_company_industries ind WHERE ind.industry_name = ?', { ord.pickup_industry_name })
-    if not producerCompanyQuery or not producerCompanyQuery[1] then return cb({success = false, message = "A indústria produtora não tem dono."}) end
-    local producerCompanyId = producerCompanyQuery[1].company_id
+    -- [[ CORREÇÃO ESTRUTURAL APLICADA AQUI ]] --
+    
+    -- 1. Determina qual empresa é a dona da indústria de origem
+    local sourceIndustryName = ord.pickup_industry_name
+    local sourceOwnerResult = MySQL.query.await('SELECT company_id FROM gs_trucker_company_industries WHERE industry_name = ?', { sourceIndustryName })
+    local sourceCompanyId
+    
+    if sourceOwnerResult and sourceOwnerResult[1] then
+        sourceCompanyId = sourceOwnerResult[1].company_id -- É de um jogador
+    else
+        local systemCompany = MySQL.query.await('SELECT id FROM gs_trucker_companies WHERE name = ?', { 'Sistema' })
+        if systemCompany and systemCompany[1] then
+            sourceCompanyId = systemCompany[1].id -- É do sistema
+        end
+    end
 
-    MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance + ? WHERE id = ?', { ord.cargo_value, producerCompanyId })
-    MySQL.insert.await('INSERT INTO gs_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { producerCompanyId, 'sale_of_goods', ord.cargo_value, ('Venda de %d %s'):format(ord.quantity, Lang:t(ord.item_label)) })
-    MySQL.update.await('UPDATE gs_trucker_industry_stock SET stock = stock - ? WHERE industry_name = ? AND item_name = ? AND company_id = ?', { ord.quantity, ord.pickup_industry_name, ord.item_name, producerCompanyId })
+    if not sourceCompanyId then
+        return cb({ success = false, message = "Erro: Não foi possível identificar o dono da indústria de origem." })
+    end
 
+    -- 2. VERIFICA O ESTOQUE ANTES de aceitar a missão
+    local stockResult = MySQL.query.await('SELECT stock FROM gs_trucker_industry_stock WHERE company_id = ? AND industry_name = ? AND item_name = ?', { sourceCompanyId, sourceIndustryName, ord.item_name })
+
+    if not stockResult or not stockResult[1] or stockResult[1].stock < ord.quantity then
+        return cb({ success = false, message = "A indústria de origem não tem estoque suficiente para esta encomenda." })
+    end
+
+    -- 3. Se houver estoque, deduz IMEDIATAMENTE para "reservar" a carga
+    MySQL.update.await('UPDATE gs_trucker_industry_stock SET stock = stock - ? WHERE company_id = ? AND industry_name = ? AND item_name = ?', { ord.quantity, sourceCompanyId, sourceIndustryName, ord.item_name })
+
+    -- 4. Agora sim, atribui a missão ao jogador
+    local identifier = player.PlayerData.citizenid
     local result = MySQL.update.await('UPDATE gs_trucker_logistics_orders SET status = ?, taker_identifier = ? WHERE id = ? AND status = ?', { 'IN_PROGRESS', identifier, orderId, 'OPEN' })
+    
     if result and result > 0 then
+        -- Lógica de pagamento para a empresa vendedora (se não for do sistema)
+        if ord.creator_identifier ~= 'system' then
+            local producerCompanyQuery = MySQL.query.await('SELECT ind.company_id FROM gs_trucker_company_industries ind WHERE ind.industry_name = ?', { ord.pickup_industry_name })
+            if producerCompanyQuery and producerCompanyQuery[1] then
+                local producerCompanyId = producerCompanyQuery[1].company_id
+                MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance + ? WHERE id = ?', { ord.cargo_value, producerCompanyId })
+                MySQL.insert.await('INSERT INTO gs_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { producerCompanyId, 'sale_of_goods', ord.cargo_value, ('Venda de %d %s'):format(ord.quantity, Lang:t(ord.item_label)) })
+            end
+        end
+
         local industry = Industries:GetIndustry(ord.pickup_industry_name)
         if industry then ord.pickup_industry_name = Lang:t(industry.label) end
         cb({ success = true, orderData = ord })
     else
-        MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance - ? WHERE id = ?', { ord.cargo_value, producerCompanyId })
-        cb({ success = false, message = "Esta encomenda já foi aceite." })
+        -- Se algo der errado ao atribuir a missão, devolve o estoque
+        MySQL.update.await('UPDATE gs_trucker_industry_stock SET stock = stock + ? WHERE company_id = ? AND industry_name = ? AND item_name = ?', { ord.quantity, sourceCompanyId, sourceIndustryName, ord.item_name })
+        cb({ success = false, message = "Esta encomenda acabou de ser aceite por outro jogador." })
     end
 end)
 
--- Evento para completar ordem
 RegisterNetEvent('gs_trucker:server:completeLogisticsOrder', function(missionData)
     local src = source
     local player = exports['gs_trucker']:GetPlayer(src)
-    if not player then return end
+    if not player or not missionData or not missionData.orderId then return end
+    
     local identifier = player.PlayerData.citizenid
     local orderId = missionData.orderId
 
+    -- Busca a encomenda para garantir que ela ainda pertence ao jogador
     local order = MySQL.query.await('SELECT * FROM gs_trucker_logistics_orders WHERE id = ? AND taker_identifier = ?', { orderId, identifier })
     if not order or not order[1] then return end
     local ord = order[1]
 
+    -- Paga a recompensa ao jogador
     player.Functions.AddMoney('bank', ord.reward, "Pagamento de encomenda de logística")
 
-    local requestingIndustryLabel = ord.dropoff_details:match("%((.-)%)")
-    local requestingIndustryName = nil
-    for name, industry in pairs(Industries:GetIndustries()) do
-        if industry.label == requestingIndustryLabel then
-            requestingIndustryName = name
-            break
+    -- Lógica para adicionar o estoque na indústria de destino
+    if ord.creator_identifier == 'system' then
+        if SystemCompanyId then
+            local destinationIndustryLabel = ord.creator_name
+            local destinationIndustryName = nil
+            for name, industry in pairs(Industries:GetIndustries()) do
+                if Lang:t(industry.label) == destinationIndustryLabel then
+                    destinationIndustryName = name
+                    break
+                end
+            end
+            if destinationIndustryName then
+                MySQL.execute('INSERT INTO gs_trucker_industry_stock (company_id, industry_name, item_name, stock) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = stock + VALUES(stock)', { SystemCompanyId, destinationIndustryName, ord.item_name, ord.quantity })
+            end
+        end
+    else
+        local requestingIndustryName = ord.dropoff_details:match("%((.-)%)")
+        if requestingIndustryName and ord.company_id then
+            MySQL.execute('INSERT INTO gs_trucker_industry_stock (company_id, industry_name, item_name, stock) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = stock + VALUES(stock)', { ord.company_id, requestingIndustryName, ord.item_name, ord.quantity })
         end
     end
 
-    if requestingIndustryName then
-        MySQL.execute(
-            'INSERT INTO gs_trucker_industry_stock (company_id, industry_name, item_name, stock) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = stock + VALUES(stock)',
-            { ord.company_id, requestingIndustryName, ord.item_name, ord.quantity }
-        )
-    end
+    -- [[ CORREÇÃO APLICADA AQUI ]] --
+    -- Em vez de atualizar o status, agora a encomenda é excluída do banco de dados.
+    MySQL.execute('DELETE FROM gs_trucker_logistics_orders WHERE id = ?', { orderId })
 
-    MySQL.update.await('UPDATE gs_trucker_logistics_orders SET status = ? WHERE id = ?', { 'COMPLETED', orderId })
     TriggerClientEvent('QBCore:Notify', src, ('Encomenda concluída! Você recebeu $%s.'):format(ord.reward), 'success')
 end)

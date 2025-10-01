@@ -1,10 +1,8 @@
--- gs_trucker/client/c_missions.lua (VERSÃO FINAL E CORRIGIDA)
-
+-- gs_trucker/client/c_missions.lua (VERSÃO FINAL COM CORREÇÕES DE LÓGICA)
 local QBCore = exports['qb-core']:GetCoreObject()
 
--- Variáveis globais para controlar o estado da missão
 currentMission = nil
-currentLogisticsOrderId = nil -- Variável para partilhar o ID da missão de logística com outros ficheiros
+currentLogisticsOrderId = nil -- Variável global para partilhar o estado da missão
 local missionPoints = { collect = nil, deliver = nil, store = nil }
 local activeCargoProps = { onVehicle = {}, onPlayer = nil }
 local isPlayerCarryingMissionProp = false
@@ -26,7 +24,6 @@ local function DrawText3D(x, y, z, text)
     DrawRect(0.0, 0.0 + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 75); ClearDrawOrigin()
 end
 
--- Função centralizada para limpar e cancelar qualquer missão ativa
 function clearMission()
     for _, point in pairs(missionPoints) do
         if point then point:remove(); if point.blip then RemoveBlip(point.blip) end end
@@ -55,8 +52,7 @@ function clearMission()
     missionCargoDelivered = 0
     isActionInProgress = false
     
-    -- [[ CORREÇÃO APLICADA AQUI ]] --
-    -- Limpa o ID da missão ativa e informa a UI
+    -- Limpa o ID da missão e informa a UI
     currentLogisticsOrderId = nil 
     SendNUIMessage({ action = 'setActiveLogisticsOrder', payload = nil }) 
     
@@ -64,7 +60,6 @@ function clearMission()
     QBCore.Functions.Notify("Missão cancelada.", "error")
 end
 
--- Thread para apanhar caixas do chão
 CreateThread(function()
     while true do
         Wait(5)
@@ -96,7 +91,6 @@ CreateThread(function()
     end
 end)
 
--- Callbacks da NUI para missões normais
 RegisterNUICallback('getMissions', function(_, cb)
     QBCore.Functions.TriggerCallback('gs_trucker:callback:getMissions', function(missions) cb(missions or {}) end)
 end)
@@ -114,7 +108,6 @@ RegisterNUICallback('acceptMission', function(data, cb)
     end, data)
 end)
 
--- Evento para iniciar uma missão de transporte normal
 RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
     if currentMission then return end
     local sourceIndustry = Industries:GetIndustry(missionData.sourceIndustry)
@@ -141,7 +134,6 @@ RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
     missionPoints.collect.blip = blip
 end)
 
--- Evento para iniciar uma missão de LOGÍSTICA (encomenda)
 RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
     if currentMission then
         QBCore.Functions.Notify("Você já está numa missão. Termine-a primeiro.", "error")
@@ -163,8 +155,7 @@ RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
     }
     missionCargoLoaded = 0
     
-    -- [[ CORREÇÃO APLICADA AQUI ]] --
-    -- Define o ID da missão ativa e informa a UI DEPOIS de a missão estar definida
+    -- Define o ID da missão e informa a UI
     currentLogisticsOrderId = orderData.id 
     SendNUIMessage({ action = 'setActiveLogisticsOrder', payload = currentLogisticsOrderId })
     
@@ -186,8 +177,8 @@ RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
     missionPoints.collect.blip = blip
 end)
 
--- Restante do ficheiro... (O código abaixo é a continuação do seu ficheiro original, sem alterações)
-
+-- (O resto do ficheiro permanece igual ao seu original)
+-- ... (copie e cole o resto do seu ficheiro c_missions.lua aqui)
 RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
     if not currentMission or isPlayerCarryingMissionProp or isActionInProgress then return end
     isActionInProgress = true

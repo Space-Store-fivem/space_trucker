@@ -177,3 +177,5 @@ ALTER TABLE `gs_trucker_companies` ADD COLUMN `is_npc` BOOLEAN NOT NULL DEFAULT 
 
 -- Agora, vamos criar a empresa do "Sistema" que será a dona de todas as indústrias não compradas
 INSERT INTO `gs_trucker_companies` (name, owner_identifier, balance, is_npc) VALUES ('Sistema', 'npc_system', 999999999, 1);  
+
+ALTER TABLE `gs_trucker_logistics_orders` CHANGE `timestamp` `created_at` TIMESTAMP NOT NULL DEFAULT current_timestamp();
