@@ -29,3 +29,16 @@ RegisterNUICallback('hireNpcForIndustry', function(data, cb)
         cb(result or { success = false, message = "Erro de comunicação." })
     end, data)
 end)
+
+-- Adicione este código no final do ficheiro c_industry_management.lua
+
+-- [[ CORREÇÃO APLICADA AQUI ]] --
+-- Callback para o Painel de Monitoramento da Economia
+-- Ouve o pedido 'getIndustryStatus' vindo da interface (IndustryMonitor.tsx)
+RegisterNUICallback('getIndustryStatus', function(_, cb)
+    -- Pede os dados ao servidor usando o callback que já criámos no lado do servidor
+    QBCore.Functions.TriggerCallback('gs_trucker:callback:getIndustryStatus', function(statusData)
+        -- Envia os dados recebidos do servidor de volta para a interface
+        cb(statusData or {})
+    end)
+end)

@@ -14,6 +14,8 @@ import { Industries } from './Industries';
 import { TransportMissions } from './TransportMissions';
 import { LogisticsHub } from './LogisticsHub';
 import CompanyGPS from './CompanyGPS';
+// [[ 1. IMPORTAR O NOVO PAINEL ]]
+import { IndustryMonitor } from './IndustryMonitor';
 
 const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: FullCompanyInfo) => void; }> = ({ data, updateCompanyData }) => {
   const [activeApp, setActiveApp] = useState(data.has_profile ? 'home' : 'createProfile');
@@ -94,6 +96,10 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
       case 'settings':
         return <Settings companyData={data} updateCompanyData={safeUpdateCompanyData} onBack={goBack} onSuccess={handleRefresh} />;
       
+      // [[ 2. ADICIONAR O CASE PARA O NOVO PAINEL ]]
+      case 'industryMonitor':
+        return <IndustryMonitor onBack={goBack} />;
+        
       default:
         return <HomeScreen 
             company={data.company_data} 
@@ -111,7 +117,6 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
         <div className="absolute w-[79.6%] h-[87.5%] top-[5.3%] left-[10%] bg-gray-900 rounded-2xl shadow-inner flex overflow-hidden z-10">
           {renderActiveApp()}
         </div>
-        {/* CORREÇÃO AQUI: O caminho agora é relativo */}
         <img 
           src="images/ifruit-air.png" 
           alt="Moldura do Tablet" 
