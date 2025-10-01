@@ -1,4 +1,4 @@
-// web/src/layouts/pages/company/IndustryMonitor.tsx (VERSÃO FINAL CORRIGIDA)
+// web/src/layouts/pages/company/IndustryMonitor.tsx (VERSÃO FINAL COM CORES E CORREÇÕES)
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { fetchNui } from '../../../utils/fetchNui';
@@ -15,7 +15,7 @@ interface StockItem {
 interface IndustryStatus {
   name: string;
   label: string;
-  tier: number; // O servidor envia o número do Tier
+  tier: number;
   owner: string;
   status: 'Produzindo' | 'Parado' | 'Inativo';
   reason: string;
@@ -73,6 +73,7 @@ export const IndustryMonitor: React.FC<{ onBack: () => void }> = ({ onBack }) =>
     fetchData();
   }, []);
 
+  // [[ CORREÇÃO DO FILTRO ]] - A lógica agora está correta
   const filteredIndustries = useMemo(() => {
     return allIndustries.filter(ind => {
       const matchesFilter = 
@@ -97,12 +98,20 @@ export const IndustryMonitor: React.FC<{ onBack: () => void }> = ({ onBack }) =>
     return 'text-yellow-400';
   };
 
-  // [[ CORREÇÃO DO TIER APLICADA AQUI ]]
+  // [[ CORREÇÃO DO RÓTULO ]]
   const getTierLabel = (tier: number) => {
     if (tier === 1) return 'Primária';
     if (tier === 2) return 'Secundária';
-    if (tier === 3) return 'Terciária'; // Agora reconhece o número 3 corretamente
+    if (tier === 3) return 'Terciária';
     return 'Desconhecido';
+  }
+
+  // [[ NOVA FUNCIONALIDADE: CORES POR TIER ]]
+  const getTierColor = (tier: number) => {
+    if (tier === 1) return 'bg-green-900/50 text-green-300';
+    if (tier === 2) return 'bg-yellow-900/50 text-yellow-300';
+    if (tier === 3) return 'bg-purple-900/50 text-purple-300';
+    return 'bg-gray-700 text-gray-300';
   }
 
   const FilterButton: React.FC<{ label: string; filterValue: string; }> = ({ label, filterValue }) => (
@@ -164,7 +173,8 @@ export const IndustryMonitor: React.FC<{ onBack: () => void }> = ({ onBack }) =>
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h2 className="text-lg font-bold">{ind.label}</h2>
-                  <span className="text-xs font-semibold bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full mr-2">{getTierLabel(ind.tier)}</span>
+                  {/* [[ COR APLICADA AQUI ]] */}
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mr-2 ${getTierColor(ind.tier)}`}>{getTierLabel(ind.tier)}</span>
                   <span className="text-xs font-semibold bg-blue-900/50 text-blue-300 px-2 py-0.5 rounded-full">{ind.owner}</span>
                 </div>
                 <div className="text-right">

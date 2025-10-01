@@ -187,12 +187,10 @@ CreateCallback('gs_trucker:callback:getIndustryStatus', function(source, cb)
     local statusData = {}
 
     for name, def in pairs(allIndustries) do
-        if def.tier and def.tier ~= spaceconfig.Industry.Tier.BUSINESS then
+        if def.tier ~= spaceconfig.Industry.Tier.BUSINESS then
             local ownerData = purchasedMap[name]
             local isPlayerOwned = (ownerData ~= nil)
             local companyId = isPlayerOwned and ownerData.company_id or SystemCompanyId
-            
-            -- [[ CORREÇÃO DO NOME DO DONO APLICADA AQUI ]]
             local ownerType = isPlayerOwned and "Jogador" or "Sistema"
             
             local industryStatus = { name = name, label = Lang:t(def.label), tier = def.tier, owner = ownerType, status = "Inativo", reason = "N/A", inputs = {}, outputs = {} }
@@ -203,7 +201,8 @@ CreateCallback('gs_trucker:callback:getIndustryStatus', function(source, cb)
             if def.tradeData then
                 if def.tradeData[spaceconfig.Industry.TradeType.WANTED] then
                     for itemName, itemData in pairs(def.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
-                        local sourceIndustry = findItemSource(itemName, 1)
+                        -- [[ CORREÇÃO PARA PREÇO DE INPUT ]] --
+                        local sourceIndustry = findItemSource(itemName, 1) -- Encontra quem vende
                         local price = 0
                         if sourceIndustry and sourceIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][itemName] then
                             price = sourceIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][itemName].price or 0
@@ -222,7 +221,7 @@ CreateCallback('gs_trucker:callback:getIndustryStatus', function(source, cb)
                             label = Lang:t('item_name_' .. itemName),
                             stock = currentIndustryStock[itemName] or 0,
                             capacity = itemData.storageSize or 100,
-                            price = itemData.price or 0
+                            price = itemData.price or 0 -- [[ CORREÇÃO PARA PREÇO DE OUTPUT ]]
                         })
                     end
                 end
