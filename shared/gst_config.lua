@@ -19,11 +19,12 @@ spaceconfig.Industry = {
         OPEN = 1,
     },
     -- Tier of Industries
-    Tier = {
-        PRIMARY = 1,
-        SECONDARY = 2,
-        BUSINESS = 3,
-    },
+Tier = {
+    PRIMARY = 1,
+    SECONDARY = 2,
+    TERTIARY = 3, -- ADICIONADO
+    BUSINESS = 4, -- ALTERADO
+},
     -- Trade Type of industries and businesses
     TradeType = {
         FORSALE = 'forsale',
@@ -326,6 +327,158 @@ spaceconfig.VehicleTransportTypeLabel = {
 
 -- Define Industries, Businesses Items (NOT RELATED TO ITEMS IN INVENTORY)
 spaceconfig.IndustryItems = {
+    --terciarias
+    -- shared/gst_config.lua (dentro de spaceconfig.IndustryItems)
+
+-- ############### INÍCIO DOS ITENS DAS INDÚSTRIAS TERCIÁRIAS ###############
+
+    ['smartphone'] = {
+        label = 'Smartphone',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['tablet'] = {
+        label = 'Tablet',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['sofa_modern'] = {
+        label = 'Sofá Moderno',
+        capacity = 2,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['mesa_vidro'] = {
+        label = 'Mesa de Vidro',
+        capacity = 2,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['electric_car'] = {
+        label = 'Carro Elétrico',
+        capacity = 10,
+        transType = spaceconfig.ItemTransportType.VEHICLE,
+    },
+    ['motor_electric'] = {
+        label = 'Motor Elétrico',
+        capacity = 2,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['perfume'] = {
+        label = 'Perfume',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['creme_rejuv'] = {
+        label = 'Creme Rejuvenescedor',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['jaqueta_luxo'] = {
+        label = 'Jaqueta de Luxo',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['sapato_design'] = {
+        label = 'Sapato de Grife',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['smart_tv'] = {
+        label = 'Smart TV',
+        capacity = 2,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['soundbar'] = {
+        label = 'Soundbar',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['scanner_ct'] = {
+        label = 'Tomógrafo',
+        capacity = 5,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['ventilator'] = {
+        label = 'Ventilador Pulmonar',
+        capacity = 2,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['router_5g'] = {
+        label = 'Roteador 5G',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['antenna_array'] = {
+        label = 'Painel de Antenas',
+        capacity = 2,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['console_nextgen'] = {
+        label = 'Console de Videogame',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['vr_headset'] = {
+        label = 'Headset VR',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['robot_arm'] = {
+        label = 'Braço Robótico',
+        capacity = 3,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['automation_unit'] = {
+        label = 'Unidade de Automação',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['watch_gold'] = {
+        label = 'Relógio de Ouro',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.STRONGBOX,
+    },
+    ['watch_silver'] = {
+        label = 'Relógio de Prata',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.STRONGBOX,
+    },
+    ['packaged_software'] = {
+        label = 'Software (Caixa)',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['bolsa_couro'] = {
+        label = 'Bolsa de Couro',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['oculos_design'] = {
+        label = 'Óculos de Grife',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['wine_premium'] = {
+        label = 'Vinho Premium',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['whisky_aged'] = {
+        label = 'Whisky Envelhecido',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['parfum_exclusive'] = {
+        label = 'Perfume Exclusivo',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.CRATE,
+    },
+    ['essence_flower'] = {
+        label = 'Essência Floral',
+        capacity = 1,
+        transType = spaceconfig.ItemTransportType.LIQUIDS,
+    },
+
+-- ############### FIM DOS ITENS DAS INDÚSTRIAS TERCIÁRIAS ###############
     -- Crate
     ['gunpowder'] = {                                                             --SET = string unique (id of item)
         label = Lang:t('item_name_gunpowder'),                                    --SET = string (label of item)
@@ -2772,6 +2925,8 @@ function GetIndustryTierLabel(_tier)
         return Lang:t('industry_tier_label_primary')
     elseif _tier == spaceconfig.Industry.Tier.SECONDARY then
         return Lang:t('industry_tier_label_secondary')
+    elseif _tier == spaceconfig.Industry.Tier.TERTIARY then -- ADICIONADO
+        return Lang:t('industry_tier_label_tertiary')      -- ADICIONADO (Você precisará adicionar esta tradução no seu arquivo de localidade)
     elseif _tier == spaceconfig.Industry.Tier.BUSINESS then
         return Lang:t('industry_tier_label_business')
     end

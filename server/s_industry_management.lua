@@ -13,18 +13,28 @@ function GetOwnedIndustryDetails(companyId, industryName)
         if industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE] then
             for itemName, itemData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
                 local stockResult = MySQL.query.await('SELECT stock FROM gs_trucker_industry_stock WHERE company_id = ? AND industry_name = ? AND item_name = ?', { companyId, industryName, itemName })
-                products[itemName] = { label = 'item_name_' .. itemName, inStock = stockResult and stockResult[1] and stockResult[1].stock or 0, storageSize = itemData.storageSize, price = itemData.price }
+                
+                -- ## CORREÇÃO SEGURA APLICADA AQUI ##
+                -- Verifica se o item existe na config. Se sim, usa o nome correto.
+                -- Se não, usa o nome antigo para evitar que o script quebre.
+                local itemLabel = (spaceconfig.IndustryItems[itemName] and spaceconfig.IndustryItems[itemName].label) or ('item_name_' .. itemName)
+                
+                products[itemName] = { label = itemLabel, inStock = stockResult and stockResult[1] and stockResult[1].stock or 0, storageSize = itemData.storageSize, price = itemData.price }
             end
         end
         if industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED] then
             for itemName, itemData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
                 local stockResult = MySQL.query.await('SELECT stock FROM gs_trucker_industry_stock WHERE company_id = ? AND industry_name = ? AND item_name = ?', { companyId, industryName, itemName })
-                inputs[itemName] = { label = 'item_name_' .. itemName, inStock = stockResult and stockResult[1] and stockResult[1].stock or 0, storageSize = itemData.storageSize }
+
+                -- ## CORREÇÃO SEGURA APLICADA AQUI ##
+                local itemLabel = (spaceconfig.IndustryItems[itemName] and spaceconfig.IndustryItems[itemName].label) or ('item_name_' .. itemName)
+
+                inputs[itemName] = { label = itemLabel, inStock = stockResult and stockResult[1] and stockResult[1].stock or 0, storageSize = itemData.storageSize }
             end
         end
     end
     return { investment_level = industryData[1].investment_level or 0, npc_workers = industryData[1].npc_workers or 0, products = products, inputs = inputs }
-end
+end 
 CreateCallback('gs_trucker:callback:getIndustryDetails', function(source, cb, data)
     local ownerIdentifier = exports['gs_trucker']:GetPlayerUniqueId(source)
     local company = MySQL.query.await('SELECT id FROM gs_trucker_companies WHERE owner_identifier = ?', { ownerIdentifier })
