@@ -1,11 +1,11 @@
 local truck_rental_data = {}
 
-CreateCallback('gs_trucker:callback:getCash', function (source, cb)
+CreateCallback('space_trucker:callback:getCash', function (source, cb)
     local cash = GetPlayerCash(source)
     return cb and cb(cash) or cash
 end)
 
-CreateCallback('gs_trucker:callback:rentVehicle',
+CreateCallback('space_trucker:callback:rentVehicle',
     function(source, cb, rentPointId, vehicleIndex, vehicleHash, spawnCoords)
         if not spaceconfig.VehicleRentLocations[rentPointId] or spaceconfig.VehicleRentLocations[rentPointId].vehList[vehicleIndex] ~= vehicleHash then
             return cb({ status = false, msg = Lang:t('vehicle_not_found') })
@@ -35,7 +35,7 @@ CreateCallback('gs_trucker:callback:rentVehicle',
         return cb({ status = true, netId = NetworkGetNetworkIdFromEntity(veh), vehPlate = vehPlate })
     end)
 
-RegisterNetEvent('gs_trucker:server:returnRentTruck', function(rentPointId, vehNetId)
+RegisterNetEvent('space_trucker:server:returnRentTruck', function(rentPointId, vehNetId)
     local source = source
     if not spaceconfig.VehicleRentLocations[rentPointId] then
         return

@@ -7,15 +7,15 @@ GS_COMPANY_CALLBACKS_REGISTERED = GS_COMPANY_CALLBACKS_REGISTERED or false
 if not GS_COMPANY_CALLBACKS_REGISTERED then
 
     -- Mensagem para sabermos que o código correu
-    print("^2[gs-trucker]^7 A registar Callbacks da NUI pela primeira e única vez...")
+    print("^2[space-trucker]^7 A registar Callbacks da NUI pela primeira e única vez...")
 
     RegisterNUICallback('depositMoney', function(data, cb)
-        local result = TriggerCallbackAwait('gs_trucker:callback:depositMoney', data)
+        local result = TriggerCallbackAwait('space_trucker:callback:depositMoney', data)
         cb(result)
     end)
 
     RegisterNUICallback('withdrawMoney', function(data, cb)
-        local result = TriggerCallbackAwait('gs_trucker:callback:withdrawMoney', data)
+        local result = TriggerCallbackAwait('space_trucker:callback:withdrawMoney', data)
         cb(result)
     end)
 

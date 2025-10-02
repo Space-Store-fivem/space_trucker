@@ -1,4 +1,4 @@
-// gs_trucker/web/src/types/index.ts
+// space_trucker/web/src/types/index.ts
 
 export interface CarryData {
   isCarry: boolean,
@@ -140,7 +140,7 @@ export interface CompanyData {
   reputation: number;
 }
 
-// Em gs_trucker/web/src/types/index.ts
+// Em space_trucker/web/src/types/index.ts
 
 export interface Employee {
   id: number;

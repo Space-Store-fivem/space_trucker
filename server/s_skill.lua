@@ -54,7 +54,7 @@ function AddPlayerTruckerSkillPoint(source, skillData)
     playerTruckerSkills[source] = playerSkillData
     SavePlayerTruckerSkill(source)
 
-    TriggerClientEvent('gs_trucker:client:setPlayerSkillData', source, playerTruckerSkills[source])
+    TriggerClientEvent('space_trucker:client:setPlayerSkillData', source, playerTruckerSkills[source])
 end
 
 function GetPlayerTruckerSkill(source)
@@ -68,7 +68,7 @@ function GetPlayerTruckerSkill(source)
     }
 end
 
--- Em gs_trucker/server/s_skill.lua
+-- Em space_trucker/server/s_skill.lua
 
 function CalculatorPlayerTruckerSkill(source, itemName, sellPrice, buyPrice, sellAmount, buyFromCoords, sellToCoords)
     local defaultItemData = spaceconfig.IndustryItems[itemName]
@@ -88,7 +88,7 @@ function CalculatorPlayerTruckerSkill(source, itemName, sellPrice, buyPrice, sel
         AddCompanyBalance(companyId, skillProfit, ('Entrega de %s por %s'):format(GetItemLabel(itemName), GetPlayerName(source)))
     else
         -- Senão, o lucro vai para o jogador (comportamento original)
-        AddPlayerCash(source, skillProfit, ('gs_trucker_sell_%s_item_%s_to_%s'):format(sellAmount, itemName, industryData.name))
+        AddPlayerCash(source, skillProfit, ('space_trucker_sell_%s_item_%s_to_%s'):format(sellAmount, itemName, industryData.name))
     end
     -- >>>>> FIM DA MODIFICAÇÃO <<<<<
 
@@ -128,7 +128,7 @@ function LoadPlayerTruckerSkill(source)
         }
     end
 
-    TriggerClientEvent('gs_trucker:client:setPlayerSkillData', source, playerTruckerSkills[source])
+    TriggerClientEvent('space_trucker:client:setPlayerSkillData', source, playerTruckerSkills[source])
 end
 
 function SavePlayerTruckerSkill(source)

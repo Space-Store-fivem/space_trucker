@@ -1,4 +1,4 @@
-// gs_trucker/web/src/layouts/GarageMenu.tsx
+// space_trucker/web/src/layouts/GarageMenu.tsx
 
 import React from 'react';
 import { fetchNui } from '../utils/fetchNui';
@@ -21,7 +21,7 @@ const GarageMenu: React.FC<GarageMenuProps> = ({ vehicles, onClose }) => {
 
     const handleSelectVehicle = (vehicleId: number) => {
         // Envia o ID do veículo selecionado de volta para o Lua
-        fetchNui('gs_trucker:garage_selectVehicle', { vehicleId: vehicleId });
+        fetchNui('space_trucker:garage_selectVehicle', { vehicleId: vehicleId });
         onClose(); // Fecha o menu imediatamente após a seleção
     };
 

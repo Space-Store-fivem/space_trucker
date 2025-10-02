@@ -1,4 +1,4 @@
-// gs_trucker/web/src/layouts/pages/company/CompanyGPS.tsx
+// space_trucker/web/src/layouts/pages/company/CompanyGPS.tsx
 
 import { useNuiEvent } from '../../../hooks/useNuiEvent';
 import React, { useState, useRef, WheelEvent, MouseEvent } from 'react';

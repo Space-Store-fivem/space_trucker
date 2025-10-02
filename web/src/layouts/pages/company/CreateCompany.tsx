@@ -21,8 +21,8 @@ export const CreateCompany: React.FC<CreateCompanyProps> = ({ onSuccess, onClose
         setIsCreating(true); // Desabilita o botão para evitar cliques duplos
         
         try {
-            // CORREÇÃO: O nome do evento foi alterado para 'gs_trucker:createCompany' para ser consistente.
-            const result = await fetchNui<{ success: boolean; message?: string }>('gs_trucker:createCompany', { name, logo });
+            // CORREÇÃO: O nome do evento foi alterado para 'space_trucker:createCompany' para ser consistente.
+            const result = await fetchNui<{ success: boolean; message?: string }>('space_trucker:createCompany', { name, logo });
             
             if (result.success) {
                 onSuccess();
@@ -30,7 +30,7 @@ export const CreateCompany: React.FC<CreateCompanyProps> = ({ onSuccess, onClose
                 setError(result.message || "Ocorreu um erro desconhecido ao criar a empresa.");
             }
         } catch (e) {
-            console.error("Falha ao executar NUI callback 'gs_trucker:createCompany':", e);
+            console.error("Falha ao executar NUI callback 'space_trucker:createCompany':", e);
             setError("Ocorreu um erro de comunicação com o servidor.");
         } finally {
             setIsCreating(false); // Reabilita o botão

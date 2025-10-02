@@ -98,7 +98,7 @@ local function updateIndustry()
         end
     end
 
-    TriggerClientEvent('gs_trucker:client:updateIndustriesData', -1, update_industries_data)
+    TriggerClientEvent('space_trucker:client:updateIndustriesData', -1, update_industries_data)
 end
 
 -- Every 1 hour update industry production and cosumption
@@ -122,11 +122,11 @@ CreateThread(function()
         local QBCore = exports['qb-core']:GetCoreObject()
 
         if QBCore and QBCore.Functions then
-            local companiesToPay = MySQL.query.await('SELECT id, balance, owner_identifier FROM gs_trucker_companies WHERE salary_payment_enabled = 1', {})
+            local companiesToPay = MySQL.query.await('SELECT id, balance, owner_identifier FROM space_trucker_companies WHERE salary_payment_enabled = 1', {})
 
             if companiesToPay and #companiesToPay > 0 then
                 for i, company in ipairs(companiesToPay) do
-                    local employees = MySQL.query.await("SELECT identifier, name, salary FROM gs_trucker_employees WHERE company_id = ? AND is_npc = 0 AND role <> 'owner'", { company.id })
+                    local employees = MySQL.query.await("SELECT identifier, name, salary FROM space_trucker_employees WHERE company_id = ? AND is_npc = 0 AND role <> 'owner'", { company.id })
                     
                     if employees and #employees > 0 then
                         local totalSalaryCost = 0
@@ -137,8 +137,8 @@ CreateThread(function()
                         local ownerPlayer = QBCore.Functions.GetPlayerByCitizenId(company.owner_identifier)
 
                         if company.balance >= totalSalaryCost then
-                            MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance - ? WHERE id = ?', { totalSalaryCost, company.id })
-                            MySQL.insert.await('INSERT INTO gs_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { company.id, 'salaries', -totalSalaryCost, 'Pagamento de salários a ' .. #employees .. ' funcionários' })
+                            MySQL.update.await('UPDATE space_trucker_companies SET balance = balance - ? WHERE id = ?', { totalSalaryCost, company.id })
+                            MySQL.insert.await('INSERT INTO space_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { company.id, 'salaries', -totalSalaryCost, 'Pagamento de salários a ' .. #employees .. ' funcionários' })
 
                             if ownerPlayer then
                                 TriggerClientEvent('QBCore:Notify', ownerPlayer.PlayerData.source, 'O pagamento automático de salários foi efetuado a ' .. #employees .. ' funcionários. Custo: $' .. totalSalaryCost, 'success', 10000)
@@ -176,20 +176,20 @@ CreateThread(function()
         -- A verificação será feita a cada 5 minutos (300,000 ms)
         Wait(300000)
 
-        print("[GS-TRUCKER CRON] A verificar alugueres de frota expirados...")
+        print("[space-trucker CRON] A verificar alugueres de frota expirados...")
         
-        -- Usa a tabela correta 'gs_trucker_fleet'
-        local expiredVehicles = MySQL.Sync.fetchAll('SELECT id, model, plate, company_id FROM gs_trucker_fleet WHERE rent_expires_at IS NOT NULL AND rent_expires_at < NOW()')
+        -- Usa a tabela correta 'space_trucker_fleet'
+        local expiredVehicles = MySQL.Sync.fetchAll('SELECT id, model, plate, company_id FROM space_trucker_fleet WHERE rent_expires_at IS NOT NULL AND rent_expires_at < NOW()')
 
         if #expiredVehicles > 0 then
-            print(("[GS-TRUCKER CRON] %d alugueres expirados encontrados. A removê-los..."):format(#expiredVehicles))
+            print(("[space-trucker CRON] %d alugueres expirados encontrados. A removê-los..."):format(#expiredVehicles))
             for _, vehicle in ipairs(expiredVehicles) do
                 -- Remove o veículo da tabela correta
-                MySQL.Async.execute('DELETE FROM gs_trucker_fleet WHERE id = ?', { vehicle.id })
-                print(("[GS-TRUCKER CRON] Veículo alugado '%s' (%s) da empresa %d foi removido por expiração."):format(vehicle.model, vehicle.plate, vehicle.company_id))
+                MySQL.Async.execute('DELETE FROM space_trucker_fleet WHERE id = ?', { vehicle.id })
+                print(("[space-trucker CRON] Veículo alugado '%s' (%s) da empresa %d foi removido por expiração."):format(vehicle.model, vehicle.plate, vehicle.company_id))
             end
         else
-            print("[GS-TRUCKER CRON] Nenhum aluguer expirado encontrado.")
+            print("[space-trucker CRON] Nenhum aluguer expirado encontrado.")
         end
     end
 end)
@@ -201,10 +201,10 @@ CreateThread(function()
         Wait(900000)
 
         -- Procura na base de dados por veículos que tenham uma data de expiração e que essa data já tenha passado.
-        local expiredVehicles = MySQL.update.await('DELETE FROM gs_trucker_fleet WHERE rent_expires_at IS NOT NULL AND rent_expires_at < NOW()')
+        local expiredVehicles = MySQL.update.await('DELETE FROM space_trucker_fleet WHERE rent_expires_at IS NOT NULL AND rent_expires_at < NOW()')
 
         if expiredVehicles > 0 then
-            print(('[gs_trucker] Cron: Foram removidos %d veículos alugados expirados da frota de empresas.'):format(expiredVehicles))
+            print(('[space_trucker] Cron: Foram removidos %d veículos alugados expirados da frota de empresas.'):format(expiredVehicles))
         end
     end
 end)

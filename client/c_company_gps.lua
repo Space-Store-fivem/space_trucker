@@ -9,7 +9,7 @@ local CompanyGPS = {
 }
 
 -- Evento acionado quando o jogador entra ou sai de uma empresa
-RegisterNetEvent('gs_trucker:client:updateCompanyStatus', function(inCompany)
+RegisterNetEvent('space_trucker:client:updateCompanyStatus', function(inCompany)
     CompanyGPS.isPlayerInCompany = inCompany
     if not inCompany then
         -- Se o jogador saiu da empresa, remove todos os blips
@@ -44,7 +44,7 @@ CreateThread(function()
                 }
             end
 
-            TriggerServerEvent('gs_trucker:server:updatePlayerGPS', {
+            TriggerServerEvent('space_trucker:server:updatePlayerGPS', {
                 coords = { x = coords.x, y = coords.y, z = coords.z },
                 vehicle = vehicleName,
                 mission = missionData
@@ -53,7 +53,7 @@ CreateThread(function()
     end
 end)
 
-RegisterNetEvent('gs_trucker:client:updateCompanyGPS', function(companyData)
+RegisterNetEvent('space_trucker:client:updateCompanyGPS', function(companyData)
     if not CompanyGPS.isPlayerInCompany then return end
 
     CompanyGPS.data = companyData

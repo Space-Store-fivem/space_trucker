@@ -6,7 +6,7 @@ function AddTruckPDAOption()
     -- Adiciona opções no Radial Menu do ox_lib
     lib.addRadialItem({
         {
-            id = 'gs-trucker',
+            id = 'space-trucker',
             label = Lang:t('tpda_main_menu_title'),
             icon = 'truck-pickup',
             onSelect = function()

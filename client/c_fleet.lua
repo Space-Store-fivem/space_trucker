@@ -1,4 +1,4 @@
--- gs_trucker/client/c_fleet.lua
+-- space_trucker/client/c_fleet.lua
 
 local QBCore = exports['qb-core']:GetCoreObject()
 local CurrentCompanyGarage = nil
@@ -7,11 +7,11 @@ local BlipGaragem = nil
 local hasPlayerLoaded = false -- Variável de controlo
 
 local function checkJobAndGarage()
-    QBCore.Functions.TriggerCallback('gs_trucker:callback:checkEmployment', function(isEmployed, companyId)
+    QBCore.Functions.TriggerCallback('space_trucker:callback:checkEmployment', function(isEmployed, companyId)
         PlayerCompanyId = isEmployed and companyId or nil
         
         if PlayerCompanyId then
-            QBCore.Functions.TriggerCallback('gs_trucker:callback:getGarageLocation', function(loc)
+            QBCore.Functions.TriggerCallback('space_trucker:callback:getGarageLocation', function(loc)
                 if loc and loc.x then
                     CurrentCompanyGarage = loc
                     updateBlip(PlayerCompanyId, loc)
@@ -77,7 +77,7 @@ CreateThread(function()
                             if IsControlJustReleased(0, 38) then
                                 local plate = QBCore.Functions.GetPlate(currentVeh)
                                 local damage = { engine = GetVehicleEngineHealth(currentVeh), body = GetVehicleBodyHealth(currentVeh) }
-                                QBCore.Functions.TriggerCallback('gs_trucker:callback:storeFleetVehicle', function(result)
+                                QBCore.Functions.TriggerCallback('space_trucker:callback:storeFleetVehicle', function(result)
                                     if result and result.success then
                                         QBCore.Functions.DeleteVehicle(currentVeh)
                                         QBCore.Functions.Notify(result.message, "success")
@@ -103,7 +103,7 @@ CreateThread(function()
 end)
 
 function openGarageMenu()
-    QBCore.Functions.TriggerCallback('gs_trucker:callback:getFleetVehicles', function(vehicles)
+    QBCore.Functions.TriggerCallback('space_trucker:callback:getFleetVehicles', function(vehicles)
         SendNUIMessage({
             action = "showGarage",
             data = {
@@ -115,15 +115,15 @@ function openGarageMenu()
     end)
 end
 
-RegisterNUICallback('gs_trucker:garage_selectVehicle', function(data, cb)
+RegisterNUICallback('space_trucker:garage_selectVehicle', function(data, cb)
     if data and data.vehicleId then
-        TriggerServerEvent('gs_trucker:server:requestSpawn', { vehicleId = data.vehicleId })
+        TriggerServerEvent('space_trucker:server:requestSpawn', { vehicleId = data.vehicleId })
     end
     SetNuiFocus(false, false)
     cb({ ok = true })
 end)
 
-RegisterNUICallback('gs_trucker:garage_close', function(data, cb)
+RegisterNUICallback('space_trucker:garage_close', function(data, cb)
     SetNuiFocus(false, false)
     cb({ ok = true })
 end)
@@ -131,7 +131,7 @@ end)
 
 
 RegisterNUICallback('getCompanyRentableVehicles', function(_, cb)
-    QBCore.Functions.TriggerCallback('gs_trucker:callback:getCompanyReputation', function(reputation)
+    QBCore.Functions.TriggerCallback('space_trucker:callback:getCompanyReputation', function(reputation)
         local rentableTrucks = {}
         for vehicleKey, vehicleData in pairs(spaceconfig.VehicleTransport) do
             -- ## LÓGICA CORRIGIDA AQUI ##
@@ -167,7 +167,7 @@ RegisterNUICallback('rentCompanyVehicle', function(data, cb)
     end
 
     -- Chamamos o servidor e enviamos a CHAVE (o identificador) diretamente
-    QBCore.Functions.TriggerCallback('gs_trucker:callback:rentCompanyVehicle', function(result)
+    QBCore.Functions.TriggerCallback('space_trucker:callback:rentCompanyVehicle', function(result)
         if result and result.success then
             QBCore.Functions.Notify(result.message, 'success', 7500)
         else
@@ -192,7 +192,7 @@ function DrawText3D(x, y, z, text)
     ClearDrawOrigin()
 end
 
-RegisterNetEvent('gs_trucker:client:spawnVehicle', function(vehicleData)
+RegisterNetEvent('space_trucker:client:spawnVehicle', function(vehicleData)
     QBCore.Functions.SpawnVehicle(vehicleData.model, function(veh)
         SetVehicleNumberPlateText(veh, vehicleData.plate)
         SetEntityHeading(veh, CurrentCompanyGarage.h or 0.0)
@@ -202,7 +202,7 @@ RegisterNetEvent('gs_trucker:client:spawnVehicle', function(vehicleData)
     end, CurrentCompanyGarage, true)
 end)
 
-RegisterNetEvent('gs_trucker:client:deleteVehicleByPlate', function(plate)
+RegisterNetEvent('space_trucker:client:deleteVehicleByPlate', function(plate)
     local vehicles = GetGamePool('CVehicle')
     for _, veh in ipairs(vehicles) do
         if GetVehicleNumberPlateText(veh) == plate then
@@ -213,10 +213,10 @@ RegisterNetEvent('gs_trucker:client:deleteVehicleByPlate', function(plate)
 end)
 
 -- Adicione este evento no final do ficheiro client/c_fleet.lua
-RegisterNetEvent('gs_trucker:client:updateGarageLocation', function(companyId, location)
+RegisterNetEvent('space_trucker:client:updateGarageLocation', function(companyId, location)
     -- Verifica se a atualização é para a empresa do jogador atual
     if PlayerCompanyId and companyId == PlayerCompanyId then
-        print("[GS-TRUCKER] Recebida atualização da localização da garagem em tempo real.")
+        print("[space-trucker] Recebida atualização da localização da garagem em tempo real.")
         CurrentCompanyGarage = location
         updateBlip(companyId, location)
     end

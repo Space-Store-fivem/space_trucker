@@ -4,7 +4,7 @@ lua54 "yes"
 
 --[[ Resource Information ]]
 --
-name "gs_trucker"
+name "space_trucker"
 author "Gasman"
 version "3.0.1"
 description "GS Trucker Job V3 - Simulator, Dynamic, Skills, Over 1000 Truck Routes"

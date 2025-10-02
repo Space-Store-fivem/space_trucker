@@ -1,19 +1,19 @@
--- gs_trucker/client/c_company.lua
+-- space_trucker/client/c_company.lua
 
 -- Comando principal para abrir o painel
 RegisterCommand('company', function()
-    print('[gs_trucker] [CLIENTE] Comando /company executado. A pedir dados ao servidor...')
+    print('[space_trucker] [CLIENTE] Comando /company executado. A pedir dados ao servidor...')
     
-    local companyData = TriggerCallbackAwait('gs_trucker:callback:getCompanyData')
+    local companyData = TriggerCallbackAwait('space_trucker:callback:getCompanyData')
 
     if companyData then
         -- O servidor sempre retorna uma tabela, seja com dados completos ou com { has_profile = false }
-        print('[gs_trucker] [CLIENTE] Dados recebidos do servidor. A abrir o painel.')
+        print('[space_trucker] [CLIENTE] Dados recebidos do servidor. A abrir o painel.')
         SendNuiMessage(json.encode({ action = 'showCompanyPanel', data = companyData }))
         SetNuiFocus(true, true)
     else
         -- Este caso só deve acontecer se houver um erro grave no servidor
-        print('[gs_trucker] [CLIENTE] ERRO: O servidor não respondeu.')
+        print('[space_trucker] [CLIENTE] ERRO: O servidor não respondeu.')
         exports['qb-core']:GetCoreObject().Functions.Notify("Ocorreu um erro ao carregar os dados. Tente novamente.", "error")
     end
 end, false)
@@ -38,8 +38,8 @@ RegisterNUICallback('forceRefreshData', function(data, cb)
 end)
 -- Adicione este pequeno bloco em qualquer lugar do seu arquivo c_company.lua
 
-RegisterNetEvent('gs_trucker:client:forceRefresh', function()
-    print('[gs_trucker] [CLIENTE] Recebido pedido do servidor para forçar atualização. Reabrindo painel...')
+RegisterNetEvent('space_trucker:client:forceRefresh', function()
+    print('[space_trucker] [CLIENTE] Recebido pedido do servidor para forçar atualização. Reabrindo painel...')
     -- Fecha o foco atual para evitar bugs
     SetNuiFocus(false, false)
     -- Simula a reabertura do painel para obter os dados mais recentes
@@ -48,111 +48,111 @@ end)
 
 -- Callback para criar o perfil
 RegisterNUICallback('createProfile', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:createProfile', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:createProfile', data)
     cb(result)
 end)
 
-RegisterNUICallback('gs_trucker:createCompany', function(data, cb)
+RegisterNUICallback('space_trucker:createCompany', function(data, cb)
     -- Adicione este print para ter certeza que esta parte está funcionando
-    print('[GS_TRUCKER DEBUG] Callback da NUI recebido! Enviando para o servidor... Dados: ' .. json.encode(data))
+    print('[space_trucker DEBUG] Callback da NUI recebido! Enviando para o servidor... Dados: ' .. json.encode(data))
     
-    TriggerServerEvent('gs_trucker:server:createCompany', data)
+    TriggerServerEvent('space_trucker:server:createCompany', data)
     cb({ success = true })
 end)
 
 -- Callback para contratar um jogador
 RegisterNUICallback('hirePlayer', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:hirePlayer', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:hirePlayer', data)
     cb(result)
 end)
 
 -- Callback para contratar um NPC
 RegisterNUICallback('hireNpc', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:hireNpc', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:hireNpc', data)
     cb(result)
 end)
 
 -- Callback para demitir um funcionário
 RegisterNUICallback('fireEmployee', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:fireEmployee', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:fireEmployee', data)
     cb(result)
 end)
 
 -- Callback para atualizar as configurações
 RegisterNUICallback('updateCompanySettings', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:updateCompanySettings', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:updateCompanySettings', data)
     cb(result)
 end)
 
 -- Callback para vender a empresa
 RegisterNUICallback('sellCompany', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:sellCompany', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:sellCompany', data)
     cb(result)
 end)
 -- Callback para a Agência de Recrutamento
 RegisterNUICallback('getRecruitmentPosts', function(data, cb)
-    local posts = TriggerCallbackAwait('gs_trucker:callback:getRecruitmentPosts')
+    local posts = TriggerCallbackAwait('space_trucker:callback:getRecruitmentPosts')
     cb(posts)
 end)
 -- Adicionar no final de c_company.lua
 
 RegisterNUICallback('createRecruitmentPost', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:createRecruitmentPost', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:createRecruitmentPost', data)
     cb(result)
 end)
 -- -- Callback para depositar dinheiro
 -- RegisterNUICallback('depositMoney', function(data, cb)
---     local result = TriggerCallbackAwait('gs_trucker:callback:depositMoney', data)
+--     local result = TriggerCallbackAwait('space_trucker:callback:depositMoney', data)
 --     cb(result)
 -- end)
 
 -- -- Callback para levantar dinheiro
 -- RegisterNUICallback('withdrawMoney', function(data, cb)
---     local result = TriggerCallbackAwait('gs_trucker:callback:withdrawMoney', data)
+--     local result = TriggerCallbackAwait('space_trucker:callback:withdrawMoney', data)
 --     cb(result)
 -- end)
 -- Adicionar no final de c_company.lua
 
 RegisterNUICallback('hireFromPost', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:hireFromPost', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:hireFromPost', data)
     cb(result)
 end)
 
 -- Adicionar no final de c_company.lua
 
 RegisterNUICallback('acceptGig', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:acceptGig', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:acceptGig', data)
     cb(result)
 end)
 
 -- Adicionar no final de c_company.lua
 
 RegisterNUICallback('applyForJob', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:applyForJob', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:applyForJob', data)
     cb(result)
 end)
 
 RegisterNUICallback('getCompanyApplications', function(data, cb)
-    local applications = TriggerCallbackAwait('gs_trucker:callback:getCompanyApplications')
+    local applications = TriggerCallbackAwait('space_trucker:callback:getCompanyApplications')
     cb(applications)
 end)
 
 RegisterNUICallback('hireFromApplication', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:hireFromApplication', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:hireFromApplication', data)
     cb(result)
 end)
 
 -- Adicionar no final de c_company.lua
 
 RegisterNUICallback('updateEmployee', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:updateEmployee', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:updateEmployee', data)
     cb(result)
 end)
 
 -- Adicionar no final de c_company.lua
 
 RegisterNUICallback('deleteRecruitmentPost', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:deleteRecruitmentPost', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:deleteRecruitmentPost', data)
     cb(result)
 end)
 -- =============================================================================
@@ -161,46 +161,46 @@ end)
 
 -- Ponte para buscar a lista de chats do jogador
 RegisterNUICallback('getChatList', function(data, cb)
-    local chats = TriggerCallbackAwait('gs_trucker:callback:getChatList')
+    local chats = TriggerCallbackAwait('space_trucker:callback:getChatList')
     cb(chats)
 end)
 
 -- Ponte para buscar as mensagens de um chat específico
 RegisterNUICallback('getChatMessages', function(data, cb)
-    local messages = TriggerCallbackAwait('gs_trucker:callback:getChatMessages', data)
+    local messages = TriggerCallbackAwait('space_trucker:callback:getChatMessages', data)
     cb(messages)
 end)
 
 -- Ponte para enviar uma nova mensagem
 RegisterNUICallback('sendChatMessage', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:sendChatMessage', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:sendChatMessage', data)
     cb(result)
 end)
 -- Adicionar no final de c_company.lua
 
 RegisterNUICallback('deleteChat', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:deleteChat', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:deleteChat', data)
     cb(result)
 end)
 
 -- Adicione este bloco no final do seu arquivo c_company.lua
 
 RegisterNUICallback('transferOwnership', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:transferOwnership', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:transferOwnership', data)
     cb(result)
 end)
 
 -- Adicione este callback em c_company.lua
 
 RegisterNUICallback('updateManagerPermissions', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:updateManagerPermissions', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:updateManagerPermissions', data)
     cb(result)
 end)
 
 -- Adicione este callback em c_company.lua
 
 RegisterNUICallback('toggleAutoSalary', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:toggleAutoSalary', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:toggleAutoSalary', data)
     cb(result)
 end)
 
@@ -210,30 +210,30 @@ end)
 RegisterNUICallback('setGarageLocation', function(data, cb)
     -- Obtém as coordenadas atuais do jogador e envia para o servidor
     local coords = GetEntityCoords(PlayerPedId())
-    local result = TriggerCallbackAwait('gs_trucker:callback:setGarageLocation', { location = { x = coords.x, y = coords.y, z = coords.z } })
+    local result = TriggerCallbackAwait('space_trucker:callback:setGarageLocation', { location = { x = coords.x, y = coords.y, z = coords.z } })
     cb(result)
 end)
 
 -- Callback para adicionar um veículo
 RegisterNUICallback('addVehicleToFleet', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:addVehicleToFleet', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:addVehicleToFleet', data)
     cb(result)
 end)
 
 -- Callback para buscar os logs (será usado no futuro)
 RegisterNUICallback('getFleetLogs', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:getFleetLogs', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:getFleetLogs', data)
     cb(result)
 end)
 -- Adicione este callback no final de c_company.lua
 
 RegisterNUICallback('getPlayerVehicles', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:getPlayerVehicles')
+    local result = TriggerCallbackAwait('space_trucker:callback:getPlayerVehicles')
     cb(result)
 end)
 -- Adicionar no final de c_company.lua
 RegisterNUICallback('returnVehicleToOwner', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:returnVehicleToOwner', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:returnVehicleToOwner', data)
     cb(result)
 end)
 
@@ -241,7 +241,7 @@ end)
 -- * NOVA ALTERAÇÃO ADICIONADA AQUI
 -- =============================================================================
 RegisterNUICallback('requestCompanyIndustries', function(data, cb)
-    print('[gs_trucker] NUI: A interface pediu a lista de indústrias.')
+    print('[space_trucker] NUI: A interface pediu a lista de indústrias.')
     local allIndustries = Industries:GetIndustries()
     local purchasableIndustries = {} -- Tabela para guardar apenas as indústrias compráveis
 
@@ -267,9 +267,9 @@ RegisterNUICallback('requestCompanyIndustries', function(data, cb)
             action = 'setCompanyIndustries',
             data = jsonData
         })
-        print('[gs_trucker] NUI: Foram enviadas ' .. #purchasableIndustries .. ' indústrias compráveis para a UI.')
+        print('[space_trucker] NUI: Foram enviadas ' .. #purchasableIndustries .. ' indústrias compráveis para a UI.')
     else
-        print('[gs_trucker] NUI ERRO: A função Industries:GetIndustries() retornou vazia.')
+        print('[space_trucker] NUI ERRO: A função Industries:GetIndustries() retornou vazia.')
         SendNUIMessage({
             action = 'setCompanyIndustries',
             data = '[]'
@@ -291,7 +291,7 @@ RegisterNUICallback('buyIndustry', function(data, cb)
     end
     
     -- Chama o callback do servidor para tentar comprar a indústria
-    local result = TriggerCallbackAwait('gs_trucker:callback:buyIndustry', { industryName = data.industryName })
+    local result = TriggerCallbackAwait('space_trucker:callback:buyIndustry', { industryName = data.industryName })
     cb(result)
 end)
 
@@ -301,11 +301,11 @@ RegisterNUICallback('sellIndustry', function(data, cb)
     end
     
     -- Chama o callback do servidor para tentar vender a indústria
-    local result = TriggerCallbackAwait('gs_trucker:callback:sellIndustry', { industryName = data.industryName })
+    local result = TriggerCallbackAwait('space_trucker:callback:sellIndustry', { industryName = data.industryName })
     cb(result)
 end)
 
-RegisterNetEvent('gs_trucker:client:receiveOwnershipData', function(ownershipData)
+RegisterNetEvent('space_trucker:client:receiveOwnershipData', function(ownershipData)
     SendNUIMessage({
         action = 'setIndustryOwnership',
         data = ownershipData
@@ -314,6 +314,6 @@ end)
 
 -- 2. Ouve o pedido da interface (UI) e reencaminha para o servidor
 RegisterNUICallback('requestIndustryOwnership', function(data, cb)
-    TriggerServerEvent('gs_trucker:server:requestOwnershipData')
+    TriggerServerEvent('space_trucker:server:requestOwnershipData')
     cb('ok') -- Apenas confirma que o pedido foi recebido
 end)

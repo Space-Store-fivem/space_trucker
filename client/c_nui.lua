@@ -228,7 +228,7 @@ end
 
 -- Adicione este código no final de client/c_nui.lua
 
-RegisterNetEvent('gs_trucker:client:closeCompanyPanel', function()
+RegisterNetEvent('space_trucker:client:closeCompanyPanel', function()
     SetNuiFocus(false, false)
     SendNUIMessage({
         action = 'closePanel' -- A interface irá ouvir esta ação
@@ -242,7 +242,7 @@ end)
 -- Ouve o pedido 'getIndustryStatus' vindo da interface (IndustryMonitor.tsx)
 RegisterNUICallback('getIndustryStatus', function(_, cb)
     -- Pede os dados ao servidor usando o callback que já criámos
-    QBCore.Functions.TriggerCallback('gs_trucker:callback:getIndustryStatus', function(statusData)
+    QBCore.Functions.TriggerCallback('space_trucker:callback:getIndustryStatus', function(statusData)
         -- Envia os dados recebidos do servidor de volta para a interface
         cb(statusData or {})
     end)

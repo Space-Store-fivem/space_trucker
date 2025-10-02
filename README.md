@@ -1,7 +1,7 @@
-# gs-trucker
+# space-trucker
 
 ## Install Tutorial
-- import gs_trucker_skills.sql to your database
+- import space_trucker_skills.sql to your database
 - For Locale | setr gstrucker:locale en
 
 # HOW TO ADD NEW INDUSTRY TYPE

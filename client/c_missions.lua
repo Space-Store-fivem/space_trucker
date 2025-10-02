@@ -1,4 +1,4 @@
--- gs_trucker/client/c_missions.lua (VERSÃO FINAL COM CORREÇÕES DE LÓGICA)
+-- space_trucker/client/c_missions.lua (VERSÃO FINAL COM CORREÇÕES DE LÓGICA)
 local QBCore = exports['qb-core']:GetCoreObject()
 
 currentMission = nil
@@ -43,7 +43,7 @@ function clearMission()
     missionVehicle = nil
 
     if currentMission and currentMission.type == 'LOGISTICS_ORDER' then
-        TriggerServerEvent('gs_trucker:server:cancelLogisticsOrder', currentMission.orderId)
+        TriggerServerEvent('space_trucker:server:cancelLogisticsOrder', currentMission.orderId)
     end
 
     currentMission = nil
@@ -92,23 +92,23 @@ CreateThread(function()
 end)
 
 RegisterNUICallback('getMissions', function(_, cb)
-    QBCore.Functions.TriggerCallback('gs_trucker:callback:getMissions', function(missions) cb(missions or {}) end)
+    QBCore.Functions.TriggerCallback('space_trucker:callback:getMissions', function(missions) cb(missions or {}) end)
 end)
 
 RegisterNUICallback('acceptMission', function(data, cb)
     if currentMission then QBCore.Functions.Notify("Você já tem uma missão de transporte ativa.", "error"); return end
     if not data or not data.id then cb({ success = false, message = "ID da missão inválido." }); return end
 
-    QBCore.Functions.TriggerCallback('gs_trucker:callback:getMissionDetails', function(missionDetails)
+    QBCore.Functions.TriggerCallback('space_trucker:callback:getMissionDetails', function(missionDetails)
         if missionDetails then
-            TriggerEvent('gs_trucker:client:startMission', missionDetails)
+            TriggerEvent('space_trucker:client:startMission', missionDetails)
         else
             QBCore.Functions.Notify("Esta missão já não está mais disponível.", "error")
         end
     end, data)
 end)
 
-RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
+RegisterNetEvent('space_trucker:client:startMission', function(missionData)
     if currentMission then return end
     local sourceIndustry = Industries:GetIndustry(missionData.sourceIndustry)
     if not sourceIndustry then return end
@@ -117,7 +117,7 @@ RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
     missionCargoLoaded = 0
 
     QBCore.Functions.Notify("Missão aceita! Verifique o seu mapa para o ponto de coleta.", "success")
-    TriggerEvent('gs_trucker:client:toggleTablet', false)
+    TriggerEvent('space_trucker:client:toggleTablet', false)
 
     missionPoints.collect = Point.add({
         coords = sourceIndustry.location,
@@ -125,7 +125,7 @@ RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
         onPedStanding = function()
             DrawMarker(2, sourceIndustry.location.x, sourceIndustry.location.y, sourceIndustry.location.z - 0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 255, 200, 0, 100, false, true, 2, false, nil, nil, false)
             DrawText3D(sourceIndustry.location.x, sourceIndustry.location.y, sourceIndustry.location.z, '[E] - Coletar Carga')
-            if IsControlJustReleased(0, 38) then TriggerEvent('gs_trucker:client:attemptToLoadCargo') end
+            if IsControlJustReleased(0, 38) then TriggerEvent('space_trucker:client:attemptToLoadCargo') end
         end,
     })
     local blip = AddBlipForCoord(sourceIndustry.location)
@@ -134,7 +134,7 @@ RegisterNetEvent('gs_trucker:client:startMission', function(missionData)
     missionPoints.collect.blip = blip
 end)
 
-RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
+RegisterNetEvent('space_trucker:client:startLogisticsMission', function(orderData)
     if currentMission then
         QBCore.Functions.Notify("Você já está numa missão. Termine-a primeiro.", "error")
         return
@@ -160,7 +160,7 @@ RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
     SendNUIMessage({ action = 'setActiveLogisticsOrder', payload = currentLogisticsOrderId })
     
     QBCore.Functions.Notify(("Nova encomenda aceite! Recolha %d caixas de %s."):format(currentMission.amount, currentMission.itemLabel), "success")
-    TriggerEvent('gs_trucker:client:toggleTablet', false)
+    TriggerEvent('space_trucker:client:toggleTablet', false)
 
     missionPoints.collect = Point.add({
         coords = currentMission.pickup,
@@ -168,7 +168,7 @@ RegisterNetEvent('gs_trucker:client:startLogisticsMission', function(orderData)
         onPedStanding = function()
             DrawMarker(2, currentMission.pickup.x, currentMission.pickup.y, currentMission.pickup.z - 0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 255, 200, 0, 100, false, true, 2, false, nil, nil, false)
             DrawText3D(currentMission.pickup.x, currentMission.pickup.y, currentMission.pickup.z, '[E] - Coletar Carga')
-            if IsControlJustReleased(0, 38) then TriggerEvent('gs_trucker:client:attemptToLoadCargo') end
+            if IsControlJustReleased(0, 38) then TriggerEvent('space_trucker:client:attemptToLoadCargo') end
         end,
     })
     local blip = AddBlipForCoord(currentMission.pickup)
@@ -179,7 +179,7 @@ end)
 
 -- (O resto do ficheiro permanece igual ao seu original)
 -- ... (copie e cole o resto do seu ficheiro c_missions.lua aqui)
-RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
+RegisterNetEvent('space_trucker:client:attemptToLoadCargo', function()
     if not currentMission or isPlayerCarryingMissionProp or isActionInProgress then return end
     isActionInProgress = true
 
@@ -232,9 +232,9 @@ RegisterNetEvent('gs_trucker:client:attemptToLoadCargo', function()
     end
 
     if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
-        TriggerEvent('gs_trucker:client:startManualLoading', vehicleToCheck, vehicleConfig, itemInfo)
+        TriggerEvent('space_trucker:client:startManualLoading', vehicleToCheck, vehicleConfig, itemInfo)
     else
-        TriggerEvent('gs_trucker:client:startAutomaticLoading', vehicleToCheck, vehicleConfig, itemInfo)
+        TriggerEvent('space_trucker:client:startAutomaticLoading', vehicleToCheck, vehicleConfig, itemInfo)
     end
 end)
 
@@ -275,7 +275,7 @@ function HandlePropCarrying(prop, vehicle, config, item)
 
                 if missionPoints.store then missionPoints.store:remove(); missionPoints.store = nil end
                 if missionCargoLoaded >= currentMission.amount then
-                    TriggerEvent("gs_trucker:client:startDeliveryPhase", vehicle)
+                    TriggerEvent("space_trucker:client:startDeliveryPhase", vehicle)
                 else
                     QBCore.Functions.Notify("Volte ao ponto de coleta para pegar a próxima caixa.", "primary")
                 end
@@ -315,7 +315,7 @@ function HandleUnloadingPropCarrying(prop, vehicle)
     activeCargoProps.onPlayer = prop
 end
 
-RegisterNetEvent('gs_trucker:client:startManualLoading', function(vehicle, config, item)
+RegisterNetEvent('space_trucker:client:startManualLoading', function(vehicle, config, item)
     QBCore.Functions.Progressbar("load_mission_crate", "Apanhando a caixa...", 1500, false, true, {}, {}, {}, {}, function()
         local playerPed = PlayerPedId()
         local propModel = item.prop and item.prop.model or `hei_prop_heist_wooden_box`
@@ -329,7 +329,7 @@ RegisterNetEvent('gs_trucker:client:startManualLoading', function(vehicle, confi
     end)
 end)
 
-RegisterNetEvent('gs_trucker:client:startAutomaticLoading', function(vehicle, config, item)
+RegisterNetEvent('space_trucker:client:startAutomaticLoading', function(vehicle, config, item)
     QBCore.Functions.Progressbar("load_mission_auto", "A carregar o veículo...", 5000, false, true, {}, {}, {}, {}, function()
         if item.transType ~= spaceconfig.ItemTransportType.LIQUIDS and item.transType ~= spaceconfig.ItemTransportType.LOOSE and item.transType ~= spaceconfig.ItemTransportType.CONCRETE then
             if config.props and config.props[item.transType] then
@@ -345,7 +345,7 @@ RegisterNetEvent('gs_trucker:client:startAutomaticLoading', function(vehicle, co
                 SetModelAsNoLongerNeeded(propModel)
             end
         end
-        TriggerEvent("gs_trucker:client:startDeliveryPhase", vehicle)
+        TriggerEvent("space_trucker:client:startDeliveryPhase", vehicle)
         isActionInProgress = false
     end, function() 
         QBCore.Functions.Notify("Carregamento cancelado.", "error")
@@ -353,7 +353,7 @@ RegisterNetEvent('gs_trucker:client:startAutomaticLoading', function(vehicle, co
     end)
 end)
 
-RegisterNetEvent("gs_trucker:client:startDeliveryPhase", function(vehicle)
+RegisterNetEvent("space_trucker:client:startDeliveryPhase", function(vehicle)
     missionVehicle = vehicle
     missionCargoDelivered = 0
     QBCore.Functions.Notify("Carga completa! Siga para o ponto de entrega.", "primary")
@@ -377,14 +377,14 @@ RegisterNetEvent("gs_trucker:client:startDeliveryPhase", function(vehicle)
                 if isPlayerCarryingMissionProp then
                     DrawText3D(destinationCoords.x, destinationCoords.y, destinationCoords.z, '[E] - Entregar Caixa')
                     if IsControlJustReleased(0, 38) then
-                        TriggerEvent('gs_trucker:client:deliverManualCrate')
+                        TriggerEvent('space_trucker:client:deliverManualCrate')
                     end
                 else
                     DrawText3D(destinationCoords.x, destinationCoords.y, destinationCoords.z, 'Vá até seu veículo para descarregar a carga.')
                 end
             else
                 DrawText3D(destinationCoords.x, destinationCoords.y, destinationCoords.z, '[E] - Entregar Carga')
-                if IsControlJustReleased(0, 38) then TriggerEvent('gs_trucker:client:finishShipping') end
+                if IsControlJustReleased(0, 38) then TriggerEvent('space_trucker:client:finishShipping') end
             end
         end,
     })
@@ -446,7 +446,7 @@ RegisterNetEvent("gs_trucker:client:startDeliveryPhase", function(vehicle)
     end
 end)
 
-RegisterNetEvent('gs_trucker:client:deliverManualCrate', function()
+RegisterNetEvent('space_trucker:client:deliverManualCrate', function()
     if not isPlayerCarryingMissionProp or not activeCargoProps.onPlayer then return end
 
     local prop = activeCargoProps.onPlayer
@@ -464,9 +464,9 @@ RegisterNetEvent('gs_trucker:client:deliverManualCrate', function()
     if remaining <= 0 then
         QBCore.Functions.Notify("Todas as caixas foram entregues!", "success")
         if currentMission.type == 'LOGISTICS_ORDER' then
-            TriggerServerEvent('gs_trucker:server:completeLogisticsOrder', currentMission)
+            TriggerServerEvent('space_trucker:server:completeLogisticsOrder', currentMission)
         else
-            TriggerServerEvent('gs_trucker:server:missionCompleted', currentMission)
+            TriggerServerEvent('space_trucker:server:missionCompleted', currentMission)
             QBCore.Functions.Notify("Entrega concluída! Reputação da empresa aumentada.", "success")
         end
         clearMission()
@@ -475,7 +475,7 @@ RegisterNetEvent('gs_trucker:client:deliverManualCrate', function()
     end
 end)
 
-RegisterNetEvent('gs_trucker:client:finishShipping', function()
+RegisterNetEvent('space_trucker:client:finishShipping', function()
     if not currentMission or not missionPoints.deliver then return end
     
     local itemInfo = spaceconfig.IndustryItems[currentMission.item]
@@ -492,9 +492,9 @@ RegisterNetEvent('gs_trucker:client:finishShipping', function()
         disableMovement = true, disableCarMovement = true,
     }, {}, {}, {}, function()
         if currentMission.type == 'LOGISTICS_ORDER' then
-            TriggerServerEvent('gs_trucker:server:completeLogisticsOrder', currentMission)
+            TriggerServerEvent('space_trucker:server:completeLogisticsOrder', currentMission)
         else
-            TriggerServerEvent('gs_trucker:server:missionCompleted', currentMission)
+            TriggerServerEvent('space_trucker:server:missionCompleted', currentMission)
             QBCore.Functions.Notify("Entrega concluída! Reputação da empresa aumentada.", "success")
         end
         clearMission()

@@ -83,7 +83,7 @@ function Industry:AddItemAmount(_tradeType, _itemName, _amount, _replicate)
     end
     -- Trigger client to all update amount again
     if IS_SERVER and _replicate then 
-        TriggerClientEvent('gs_trucker:client:industry:addItemAmount', -1, self.name, _tradeType, _itemName, _amount)
+        TriggerClientEvent('space_trucker:client:industry:addItemAmount', -1, self.name, _tradeType, _itemName, _amount)
     end
     return true
 end
@@ -100,7 +100,7 @@ function Industry:RemoveItemAmount(_tradeType, _itemName, _amount, _replicate)
     end
     
     if IS_SERVER and _replicate then 
-        TriggerClientEvent('gs_trucker:client:industry:removeItemAmount', -1, self.name, _tradeType, _itemName, _amount)
+        TriggerClientEvent('space_trucker:client:industry:removeItemAmount', -1, self.name, _tradeType, _itemName, _amount)
     end
     return true
 end

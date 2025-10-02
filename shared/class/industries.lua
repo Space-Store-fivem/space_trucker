@@ -1,4 +1,4 @@
--- gs_trucker/shared/class/industries.lua
+-- space_trucker/shared/class/industries.lua
 
 -- INDUSTRIES CONTAINER
 

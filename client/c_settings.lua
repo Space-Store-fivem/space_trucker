@@ -1,14 +1,14 @@
--- gs_trucker/client/c_settings.lua
+-- space_trucker/client/c_settings.lua
 
 -- Callback para atualizar as configurações
 RegisterNUICallback('updateCompanySettings', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:updateCompanySettings', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:updateCompanySettings', data)
     cb(result)
 end)
 
 -- Callback para vender a empresa
 RegisterNUICallback('sellCompany', function(data, cb)
-    local result = TriggerCallbackAwait('gs_trucker:callback:sellCompany', data)
+    local result = TriggerCallbackAwait('space_trucker:callback:sellCompany', data)
     cb(result)
 end)
 

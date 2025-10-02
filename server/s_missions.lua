@@ -5,7 +5,7 @@ local AvailableMissions = {}
 local MISSION_GENERATION_INTERVAL = 5 * 60 * 1000 -- 5 minutos
 
 local function generateMissions()
-    print('[gs-trucker | s_missions] A gerar missões de transporte com base no estoque real...')
+    print('[space-trucker | s_missions] A gerar missões de transporte com base no estoque real...')
     AvailableMissions = {}
     
     -- 1. Obter todas as possíveis empresas de destino (tier "BUSINESS")
@@ -18,14 +18,14 @@ local function generateMissions()
     end
 
     if #destinationBusinesses == 0 then
-        print('[gs-trucker | s_missions] AVISO: Nenhuma empresa de destino (Business) encontrada. Missões não podem ser geradas.')
+        print('[space-trucker | s_missions] AVISO: Nenhuma empresa de destino (Business) encontrada. Missões não podem ser geradas.')
         return
     end
 
     -- 2. Obter TODOS os itens de TODAS as indústrias que têm estoque maior que zero
-    local availableStock = MySQL.query.await('SELECT industry_name, item_name, stock FROM gs_trucker_industry_stock WHERE stock > 4', {}) -- Pega apenas se tiver um estoque mínimo (ex: 5)
+    local availableStock = MySQL.query.await('SELECT industry_name, item_name, stock FROM space_trucker_industry_stock WHERE stock > 4', {}) -- Pega apenas se tiver um estoque mínimo (ex: 5)
     if not availableStock or #availableStock == 0 then
-        print('[gs-trucker | s_missions] AVISO: Nenhum estoque encontrado em nenhuma indústria. Nenhuma missão foi gerada.')
+        print('[space-trucker | s_missions] AVISO: Nenhum estoque encontrado em nenhuma indústria. Nenhuma missão foi gerada.')
         return
     end
 
@@ -81,7 +81,7 @@ local function generateMissions()
             end
         end
     end
-    print('[gs-trucker | s_missions] ' .. #AvailableMissions .. ' novas missões geradas com base no estoque.')
+    print('[space-trucker | s_missions] ' .. #AvailableMissions .. ' novas missões geradas com base no estoque.')
 end
 
 Citizen.CreateThread(function()
@@ -95,11 +95,11 @@ Citizen.CreateThread(function()
     end)
 end)
 
-QBCore.Functions.CreateCallback('gs_trucker:callback:getMissions', function(source, cb)
+QBCore.Functions.CreateCallback('space_trucker:callback:getMissions', function(source, cb)
     cb(AvailableMissions)
 end)
 
-QBCore.Functions.CreateCallback('gs_trucker:callback:getMissionDetails', function(source, cb, data)
+QBCore.Functions.CreateCallback('space_trucker:callback:getMissionDetails', function(source, cb, data)
     local missionId = data.id
     for _, mission in ipairs(AvailableMissions) do
         if mission.id == missionId then
@@ -110,33 +110,33 @@ QBCore.Functions.CreateCallback('gs_trucker:callback:getMissionDetails', functio
     cb(nil)
 end)
 
-RegisterNetEvent('gs_trucker:server:missionCompleted', function(missionData)
+RegisterNetEvent('space_trucker:server:missionCompleted', function(missionData)
     local src = source
     local player = QBCore.Functions.GetPlayer(src)
     
     -- Validação robusta dos dados da missão
     if not player or not missionData or type(missionData) ~= 'table' or not missionData.sourceIndustry or not missionData.item or not missionData.amount then 
-        print('[gs-trucker | s_missions] ERRO: Dados de missão inválidos ou incompletos na conclusão.')
+        print('[space-trucker | s_missions] ERRO: Dados de missão inválidos ou incompletos na conclusão.')
         return 
     end
 
-    local _, playerCompanyId = exports['gs_trucker']:CheckIfPlayerWorksForCompany(src)
+    local _, playerCompanyId = exports['space_trucker']:CheckIfPlayerWorksForCompany(src)
 
     if playerCompanyId then
         -- [[ CORREÇÃO FINAL APLICADA ]] --
 
         -- 1. Encontrar qual empresa (seja NPC ou de jogador) é dona da indústria de origem
-        local sourceOwnerResult = MySQL.query.await('SELECT company_id FROM gs_trucker_company_industries WHERE industry_name = ?', { missionData.sourceIndustry })
+        local sourceOwnerResult = MySQL.query.await('SELECT company_id FROM space_trucker_company_industries WHERE industry_name = ?', { missionData.sourceIndustry })
         
         if sourceOwnerResult and sourceOwnerResult[1] then
             local sourceCompanyId = sourceOwnerResult[1].company_id
             
             -- 2. Remover o item do estoque da empresa dona da indústria de origem
             MySQL.update.await(
-                'UPDATE gs_trucker_industry_stock SET stock = GREATEST(0, stock - ?) WHERE company_id = ? AND industry_name = ? AND item_name = ?', 
+                'UPDATE space_trucker_industry_stock SET stock = GREATEST(0, stock - ?) WHERE company_id = ? AND industry_name = ? AND item_name = ?', 
                 { missionData.amount, sourceCompanyId, missionData.sourceIndustry, missionData.item }
             )
-            print(('[gs-trucker | s_missions] Estoque consumido da indústria de origem (%s) da empresa %d.'):format(missionData.sourceIndustry, sourceCompanyId))
+            print(('[space-trucker | s_missions] Estoque consumido da indústria de origem (%s) da empresa %d.'):format(missionData.sourceIndustry, sourceCompanyId))
 
             -- 3. Calcular o valor da venda e adicionar ao saldo da empresa dona
             local industryDef = Industries:GetIndustry(missionData.sourceIndustry)
@@ -144,31 +144,31 @@ RegisterNetEvent('gs_trucker:server:missionCompleted', function(missionData)
 
             if itemPrice > 0 then
                 local totalSale = itemPrice * missionData.amount
-                MySQL.update.await('UPDATE gs_trucker_companies SET balance = balance + ? WHERE id = ?', { totalSale, sourceCompanyId })
-                print(('[gs-trucker | s_missions] Empresa %d recebeu $%d pela venda de %d x %s.'):format(sourceCompanyId, totalSale, missionData.amount, missionData.item))
+                MySQL.update.await('UPDATE space_trucker_companies SET balance = balance + ? WHERE id = ?', { totalSale, sourceCompanyId })
+                print(('[space-trucker | s_missions] Empresa %d recebeu $%d pela venda de %d x %s.'):format(sourceCompanyId, totalSale, missionData.amount, missionData.item))
             end
         else
             -- Se a indústria não tiver dono, o dinheiro "some" e o estoque não é alterado (pois não há tabela de estoque para ela)
-            print(('[gs-trucker | s_missions] AVISO: A indústria de origem (%s) não tem dono. O dinheiro da venda foi para o "sistema".'):format(missionData.sourceIndustry))
+            print(('[space-trucker | s_missions] AVISO: A indústria de origem (%s) não tem dono. O dinheiro da venda foi para o "sistema".'):format(missionData.sourceIndustry))
         end
 
         -- 4. Conceder reputação para a empresa do jogador que fez a entrega
         local reputationGained = missionData.reputation or 5
-        MySQL.update.await('UPDATE gs_trucker_companies SET reputation = reputation + ? WHERE id = ?', { reputationGained, playerCompanyId })
-        print('[gs-trucker | s_missions] Empresa '..playerCompanyId..' ganhou '..reputationGained..' de reputação.')
+        MySQL.update.await('UPDATE space_trucker_companies SET reputation = reputation + ? WHERE id = ?', { reputationGained, playerCompanyId })
+        print('[space-trucker | s_missions] Empresa '..playerCompanyId..' ganhou '..reputationGained..' de reputação.')
         TriggerClientEvent('QBCore:Notify', src, "A sua empresa ganhou +" .. reputationGained .. " de reputação!", "success")
     end
 end)
 
-RegisterNetEvent('gs_trucker:server:cancelLogisticsOrder', function(orderId)
+RegisterNetEvent('space_trucker:server:cancelLogisticsOrder', function(orderId)
     local src = source
     local player = QBCore.Functions.GetPlayer(src)
     if not player or not orderId then return end
 
     -- Reverte o status da encomenda para 'OPEN' e remove o 'taker'
-    local result = MySQL.update.await('UPDATE gs_trucker_logistics_orders SET status = ?, taker_identifier = NULL WHERE id = ? AND taker_identifier = ?', { 'OPEN', orderId, player.PlayerData.citizenid })
+    local result = MySQL.update.await('UPDATE space_trucker_logistics_orders SET status = ?, taker_identifier = NULL WHERE id = ? AND taker_identifier = ?', { 'OPEN', orderId, player.PlayerData.citizenid })
 
     if result and result > 0 then
-        print(('[gs-trucker | Logistics] A encomenda %d foi cancelada e está novamente disponível.'):format(orderId))
+        print(('[space-trucker | Logistics] A encomenda %d foi cancelada e está novamente disponível.'):format(orderId))
     end
 end)

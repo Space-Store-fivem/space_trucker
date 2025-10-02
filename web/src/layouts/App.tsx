@@ -1,4 +1,4 @@
-// gs_trucker/web/src/layouts/App.tsx (CORRIGIDO)
+// space_trucker/web/src/layouts/App.tsx (CORRIGIDO)
 
 import { useNuiEvent } from '../hooks/useNuiEvent';
 import React, { useEffect, useState } from 'react';
@@ -56,7 +56,7 @@ export const App: React.FC = () => {
 
   const handleCloseGarage = () => {
     setGarageVisible(false);
-    fetchNui('gs_trucker:garage_close');
+    fetchNui('space_trucker:garage_close');
   }
 
   // ## INÍCIO DA CORREÇÃO ##

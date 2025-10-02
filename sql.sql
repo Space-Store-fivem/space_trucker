@@ -1,113 +1,110 @@
-CREATE TABLE IF NOT EXISTS `gs_trucker_profiles` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `identifier` VARCHAR(100) NOT NULL UNIQUE,
-  `profile_name` VARCHAR(100) NOT NULL,
-  `profile_picture` TEXT,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-CREATE TABLE `gs_trucker_posts` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `author_identifier` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_general_ci',
-  `post_type` ENUM('LOOKING_FOR_JOB','HIRING','GIG_OFFER') NOT NULL COLLATE 'utf8mb4_general_ci',
-  `title` VARCHAR(100) NOT NULL COLLATE 'utf8mb4_general_ci',
-  `content` TEXT NOT NULL COLLATE 'utf8mb4_general_ci',
-  `company_id` INT(11) NULL DEFAULT NULL,
-  `gig_payment` INT(11) NULL DEFAULT NULL,
-  `gig_taker_identifier` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
-  `status` ENUM('OPEN','CLOSED') NOT NULL DEFAULT 'OPEN' COLLATE 'utf8mb4_general_ci',
-  `timestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+
+CREATE TABLE IF NOT EXISTS `space_trucker_applications` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
+  `applicant_identifier` varchar(50) NOT NULL,
+  `applicant_name` varchar(255) NOT NULL,
+  `status` enum('PENDING','ACCEPTED','REJECTED') NOT NULL DEFAULT 'PENDING',
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `author_identifier` (`author_identifier`) USING BTREE,
-  INDEX `company_id` (`company_id`) USING BTREE
-)
-COLLATE='utf8mb4_general_ci'
-ENGINE=InnoDB;
+  KEY `company_id` (`company_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE `gs_trucker_applications` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `company_id` INT(11) NOT NULL,
-  `post_id` INT(11) NOT NULL,
-  `applicant_identifier` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_general_ci',
-  `applicant_name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_general_ci',
-  `status` ENUM('PENDING','ACCEPTED','REJECTED') NOT NULL DEFAULT 'PENDING' COLLATE 'utf8mb4_general_ci',
-  `timestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`) USING BTREE,
-  INDEX `company_id` (`company_id`) USING BTREE
-)
-COLLATE='utf8mb4_general_ci'
-ENGINE=InnoDB;
-
-ALTER TABLE `gs_trucker_employees`
-ADD COLUMN `role` VARCHAR(50) NOT NULL DEFAULT 'worker' AFTER `name`;
-
-CREATE TABLE `gs_trucker_chats` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `post_id` INT(11) NOT NULL,
-  `poster_identifier` VARCHAR(50) NOT NULL,
-  `accepter_identifier` VARCHAR(50) NOT NULL,
-  `created_at` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+CREATE TABLE IF NOT EXISTS `space_trucker_chats` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `post_id` int(11) NOT NULL,
+  `poster_identifier` varchar(50) NOT NULL,
+  `accepter_identifier` varchar(50) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `post_id` (`post_id`)
-) ENGINE=InnoDB;
-CREATE TABLE `gs_trucker_chat_messages` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `chat_id` INT(11) NOT NULL,
-  `author_identifier` VARCHAR(50) NOT NULL,
-  `message` TEXT NOT NULL,
-  `timestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+  UNIQUE KEY `post_id` (`post_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+CREATE TABLE IF NOT EXISTS `space_trucker_chat_messages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `chat_id` int(11) NOT NULL,
+  `author_identifier` varchar(50) NOT NULL,
+  `message` text NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  INDEX `chat_id` (`chat_id`)
-) ENGINE=InnoDB;
-ALTER TABLE `gs_trucker_companies`
-ADD COLUMN `permissions` TEXT DEFAULT '{}';
+  KEY `chat_id` (`chat_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
-ALTER TABLE `gs_trucker_companies`
-ADD COLUMN `salary_payment_enabled` BOOLEAN NOT NULL DEFAULT 0;
+CREATE TABLE IF NOT EXISTS `space_trucker_companies` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `owner_identifier` varchar(100) NOT NULL,
+  `balance` bigint(20) NOT NULL DEFAULT 0,
+  `logo_url` text DEFAULT 'https://i.imgur.com/7nLz43G.png',
+  `level` int(11) NOT NULL DEFAULT 1,
+  `reputation` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `permissions` text DEFAULT '{}',
+  `salary_payment_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `garage_location` text DEFAULT NULL,
+  `is_npc` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `owner_identifier` (`owner_identifier`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Adiciona a coluna para a localização da garagem na tabela de empresas
-ALTER TABLE `gs_trucker_companies`
-ADD COLUMN `garage_location` TEXT DEFAULT NULL;
-
--- Apaga a tabela de frota antiga, se existir, para ser recriada com a nova estrutura
-DROP TABLE IF EXISTS `gs_trucker_fleet`;
-
--- Cria a nova tabela de frota com todos os campos necessários
-CREATE TABLE IF NOT EXISTS `gs_trucker_fleet` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `company_id` INT NOT NULL,
-  `plate` VARCHAR(10) NOT NULL UNIQUE,
-  `model` VARCHAR(50) NOT NULL,
-  `damage` TEXT DEFAULT '{}',
-  `status` VARCHAR(50) NOT NULL DEFAULT 'Na Garagem',
-  `last_driver` VARCHAR(100) DEFAULT NULL,
-  FOREIGN KEY (`company_id`) REFERENCES `gs_trucker_companies`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Cria a tabela para o log de utilização dos veículos
-CREATE TABLE IF NOT EXISTS `gs_trucker_fleet_logs` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `fleet_id` INT NOT NULL,
-  `company_id` INT NOT NULL,
-  `player_name` VARCHAR(100) NOT NULL,
-  `action` VARCHAR(50) NOT NULL,
-  `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`fleet_id`) REFERENCES `gs_trucker_fleet`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-ALTER TABLE `gs_trucker_fleet` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE TABLE `gs_trucker_company_industries` (
+CREATE TABLE IF NOT EXISTS `space_trucker_company_industries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `company_id` int(11) NOT NULL,
   `industry_name` varchar(50) NOT NULL,
   `purchase_price` int(11) NOT NULL,
   `purchase_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `investment_level` int(11) NOT NULL DEFAULT 0,
+  `npc_workers` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `industry_name` (`industry_name`),
   KEY `company_id` (`company_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `space_trucker_employees` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `identifier` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `role` varchar(50) NOT NULL DEFAULT 'worker',
+  `is_npc` tinyint(1) NOT NULL DEFAULT 0,
+  `rank` varchar(50) NOT NULL DEFAULT 'Motorista',
+  `hired_at` timestamp NULL DEFAULT current_timestamp(),
+  `salary` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `company_id` (`company_id`),
+  CONSTRAINT `space_trucker_employees_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `space_trucker_companies` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE `gs_trucker_industry_management` (
+CREATE TABLE IF NOT EXISTS `space_trucker_fleet` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `plate` varchar(10) NOT NULL,
+  `model` varchar(50) NOT NULL,
+  `damage` text DEFAULT '{}',
+  `status` varchar(50) NOT NULL DEFAULT 'Na Garagem',
+  `last_driver` varchar(100) DEFAULT NULL,
+  `rent_expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `plate` (`plate`),
+  KEY `company_id` (`company_id`),
+  CONSTRAINT `space_trucker_fleet_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `space_trucker_companies` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `space_trucker_fleet_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fleet_id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  `player_name` varchar(100) NOT NULL,
+  `action` varchar(50) NOT NULL,
+  `timestamp` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fleet_id` (`fleet_id`),
+  CONSTRAINT `space_trucker_fleet_logs_ibfk_1` FOREIGN KEY (`fleet_id`) REFERENCES `space_trucker_fleet` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `space_trucker_industry_management` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `company_id` int(11) NOT NULL,
   `industry_name` varchar(50) NOT NULL,
@@ -118,48 +115,63 @@ CREATE TABLE `gs_trucker_industry_management` (
   UNIQUE KEY `company_industry` (`company_id`,`industry_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-ALTER TABLE `gs_trucker_company_industries`
-ADD COLUMN `investment_level` INT(11) NOT NULL DEFAULT 0,
-ADD COLUMN `npc_workers` INT(11) NOT NULL DEFAULT 0;
-
-CREATE TABLE `gs_trucker_industry_stock` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `company_id` INT(11) NOT NULL,
-  `industry_name` VARCHAR(50) NOT NULL,
-  `item_name` VARCHAR(50) NOT NULL,
-  `stock` INT(11) NOT NULL DEFAULT 0,
+CREATE TABLE IF NOT EXISTS `space_trucker_industry_stock` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `industry_name` varchar(50) NOT NULL,
+  `item_name` varchar(50) NOT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_stock_item` (`company_id`,`industry_name`,`item_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=14988 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-ALTER TABLE gs_trucker_employees
-ADD COLUMN salary INT DEFAULT 0;
-
-ALTER TABLE `gs_trucker_fleet` ADD COLUMN `rent_expires_at` DATETIME NULL DEFAULT NULL;
-
-CREATE TABLE `gs_trucker_logistics_orders` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `creator_identifier` VARCHAR(100) NOT NULL,
-  `creator_name` VARCHAR(255) NOT NULL,
-  `item_name` VARCHAR(50) NOT NULL,
-  `item_label` VARCHAR(100) NOT NULL,
-  `quantity` INT(11) NOT NULL DEFAULT 1,
-  `reward` INT(11) NOT NULL DEFAULT 0,
-  `pickup_industry_name` VARCHAR(100) NOT NULL,
-  `pickup_location` TEXT NOT NULL,
-  `dropoff_location` TEXT NOT NULL,
-  `dropoff_details` VARCHAR(255) DEFAULT NULL,
-  `status` VARCHAR(50) NOT NULL DEFAULT 'OPEN',
-  `taker_identifier` VARCHAR(100) DEFAULT NULL,
-  `timestamp` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+CREATE TABLE IF NOT EXISTS `space_trucker_logistics_orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `creator_identifier` varchar(100) NOT NULL,
+  `creator_name` varchar(255) NOT NULL,
+  `company_id` int(11) DEFAULT NULL,
+  `item_name` varchar(50) NOT NULL,
+  `item_label` varchar(100) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
+  `reward` int(11) NOT NULL DEFAULT 0,
+  `cargo_value` int(11) NOT NULL DEFAULT 0,
+  `pickup_industry_name` varchar(100) NOT NULL,
+  `pickup_location` text NOT NULL,
+  `dropoff_location` text NOT NULL,
+  `dropoff_details` varchar(255) DEFAULT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'OPEN',
+  `taker_identifier` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1667 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-ALTER TABLE `gs_trucker_logistics_orders` ADD COLUMN `cargo_value` INT(11) NOT NULL DEFAULT 0 AFTER `reward`;
+CREATE TABLE IF NOT EXISTS `space_trucker_posts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `author_identifier` varchar(50) NOT NULL,
+  `post_type` enum('LOOKING_FOR_JOB','HIRING','GIG_OFFER') NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `content` text NOT NULL,
+  `company_id` int(11) DEFAULT NULL,
+  `gig_payment` int(11) DEFAULT NULL,
+  `gig_taker_identifier` varchar(50) DEFAULT NULL,
+  `status` enum('OPEN','CLOSED') NOT NULL DEFAULT 'OPEN',
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `author_identifier` (`author_identifier`) USING BTREE,
+  KEY `company_id` (`company_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-ALTER TABLE `gs_trucker_logistics_orders` ADD COLUMN `company_id` INT(11) NULL DEFAULT NULL AFTER `creator_name`;
+CREATE TABLE IF NOT EXISTS `space_trucker_profiles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(100) NOT NULL,
+  `profile_name` varchar(100) NOT NULL,
+  `profile_picture` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `identifier` (`identifier`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `gs_trucker_skills` (
+CREATE TABLE IF NOT EXISTS `space_trucker_skills` (
   `citizenId` varchar(50) NOT NULL,
   `totalProfit` decimal(20,6) DEFAULT NULL,
   `totalPackage` int(11) DEFAULT NULL,
@@ -168,14 +180,16 @@ CREATE TABLE IF NOT EXISTS `gs_trucker_skills` (
   `level` int(11) DEFAULT NULL,
   PRIMARY KEY (`citizenId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-ALTER TABLE `gs_trucker_companies`
-ADD COLUMN `permissions` TEXT DEFAULT '{}';
 
-
--- Adiciona a nova coluna 'is_npc' à tabela de empresas
-ALTER TABLE `gs_trucker_companies` ADD COLUMN `is_npc` BOOLEAN NOT NULL DEFAULT 0;
-
--- Agora, vamos criar a empresa do "Sistema" que será a dona de todas as indústrias não compradas
-INSERT INTO `gs_trucker_companies` (name, owner_identifier, balance, is_npc) VALUES ('Sistema', 'npc_system', 999999999, 1);  
-
-ALTER TABLE `gs_trucker_logistics_orders` CHANGE `timestamp` `created_at` TIMESTAMP NOT NULL DEFAULT current_timestamp();
+CREATE TABLE IF NOT EXISTS `space_trucker_transactions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `amount` bigint(20) NOT NULL,
+  `description` text DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `company_id` (`company_id`),
+  CONSTRAINT `space_trucker_transactions_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `space_trucker_companies` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=757 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `space_trucker_companies` (`id`, `name`, `owner_identifier`, `balance`, `logo_url`, `level`, `reputation`, `created_at`, `permissions`, `salary_payment_enabled`, `garage_location`, `is_npc`) VALUES (6, 'Sistema', 'npc_system', 999999999, 'https://i.imgur.com/7nLz43G.png', 1, 0, '2025-09-30 14:31:02', '{}', 0, NULL, 1);

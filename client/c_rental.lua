@@ -33,7 +33,7 @@ end
 ---@param rentPointId string
 local function showTruckRentalMenu(rentPointId)
     local truckerData = GetPlayerTruckerSkill()
-    local money = TriggerCallbackAwait('gs_trucker:callback:getCash')
+    local money = TriggerCallbackAwait('space_trucker:callback:getCash')
 
     SendNUIMessage({
         action = 'sendTruckRentalMenu',
@@ -88,7 +88,7 @@ local function returnRentTruck(rentPointId)
         return
     end
 
-    TriggerServerEvent('gs_trucker:server:returnRentTruck', rentPointId, VehToNet(currentVehicle))
+    TriggerServerEvent('space_trucker:server:returnRentTruck', rentPointId, VehToNet(currentVehicle))
 end
 
 function AddTruckRentalPoint()
@@ -168,7 +168,7 @@ local function rentVehicle(args)
         return Notify(Lang:t('no_parking_spot_available'), 'error')
     end
 
-    local result = TriggerCallbackAwait('gs_trucker:callback:rentVehicle', args.rentPointId, args.vehicleIndex,
+    local result = TriggerCallbackAwait('space_trucker:callback:rentVehicle', args.rentPointId, args.vehicleIndex,
         args.vehicleHash,
         clearSpawn)
 

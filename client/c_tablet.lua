@@ -53,7 +53,7 @@ function ToggleTablet(toggle)
         tablet = false
     end
 end
-RegisterNetEvent('gs_trucker:client:toggleTablet', function(state)
+RegisterNetEvent('space_trucker:client:toggleTablet', function(state)
     ToggleTablet(state)
 end)
-TriggerEvent('gs_trucker:client:toggleTablet', false)
+TriggerEvent('space_trucker:client:toggleTablet', false)

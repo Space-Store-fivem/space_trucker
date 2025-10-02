@@ -53,7 +53,7 @@ local function addPlayerCarryItem(source, _itemName, _itemPrice, _industryName, 
         addTime = _addTime
     }
 
-    TriggerClientEvent('gs_trucker:client:addPlayerCarryData', source, {
+    TriggerClientEvent('space_trucker:client:addPlayerCarryData', source, {
         isCarry = true,
         carryItemName = _itemName,
         carryItemPrice = _itemPrice,
@@ -63,7 +63,7 @@ end
 
 local function removePlayerCarryItem(source)
     playersCarryItemData[source] = nil
-    TriggerClientEvent('gs_trucker:client:addPlayerCarryData', source, {
+    TriggerClientEvent('space_trucker:client:addPlayerCarryData', source, {
         isCarry = false,
         carryItemName = '',
         carryItemPrice = 0,
@@ -362,7 +362,7 @@ end
 -- ----------------------------------------------- Callbacks
 -- Callbacks
 
-CreateCallback('gs_trucker:callback:loadIndustriesTradeData', function(source, cb)
+CreateCallback('space_trucker:callback:loadIndustriesTradeData', function(source, cb)
     local industries = Industries:GetIndustries()
 
     local data = {}
@@ -380,7 +380,7 @@ CreateCallback('gs_trucker:callback:loadIndustriesTradeData', function(source, c
 end)
 
 -- Buy Item From Industry
-CreateCallback('gs_trucker:callback:buyItem',
+CreateCallback('space_trucker:callback:buyItem',
     function(source, cb, _tradeState, _industryName, _industryTradeItemName, _extendArgs)
         -- Check vị trí đứng với điểm mua trong lúc mua hàng luôn
         local industryData = Industries:GetIndustry(_industryName)
@@ -416,7 +416,7 @@ CreateCallback('gs_trucker:callback:buyItem',
                         return cb({ status = false, msg = Lang:t('storage_is_full') })
                     end
                     -- -- Nếu đúng hết thì trả lại tiền và thêm lại hàng vào storage
-                    if AddPlayerCash(source, math.floor(carryData.buyPrice * spaceconfig.ItemBackRate), ('gs_trucker_back_item_%s_from_%s'):format(_industryTradeItemName, _industryName)) then
+                    if AddPlayerCash(source, math.floor(carryData.buyPrice * spaceconfig.ItemBackRate), ('space_trucker_back_item_%s_from_%s'):format(_industryTradeItemName, _industryName)) then
                         industryData:AddItemAmount(spaceconfig.Industry.TradeType.FORSALE, _industryTradeItemName, 1, true)
                         -- Return xuống dưới để xóa props và carryData
                         removePlayerCarryItem(source)
@@ -440,7 +440,7 @@ CreateCallback('gs_trucker:callback:buyItem',
             end
             -- Set các state để tiện kiểm tra (tên item, nơi mua, giá mua, objectId)
             RemovePlayerCash(source, itemTradeData.price,
-                ('gs_trucker_buy_%s_from_%s'):format(_industryTradeItemName, _industryName))
+                ('space_trucker_buy_%s_from_%s'):format(_industryTradeItemName, _industryName))
             -- Trừ hàng vào doanh nghiệp, lưu dữ liệu trên server
             industryData:RemoveItemAmount(spaceconfig.Industry.TradeType.FORSALE, _industryTradeItemName, 1, true)
             -- Gọi xuống một event attach objects cho người chơi trên tay,
@@ -530,7 +530,7 @@ CreateCallback('gs_trucker:callback:buyItem',
             if addVehicleItem(vehModelHash, vehPlate, addItemData, buyAmount) then
                 -- Set các state để tiện kiểm tra (tên item, nơi mua, giá mua, objectId)
                 RemovePlayerCash(source, (itemTradeData.price * buyAmount),
-                    ('gs_trucker_buy_%s_from_%s'):format(_industryTradeItemName, _industryName))
+                    ('space_trucker_buy_%s_from_%s'):format(_industryTradeItemName, _industryName))
                 -- Trừ hàng vào doanh nghiệp, lưu dữ liệu trên server
                 industryData:RemoveItemAmount(spaceconfig.Industry.TradeType.FORSALE, _industryTradeItemName, buyAmount,
                     true)
@@ -560,7 +560,7 @@ CreateCallback('gs_trucker:callback:buyItem',
     end)
 
 -- Sell Item To Industry
-CreateCallback('gs_trucker:callback:sellItem',
+CreateCallback('space_trucker:callback:sellItem',
     function(source, cb, _tradeState, _industryName, _industryTradeItemName, _extendArgs)
         -- Check vị trí đứng với điểm mua trong lúc mua hàng luôn
         local industryData = Industries:GetIndustry(_industryName)
@@ -601,7 +601,7 @@ CreateCallback('gs_trucker:callback:sellItem',
                 return cb({ status = false, msg = Lang:t('error_when_sell_item') })
             end
 
-            if AddPlayerCash(source, itemTradeData.price, ('gs_trucker_sell_item_%s_to_%s'):format(_industryTradeItemName, _industryName)) then
+            if AddPlayerCash(source, itemTradeData.price, ('space_trucker_sell_item_%s_to_%s'):format(_industryTradeItemName, _industryName)) then
                 industryData:AddItemAmount(spaceconfig.Industry.TradeType.WANTED, _industryTradeItemName, 1, true)
 
                 -- itemName, sellPrice, buyPrice, sellAmount, buyFrom, sellFrom
@@ -678,7 +678,7 @@ CreateCallback('gs_trucker:callback:sellItem',
             if removeVehicleItem(vehModelHash, vehPlate, _industryTradeItemName, sellAmount) then
                 industryData:AddItemAmount(spaceconfig.Industry.TradeType.WANTED, _industryTradeItemName, sellAmount, true)
                 AddPlayerCash(source, itemTradeData.price * sellAmount,
-                    ('gs_trucker_sell_%s_item_%s_to_%s'):format(sellAmount, _industryTradeItemName, _industryName))
+                    ('space_trucker_sell_%s_item_%s_to_%s'):format(sellAmount, _industryTradeItemName, _industryName))
 
                 -- itemName, sellPrice, buyPrice, sellAmount, buyFrom, sellFrom
                 CalculatorPlayerTruckerSkill(source, _industryTradeItemName, itemTradeData.price,
@@ -713,7 +713,7 @@ CreateCallback('gs_trucker:callback:sellItem',
     end)
 
 -- Forklift load item into vehicle
-CreateCallback('gs_trucker:callback:forkliftLoadIntoCargo', function(source, cb, data)
+CreateCallback('space_trucker:callback:forkliftLoadIntoCargo', function(source, cb, data)
     local itemName = data.itemName
     local loadAmount = data.loadAmount
     local forkliftNetId = data.forkliftNetId
@@ -848,19 +848,19 @@ CreateCallback('gs_trucker:callback:forkliftLoadIntoCargo', function(source, cb,
     end
 end)
 
-CreateCallback('gs_trucker:callback:checkCarryItem', function(source, cb)
+CreateCallback('space_trucker:callback:checkCarryItem', function(source, cb)
     if playersCarryItemData[source] then
         return cb and cb(playersCarryItemData[source]) or playersCarryItemData[source]
     end
     return cb and cb(false) or false
 end)
 
-CreateCallback('gs_trucker:callback:onPlayerDeath', function(source, cb)
+CreateCallback('space_trucker:callback:onPlayerDeath', function(source, cb)
     removePlayerCarryItem(source)
     return cb and cb(true) or true
 end)
 
-CreateCallback('gs_trucker:callback:loadPackageIntoVehicleByHand', function(source, cb, vehNetId)
+CreateCallback('space_trucker:callback:loadPackageIntoVehicleByHand', function(source, cb, vehNetId)
     local playerCarryItem = playersCarryItemData[source]
     -- Kiểm tra có hàng trên tay hay không
     if not playerCarryItem then
@@ -937,7 +937,7 @@ CreateCallback('gs_trucker:callback:loadPackageIntoVehicleByHand', function(sour
     return cb({ status = false, msg = Lang:t('veh_error_when_add_item') })
 end)
 
-CreateCallback('gs_trucker:callback:unloadPackageFromVehicleByHand', function(source, cb, vehNetId, itemName)
+CreateCallback('space_trucker:callback:unloadPackageFromVehicleByHand', function(source, cb, vehNetId, itemName)
     local playerCarryItem = playersCarryItemData[source]
     local defaultItemData = spaceconfig.IndustryItems[itemName]
 
@@ -984,7 +984,7 @@ CreateCallback('gs_trucker:callback:unloadPackageFromVehicleByHand', function(so
     return cb({ status = false, msg = Lang:t('veh_error_when_remove_item') })
 end)
 
-CreateCallback('gs_trucker:callback:checkVehicleStorage', function(source, cb, vehNetId)
+CreateCallback('space_trucker:callback:checkVehicleStorage', function(source, cb, vehNetId)
     local vehicleEntity = NetworkGetEntityFromNetworkId(vehNetId)
     -- Xe co the cho duoc hang hay khong
     local vehModelHash = GetEntityModel(vehicleEntity)
@@ -1010,7 +1010,7 @@ CreateCallback('gs_trucker:callback:checkVehicleStorage', function(source, cb, v
     return cb({ status = true, data = getVehicleStorageData(vehModelHash, vehPlate) })
 end)
 
-CreateCallback('gs_trucker:callback:checkMultiVehicleStorage', function(source, cb, vehNetIds)
+CreateCallback('space_trucker:callback:checkMultiVehicleStorage', function(source, cb, vehNetIds)
     local data = {}
     for _, vehNetId in pairs(vehNetIds) do
         local vehicleEntity = NetworkGetEntityFromNetworkId(vehNetId)
@@ -1047,26 +1047,26 @@ end)
 CreateThread(function()
     -- Espera 5 segundos após o arranque do recurso.
     -- Isto dá tempo de sobra para os shared_scripts serem carregados e popularem a tabela 'Industries'.
-    print('[gs_trucker] A aguardar 5 segundos para registar os callbacks das indústrias...')
+    print('[space_trucker] A aguardar 5 segundos para registar os callbacks das indústrias...')
     Wait(5000)
     
     -- Agora que temos a certeza que as indústrias existem, registamos as funções que dependem delas.
-    exports.gs_trucker:RegisterIndustryCallbacks()
+    exports.space_trucker:RegisterIndustryCallbacks()
 end)
 
 CreateThread(function()
     -- Espera 5 segundos para garantir que o MySQL esteja totalmente carregado
     Wait(5000) 
 
-    print('[gs_trucker] A verificar o estado dos veículos da frota no reinício...')
+    print('[space_trucker] A verificar o estado dos veículos da frota no reinício...')
     
     -- ## LÓGICA ATUALIZADA AQUI ##
     -- A query agora também define 'last_driver' como NULL para limpar o registro.
-    local rowsAffected = MySQL.update.await('UPDATE gs_trucker_fleet SET status = ?, last_driver = NULL WHERE status != ?', { 'Na Garagem', 'Na Garagem' })
+    local rowsAffected = MySQL.update.await('UPDATE space_trucker_fleet SET status = ?, last_driver = NULL WHERE status != ?', { 'Na Garagem', 'Na Garagem' })
 
     if rowsAffected > 0 then
-        print(('[gs_trucker] Sucesso: %d veículos da frota foram devolvidos para a garagem e redefinidos.'):format(rowsAffected))
+        print(('[space_trucker] Sucesso: %d veículos da frota foram devolvidos para a garagem e redefinidos.'):format(rowsAffected))
     else
-        print('[gs_trucker] Nenhum veículo da frota precisou ser redefinido.')
+        print('[space_trucker] Nenhum veículo da frota precisou ser redefinido.')
     end
 end)

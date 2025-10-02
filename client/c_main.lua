@@ -123,7 +123,7 @@ end
 
 local function getAllIndustriesData()
     -- Get industries and create instances
-    local industriesTradeData = TriggerCallbackAwait('gs_trucker:callback:loadIndustriesTradeData')
+    local industriesTradeData = TriggerCallbackAwait('space_trucker:callback:loadIndustriesTradeData')
 
     for industryName, industryTradeData in pairs(industriesTradeData) do
         Industries:UpdateTradeData(industryName, industryTradeData)
@@ -256,7 +256,7 @@ end
 -- Vehicle function
 
 local function checkVehicleCanAddItemToStorage(_vehNetId, _industryTradeItemName)
-    local checkStorageCB = TriggerCallbackAwait('gs_trucker:callback:checkVehicleStorage', _vehNetId)
+    local checkStorageCB = TriggerCallbackAwait('space_trucker:callback:checkVehicleStorage', _vehNetId)
 
     if not checkStorageCB.status then
         return checkStorageCB
@@ -382,7 +382,7 @@ function OnPlayerActiveForSaleLocation(_industryName, _industryTradeItemName)
         }
 
         if confirmData and confirmData.confirm then
-            local result = TriggerCallbackAwait('gs_trucker:callback:buyItem', spaceconfig.Industry.TradeState.onFoot,
+            local result = TriggerCallbackAwait('space_trucker:callback:buyItem', spaceconfig.Industry.TradeState.onFoot,
                 _industryName, _industryTradeItemName)
 
             if not result.status then
@@ -482,7 +482,7 @@ function OnPlayerActiveForSaleLocation(_industryName, _industryTradeItemName)
         }
 
         is_player_busy = true
-        local result = TriggerCallbackAwait('gs_trucker:callback:buyItem', spaceconfig.Industry.TradeState.onVehicle,
+        local result = TriggerCallbackAwait('space_trucker:callback:buyItem', spaceconfig.Industry.TradeState.onVehicle,
             _industryName, _industryTradeItemName, args)
 
         if not result.status then
@@ -550,7 +550,7 @@ function OnPlayerActiveWantedLocation(_industryName, _industryTradeItemName)
         --     return
         -- end
 
-        local carryItem = TriggerCallbackAwait('gs_trucker:callback:checkCarryItem')
+        local carryItem = TriggerCallbackAwait('space_trucker:callback:checkCarryItem')
         if not carryItem then
             Notify(Lang:t('you_no_have_goods'), 'error')
             return
@@ -578,7 +578,7 @@ function OnPlayerActiveWantedLocation(_industryName, _industryTradeItemName)
         }
 
         if confirmData and confirmData.confirm then
-            local result = TriggerCallbackAwait('gs_trucker:callback:sellItem', spaceconfig.Industry.TradeState
+            local result = TriggerCallbackAwait('space_trucker:callback:sellItem', spaceconfig.Industry.TradeState
                 .onFoot,
                 _industryName, _industryTradeItemName)
 
@@ -617,7 +617,7 @@ function OnPlayerActiveWantedLocation(_industryName, _industryTradeItemName)
         end
 
         local vehNetId = VehToNet(vehicleEntity)
-        local checkStorageCB = TriggerCallbackAwait('gs_trucker:callback:checkVehicleStorage', vehNetId)
+        local checkStorageCB = TriggerCallbackAwait('space_trucker:callback:checkVehicleStorage', vehNetId)
 
         if not checkStorageCB.status then
             Notify(checkStorageCB.msg, 'error')
@@ -674,7 +674,7 @@ function OnPlayerActiveWantedLocation(_industryName, _industryTradeItemName)
 
         is_player_busy = true
 
-        local result = TriggerCallbackAwait('gs_trucker:callback:sellItem', spaceconfig.Industry.TradeState.onVehicle,
+        local result = TriggerCallbackAwait('space_trucker:callback:sellItem', spaceconfig.Industry.TradeState.onVehicle,
             _industryName, _industryTradeItemName, args)
 
         if not result.status then
@@ -762,7 +762,7 @@ function OnPlayerLoadPackageIntoVehicle(entity)
 
     if confirmData and confirmData.confirm then
         -- Đầu tiên sẽ lấy netId gửi lên cho server
-        local result = TriggerCallbackAwait('gs_trucker:callback:loadPackageIntoVehicleByHand', vehNetId)
+        local result = TriggerCallbackAwait('space_trucker:callback:loadPackageIntoVehicleByHand', vehNetId)
 
         if not result.status then
             Notify(result.msg, 'error')
@@ -805,7 +805,7 @@ function OnPlayerCheckVehicleStorage(entity)
         return false
     end
 
-    local result = TriggerCallbackAwait('gs_trucker:callback:checkVehicleStorage', vehNetId)
+    local result = TriggerCallbackAwait('space_trucker:callback:checkVehicleStorage', vehNetId)
 
     if not result then
         Notify(result.msg, 'error')
@@ -855,7 +855,7 @@ function OnPlayerUnloadFromVehicleStorage(_vehEntity, _itemName)
         return false
     end
 
-    local result = TriggerCallbackAwait('gs_trucker:callback:unloadPackageFromVehicleByHand', vehNetId, _itemName)
+    local result = TriggerCallbackAwait('space_trucker:callback:unloadPackageFromVehicleByHand', vehNetId, _itemName)
 
     if not result.status then
         Notify(result.msg, 'error')
@@ -867,7 +867,7 @@ end
 
 function OnPlayerDeath()
     if spaceconfig.DropPackageWhenDie then
-        local result = TriggerCallbackAwait('gs_trucker:callback:onPlayerDeath')
+        local result = TriggerCallbackAwait('space_trucker:callback:onPlayerDeath')
 
         if result then
             removePlayerCarryProp()
@@ -997,7 +997,7 @@ function OnPlayerActiveTrunkByForkLift(forkliftEntity, targetEntity)
 
     local forkliftNetId = VehToNet(forkliftEntity)
     local targetNetId = VehToNet(targetEntity)
-    local vehiclesStorage = TriggerCallbackAwait('gs_trucker:callback:checkMultiVehicleStorage',
+    local vehiclesStorage = TriggerCallbackAwait('space_trucker:callback:checkMultiVehicleStorage',
         { forkliftNetId, targetNetId })
 
     if not vehiclesStorage.status then
@@ -1101,7 +1101,7 @@ function OnPlayerActiveTrunkByForkLift(forkliftEntity, targetEntity)
             targetNetId = targetNetId
         }
 
-        local result = TriggerCallbackAwait('gs_trucker:callback:forkliftLoadIntoCargo', args)
+        local result = TriggerCallbackAwait('space_trucker:callback:forkliftLoadIntoCargo', args)
 
         if not result.status then
             -- If status is False and fallback error msg
@@ -1160,7 +1160,7 @@ function OnForkliftUnloadFromVehicleStorage(_vehEntity, _itemName)
 
     local forkliftNetId = VehToNet(forkliftEntity)
     local targetNetId = VehToNet(_vehEntity)
-    local vehiclesStorage = TriggerCallbackAwait('gs_trucker:callback:checkMultiVehicleStorage',
+    local vehiclesStorage = TriggerCallbackAwait('space_trucker:callback:checkMultiVehicleStorage',
         { forkliftNetId, targetNetId })
 
     if not vehiclesStorage.status then

@@ -8,7 +8,7 @@ local playerTruckerSkill = {
     totalProfit = 0.0
 }
 
-RegisterNetEvent('gs_trucker:client:setPlayerSkillData', function(data)
+RegisterNetEvent('space_trucker:client:setPlayerSkillData', function(data)
     playerTruckerSkill = data
 end)
 

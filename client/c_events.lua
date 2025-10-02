@@ -1,18 +1,18 @@
-RegisterNetEvent('gs_trucker:client:industry:addItemAmount', function(_industryName, _tradeType, _itemName, _amount)
+RegisterNetEvent('space_trucker:client:industry:addItemAmount', function(_industryName, _tradeType, _itemName, _amount)
     if not HasIndustriesLoaded() then return end
     local industry = Industries:GetIndustry(_industryName)
     if not industry then return end
     industry:AddItemAmount(_tradeType, _itemName, _amount)
 end)
 
-RegisterNetEvent('gs_trucker:client:industry:removeItemAmount', function(_industryName, _tradeType, _itemName, _amount)
+RegisterNetEvent('space_trucker:client:industry:removeItemAmount', function(_industryName, _tradeType, _itemName, _amount)
     if not HasIndustriesLoaded() then return end
     local industry = Industries:GetIndustry(_industryName)
     if not industry then return end
     industry:RemoveItemAmount(_tradeType, _itemName, _amount)
 end)
 
-RegisterNetEvent('gs_trucker:client:addPlayerCarryData', function(data)
+RegisterNetEvent('space_trucker:client:addPlayerCarryData', function(data)
     if not source or source == '' then
         print('DEBUG: Event call from client')
         return
@@ -30,7 +30,7 @@ end)
 ---@field wanted? table
 ---@field forsale? table
 
-RegisterNetEvent('gs_trucker:client:updateIndustriesData', function(_industriesData)
+RegisterNetEvent('space_trucker:client:updateIndustriesData', function(_industriesData)
     if not HasIndustriesLoaded() then return end
 
     ---@param industryName string
