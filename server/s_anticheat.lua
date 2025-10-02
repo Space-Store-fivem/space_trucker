@@ -1,4 +1,4 @@
--- Anti Teleport GS Trucker
+-- Anti Teleport space trucker
 spaceconfig.AntiTeleport = {
     -- ['buy_from_industry_name'] = {
     --      ['sell_to_industry_name'] = min time
