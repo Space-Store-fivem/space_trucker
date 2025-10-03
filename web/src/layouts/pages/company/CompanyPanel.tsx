@@ -14,8 +14,11 @@ import { Industries } from './Industries';
 import { TransportMissions } from './TransportMissions';
 import { LogisticsHub } from './LogisticsHub';
 import CompanyGPS from './CompanyGPS';
-// [[ 1. IMPORTAR O NOVO PAINEL ]]
 import { IndustryMonitor } from './IndustryMonitor';
+// ==================================================================
+// ============ ✨ 1. IMPORTAR O NOVO PAINEL DE PERFIL ✨ ============
+// ==================================================================
+import { ProfileManagement } from './ProfileManagement';
 
 const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: FullCompanyInfo) => void; }> = ({ data, updateCompanyData }) => {
   const [activeApp, setActiveApp] = useState(data.has_profile ? 'home' : 'createProfile');
@@ -96,9 +99,14 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
       case 'settings':
         return <Settings companyData={data} updateCompanyData={safeUpdateCompanyData} onBack={goBack} onSuccess={handleRefresh} />;
       
-      // [[ 2. ADICIONAR O CASE PARA O NOVO PAINEL ]]
       case 'industryMonitor':
         return <IndustryMonitor onBack={goBack} />;
+
+      // ==================================================================
+      // ========= ✨ 2. ADICIONAR O CASE PARA O PAINEL DE PERFIL ✨ ========
+      // ==================================================================
+      case 'profile':
+        return <ProfileManagement onBack={goBack} profile={data.profile_data || null} />;
         
       default:
         return <HomeScreen 

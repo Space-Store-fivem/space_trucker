@@ -313,4 +313,6 @@ export interface LogisticsOrder {
   destinationLabel?: string; // << ADICIONE ESTA LINHA SE FALTAR
     pickup_industry_name: string;
     dropoff_details: string;
+        type: 'system' | 'player'; // Adicionado para separar missões
+    suggested_vehicle: string; // Adicionado para o caminhão sugerido
 }

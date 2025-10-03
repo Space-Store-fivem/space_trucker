@@ -26,7 +26,50 @@ CreateCallback('space_trucker:callback:getOrderItemPrice', function(source, cb, 
     cb(itemData.price)
 end)
 
--- Função corrigida para buscar e preparar os nomes das indústrias para a UI
+-- Função auxiliar para encontrar o melhor veículo para uma carga específica
+local function getSuggestedVehicle(itemName, quantity)
+    local item = spaceconfig.IndustryItems[itemName]
+    -- Se o item não for encontrado na configuração, retorna um valor padrão
+    if not item then
+        return "Camião de Carga"
+    end
+
+    local requiredCapacity = (item.capacity or 1) * quantity
+    local itemTransType = item.transType
+
+    local bestVehicle = nil
+    local smallestCapacity = math.huge -- Inicia com um número "infinito" para comparação
+
+    -- Percorre a lista de todos os veículos disponíveis na configuração
+    for model, vehicleData in pairs(spaceconfig.VehicleTransport) do
+        -- Ignora reboques, pois eles não são veículos principais
+        if not vehicleData.isTrailer then
+            local canTransport = false
+            -- Verifica se o veículo pode transportar o tipo de item da missão
+            if vehicleData.transType and vehicleData.transType[itemTransType] then
+                canTransport = true
+            end
+
+            if canTransport then
+                -- Se o veículo tiver capacidade suficiente E for menor que o melhor veículo encontrado até agora
+                if vehicleData.capacity >= requiredCapacity and vehicleData.capacity < smallestCapacity then
+                    -- Atualiza o melhor veículo encontrado
+                    bestVehicle = vehicleData
+                    smallestCapacity = vehicleData.capacity
+                end
+            end
+        end
+    end
+
+    -- Se um veículo adequado foi encontrado, retorna o nome dele
+    if bestVehicle then
+        return bestVehicle.label -- Ex: "Benson", "Mule", "Pounder"
+    else
+        -- Se nenhuma opção for encontrada (ex: carga muito grande), retorna um genérico
+        return "Camião Pesado"
+    end
+end
+
 CreateCallback('space_trucker:callback:getLogisticsOrders', function(source, cb)
     -- 1. Busca as encomendas como de costume
     local orders = MySQL.query.await('SELECT * FROM space_trucker_logistics_orders WHERE status = ? ORDER BY created_at DESC', { 'OPEN' })
@@ -36,7 +79,6 @@ CreateCallback('space_trucker:callback:getLogisticsOrders', function(source, cb)
             -- 2. Processa a INDÚSTRIA DE PARTIDA (DE:)
             local pickupIndustry = Industries:GetIndustry(orders[i].pickup_industry_name)
             if pickupIndustry and pickupIndustry.label then
-                -- O painel TSX espera 'sourceLabel'
                 orders[i].sourceLabel = Lang:t(pickupIndustry.label)
             else
                 orders[i].sourceLabel = orders[i].pickup_industry_name -- Fallback
@@ -57,12 +99,26 @@ CreateCallback('space_trucker:callback:getLogisticsOrders', function(source, cb)
                     end
                 end
             end
-            -- O painel TSX espera 'destinationLabel'
             orders[i].destinationLabel = destinationLabel
+
+            -- 4. Adiciona o TIPO da missão (system ou player)
+            if orders[i].creator_identifier == 'system' then
+                orders[i].type = 'system'
+            else
+                orders[i].type = 'player'
+            end
+
+            -- ==================================================================
+            -- ============ ✨ NOVA LÓGICA DE SUGESTÃO DE VEÍCULO ✨ ============
+            -- ==================================================================
+            -- 5. Usa a nova função para obter uma sugestão de veículo inteligente
+            orders[i].suggested_vehicle = getSuggestedVehicle(orders[i].item_name, orders[i].quantity)
+            -- ==================================================================
+
         end
     end
     
-    -- 4. Envia a lista de encomendas já com os nomes corretos para a interface
+    -- 6. Envia a lista de encomendas já com todos os campos corretos para a interface
     cb(orders or {})
 end)
 

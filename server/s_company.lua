@@ -736,33 +736,38 @@ end)
 RegisterNetEvent('space_trucker:server:createCompany', function(data)
     local src = source
     local user = QBCore.Functions.GetPlayer(src)
-    if not user then return end
+    if not user then
+        print('[space_trucker DEBUG] ERRO: Não foi possível obter o objeto do jogador.')
+        return
+    end
 
     local companyName = data.name
     local companyLogo = data.logo or ''
 
     if not companyName or companyName:gsub("^%s*(.-)%s*$", "%1") == "" then
-        TriggerClientEvent('DoLongHudText', src, 'O nome da empresa não pode estar vazio.', 2)
+        TriggerClientEvent('QBCore:Notify', src, 'O nome da empresa não pode estar vazio.', 'error')
         return
     end
 
-    local creationCost = 50000
+    local creationCost = 50000 -- Custo de criação
     local userMoney = user.Functions.GetMoney('bank')
+
+    print('[space_trucker DEBUG] A criar empresa. Nome: ' .. companyName .. ' | Custo: ' .. creationCost .. ' | Dinheiro do jogador: ' .. userMoney)
 
     if userMoney >= creationCost then
         user.Functions.RemoveMoney('bank', creationCost, "criacao-de-empresa")
 
-        -- =================================================================
-        -- >> CORREÇÃO: Usando a sintaxe MySQL.insert.await que o resto do script usa <<
-        -- =================================================================
-        local result = MySQL.insert.await('INSERT INTO space_trucker_companies (name, owner_identifier, balance, logo_url) VALUES (?, ?, ?, ?)', {
-            companyName,
-            user.PlayerData.citizenid,
-            0,
-            companyLogo
-        })
+        -- Usamos 'pcall' para executar a query de forma segura e apanhar qualquer erro
+        local success, result = pcall(function()
+            return MySQL.insert.await('INSERT INTO space_trucker_companies (name, owner_identifier, balance, logo_url) VALUES (?, ?, ?, ?)', {
+                companyName,
+                user.PlayerData.citizenid,
+                0, -- Saldo inicial
+                companyLogo
+            })
+        end)
 
-        if result then
+        if success and result then
             local newCompanyId = result
             local ownerName = user.PlayerData.charinfo.firstname .. ' ' .. user.PlayerData.charinfo.lastname
 
@@ -776,23 +781,24 @@ RegisterNetEvent('space_trucker:server:createCompany', function(data)
             })
 
             if employeeResult then
-                print('[space_trucker] SUCESSO! Empresa e registro de dono criados.')
-                TriggerClientEvent('DoLongHudText', src, 'Empresa criada e você foi registrado como Dono!', 1)
+                print('[space_trucker] SUCESSO! Empresa ' .. companyName .. ' (ID: ' .. newCompanyId .. ') criada para ' .. ownerName)
+                TriggerClientEvent('QBCore:Notify', src, 'Empresa criada com sucesso!', 'success')
                 TriggerClientEvent('space_trucker:client:forceRefresh', src)
             else
-                print('[space_trucker ERRO CRÍTICO] Falha ao registrar o dono como funcionário.')
-                TriggerClientEvent('DoLongHudText', src, 'Erro ao finalizar seu registro como dono. Contate um admin.', 2)
+                print('[space_trucker ERRO CRÍTICO] A empresa foi criada na DB, mas falhou ao registar o dono como funcionário. Verifique a tabela space_trucker_employees.')
+                TriggerClientEvent('QBCore:Notify', src, 'Erro crítico ao finalizar o seu registo como dono. Contacte um administrador.', 'error')
             end
         else
-            print('[space_trucker ERRO FATAL] A query para criar a empresa falhou. Devolvendo dinheiro.')
+            -- Se a inserção falhou, 'result' terá a mensagem de erro.
+            print('[space_trucker ERRO FATAL] A query para criar a empresa falhou. Devolvendo dinheiro. Erro: ' .. tostring(result))
             user.Functions.AddMoney('bank', creationCost, "reembolso-criacao-empresa")
-            TriggerClientEvent('DoLongHudText', src, 'Erro do servidor ao registrar a empresa. Tente novamente.', 2)
+            TriggerClientEvent('QBCore:Notify', src, 'Erro do servidor ao registar a empresa. Verifique a consola do servidor.', 'error')
         end
     else
-        TriggerClientEvent('DoLongHudText', src, 'Você não tem dinheiro suficiente. Custo: $' .. creationCost, 2)
+        print('[space_trucker DEBUG] O jogador não tem dinheiro suficiente para criar a empresa.')
+        TriggerClientEvent('QBCore:Notify', src, 'Você não tem dinheiro suficiente. Custo: $' .. creationCost, 'error')
     end
 end)
-
 -- Adicione este bloco no final do seu arquivo s_company.lua
 
 CreateCallback('space_trucker:callback:transferOwnership', function(source, cb, data)
@@ -1278,7 +1284,28 @@ CreateCallback('space_trucker:callback:rentCompanyVehicle', function(source, cb,
     end)
 end)
 
+RegisterNetEvent('space_trucker:server:updateProfile', function(data)
+    local src = source
+    local identifier = GetPlayerIdentifier(src, 0)
+    
+    if not identifier or not data or not data.profile_name then
+        -- Adicione uma notificação de erro se desejar
+        return
+    end
 
+    -- Limita o tamanho do nome e da URL para segurança
+    local name = string.sub(data.profile_name, 1, 50)
+    local picture = string.sub(data.profile_picture or '', 1, 255)
+
+    -- Atualiza os dados no banco de dados
+    MySQL.update.await(
+        'UPDATE space_trucker_profiles SET profile_name = ?, profile_picture = ? WHERE identifier = ?',
+        { name, picture, identifier }
+    )
+
+    -- Opcional: Adicione uma notificação de sucesso para o jogador
+    -- TriggerClientEvent('your:notification', src, 'Perfil atualizado com sucesso!', 'success')
+end)
 
 
 
@@ -1286,3 +1313,5 @@ end)
 
 
 exports('CheckIfPlayerWorksForCompany', CheckIfPlayerWorksForCompany)
+
+

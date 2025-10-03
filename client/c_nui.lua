@@ -247,3 +247,9 @@ RegisterNUICallback('getIndustryStatus', function(_, cb)
         cb(statusData or {})
     end)
 end)
+
+RegisterNUICallback('getTruckerStats', function(_, cb)
+    -- A função GetTruckerSkill() já existe em c_skill.lua e retorna os dados que precisamos
+    local stats = GetTruckerSkill()
+    cb(stats)
+end)
