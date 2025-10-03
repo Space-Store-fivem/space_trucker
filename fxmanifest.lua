@@ -80,6 +80,7 @@ server_scripts {
 	'server/s_missions.lua',
 	"server/s_rental.lua",
 	'server/s_company_gps.lua', -- ADICIONADO
+	'server/s_info_panels.lua',
 	 'server/s_logistics_hub.lua'
 }
 

@@ -1,5 +1,3 @@
-// space_trucker/web/src/layouts/pages/company/CompanyGPS.tsx
-
 import { useNuiEvent } from '../../../hooks/useNuiEvent';
 import React, { useState, useRef, WheelEvent, MouseEvent } from 'react';
 import { ArrowLeft, ZoomIn, ZoomOut, Move } from 'lucide-react';
@@ -111,7 +109,7 @@ const CompanyGPS: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
           >
-            {/* CORREÇÃO AQUI: O caminho agora é relativo */}
+            {/* O caminho está correto, relativo à pasta 'public' ou 'build' */}
             <img src="images/map.png" alt="Mapa da Cidade" className="w-full h-full object-cover" />
             {Object.entries(members).map(([serverId, member]) => {
               const { x, y } = convertGameCoordsToMapCoords(member.coords);

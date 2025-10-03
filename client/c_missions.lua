@@ -1,4 +1,4 @@
--- space_trucker/client/c_missions.lua (VERSÃO FINAL COM CORREÇÕES DE LÓGICA)
+-- space_trucker/client/c_missions.lua (VERSÃO FINAL COM CORREÇÃO DE DADOS)
 local QBCore = exports['qb-core']:GetCoreObject()
 
 currentMission = nil
@@ -151,9 +151,9 @@ RegisterNetEvent('space_trucker:client:startLogisticsMission', function(orderDat
         reward = orderData.reward,
         type = 'LOGISTICS_ORDER',
         orderId = orderData.id,
-        -- [ADICIONADO] Adiciona os nomes das indústrias para o histórico
+        -- [[ CORREÇÃO ADICIONADA AQUI ]] --
         sourceIndustry = orderData.source_industry_name,
-        destinationBusiness = orderData.destination_industry_name,
+        destinationBusiness = orderData.destination_industry_name
     }
     missionCargoLoaded = 0
     
@@ -368,6 +368,8 @@ RegisterNetEvent("space_trucker:client:startDeliveryPhase", function(vehicle)
     missionPoints.deliver = Point.add({
         coords = destinationCoords, distance = 7.0,
         onPedStanding = function()
+            if not currentMission then return end
+
             DrawMarker(2, destinationCoords.x, destinationCoords.y, destinationCoords.z-0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 0, 255, 0, 100, false, true, 2, false, nil, nil, false)
             local itemInfo = spaceconfig.IndustryItems[currentMission.item]
             local isManual = itemInfo.transType == spaceconfig.ItemTransportType.CRATE or itemInfo.transType == spaceconfig.ItemTransportType.STRONGBOX
@@ -463,7 +465,6 @@ RegisterNetEvent('space_trucker:client:deliverManualCrate', function()
     if remaining <= 0 then
         QBCore.Functions.Notify("Todas as caixas foram entregues!", "success")
         
-        -- [CORREÇÃO] Envia o objeto 'currentMission' completo para o servidor
         if currentMission.type == 'LOGISTICS_ORDER' then
             TriggerServerEvent('space_trucker:server:completeLogisticsOrder', currentMission)
         else
@@ -492,7 +493,6 @@ RegisterNetEvent('space_trucker:client:finishShipping', function()
     QBCore.Functions.Progressbar("unload_mission_props", "A descarregar a carga...", unloadTime, false, true, {
         disableMovement = true, disableCarMovement = true,
     }, {}, {}, {}, function()
-        -- [CORREÇÃO] Envia o objeto 'currentMission' completo para o servidor
         if currentMission.type == 'LOGISTICS_ORDER' then
             TriggerServerEvent('space_trucker:server:completeLogisticsOrder', currentMission)
         else

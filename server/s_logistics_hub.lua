@@ -1,12 +1,11 @@
--- space_trucker/server/s_logistics_hub.lua (VERSÃO COMPLETA E ATUALIZADA)
+-- space_trucker/server/s_logistics_hub.lua (VERSÃO FINAL E CORRIGIDA)
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
-local SystemCompanyId = nil -- Variável para guardar o ID da empresa "Sistema"
+local SystemCompanyId = nil
 
--- No início do script, encontra e guarda o ID da empresa do sistema para uso posterior
 Citizen.CreateThread(function()
-    Citizen.Wait(1000) -- Espera o MySQL estar pronto
+    Citizen.Wait(1000)
     local result = MySQL.query.await('SELECT id FROM space_trucker_companies WHERE name = ?', { 'Sistema' })
     if result and result[1] then
         SystemCompanyId = result[1].id
@@ -16,8 +15,7 @@ Citizen.CreateThread(function()
     end
 end)
 
-
-CreateCallback('space_trucker:callback:getOrderItemPrice', function(source, cb, data)
+QBCore.Functions.CreateCallback('space_trucker:callback:getOrderItemPrice', function(source, cb, data)
     if not data or not data.itemName then return cb(0) end
     local producingIndustry = Industries:GetIndustryThatProduces(data.itemName)
     if not producingIndustry or not producingIndustry.tradeData or not producingIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE] then return cb(0) end
@@ -26,57 +24,34 @@ CreateCallback('space_trucker:callback:getOrderItemPrice', function(source, cb, 
     cb(itemData.price)
 end)
 
--- Função auxiliar para encontrar o melhor veículo para uma carga específica
 local function getSuggestedVehicle(itemName, quantity)
     local item = spaceconfig.IndustryItems[itemName]
-    -- Se o item não for encontrado na configuração, retorna um valor padrão
-    if not item then
-        return "Camião de Carga"
-    end
-
+    if not item then return "Camião de Carga" end
     local requiredCapacity = (item.capacity or 1) * quantity
     local itemTransType = item.transType
-
     local bestVehicle = nil
-    local smallestCapacity = math.huge -- Inicia com um número "infinito" para comparação
-
-    -- Percorre a lista de todos os veículos disponíveis na configuração
+    local smallestCapacity = math.huge
     for model, vehicleData in pairs(spaceconfig.VehicleTransport) do
-        -- Ignora reboques, pois eles não são veículos principais
         if not vehicleData.isTrailer then
             local canTransport = false
-            -- Verifica se o veículo pode transportar o tipo de item da missão
             if vehicleData.transType and vehicleData.transType[itemTransType] then
                 canTransport = true
             end
-
             if canTransport then
-                -- Se o veículo tiver capacidade suficiente E for menor que o melhor veículo encontrado até agora
                 if vehicleData.capacity >= requiredCapacity and vehicleData.capacity < smallestCapacity then
-                    -- Atualiza o melhor veículo encontrado
                     bestVehicle = vehicleData
                     smallestCapacity = vehicleData.capacity
                 end
             end
         end
     end
-
-    -- Se um veículo adequado foi encontrado, retorna o nome dele
-    if bestVehicle then
-        return bestVehicle.label -- Ex: "Benson", "Mule", "Pounder"
-    else
-        -- Se nenhuma opção for encontrada (ex: carga muito grande), retorna um genérico
-        return "Camião Pesado"
-    end
+    if bestVehicle then return bestVehicle.label else return "Camião Pesado" end
 end
 
-CreateCallback('space_trucker:callback:getLogisticsOrders', function(source, cb)
-    -- 1. Busca as encomendas como de costume
+QBCore.Functions.CreateCallback('space_trucker:callback:getLogisticsOrders', function(source, cb)
     local orders = MySQL.query.await('SELECT * FROM space_trucker_logistics_orders WHERE status = ? ORDER BY created_at DESC', { 'OPEN' })
-    
     if orders then
         for i = 1, #orders do
-            -- 2. Processa a INDÚSTRIA DE PARTIDA (DE:)
             local pickupIndustry = Industries:GetIndustry(orders[i].pickup_industry_name)
             if pickupIndustry and pickupIndustry.label then
                 orders[i].sourceLabel = Lang:t(pickupIndustry.label)
@@ -84,46 +59,26 @@ CreateCallback('space_trucker:callback:getLogisticsOrders', function(source, cb)
                 orders[i].sourceLabel = orders[i].pickup_industry_name -- Fallback
             end
 
-            -- 3. Processa a INDÚSTRIA DE CHEGADA (PARA:)
-            local destinationLabel = "Destino Desconhecido"
-            if orders[i].creator_identifier == 'system' then
-                destinationLabel = Lang:t(orders[i].creator_name)
+            local destinationIndustry = Industries:GetIndustry(orders[i].destination_industry_name)
+            if destinationIndustry and destinationIndustry.label then
+                 orders[i].destinationLabel = Lang:t(destinationIndustry.label)
             else
-                local industryNameInDetails = orders[i].dropoff_details:match("%((.-)%)")
-                if industryNameInDetails then
-                    local dropoffIndustry = Industries:GetIndustry(industryNameInDetails)
-                    if dropoffIndustry and dropoffIndustry.label then
-                        destinationLabel = Lang:t(dropoffIndustry.label)
-                    else
-                        destinationLabel = industryNameInDetails -- Fallback
-                    end
-                end
+                 orders[i].destinationLabel = orders[i].destination_industry_name or "Destino Desconhecido"
             end
-            orders[i].destinationLabel = destinationLabel
 
-            -- 4. Adiciona o TIPO da missão (system ou player)
             if orders[i].creator_identifier == 'system' then
                 orders[i].type = 'system'
             else
                 orders[i].type = 'player'
             end
-
-            -- ==================================================================
-            -- ============ ✨ NOVA LÓGICA DE SUGESTÃO DE VEÍCULO ✨ ============
-            -- ==================================================================
-            -- 5. Usa a nova função para obter uma sugestão de veículo inteligente
             orders[i].suggested_vehicle = getSuggestedVehicle(orders[i].item_name, orders[i].quantity)
-            -- ==================================================================
-
         end
     end
-    
-    -- 6. Envia a lista de encomendas já com todos os campos corretos para a interface
     cb(orders or {})
 end)
 
-CreateCallback('space_trucker:callback:createLogisticsOrder', function(source, cb, data)
-    local player = exports['space_trucker']:GetPlayer(source)
+QBCore.Functions.CreateCallback('space_trucker:callback:createLogisticsOrder', function(source, cb, data)
+    local player = QBCore.Functions.GetPlayer(source)
     if not player then return cb({ success = false, message = "Jogador não encontrado." }) end
     local identifier = player.PlayerData.citizenid
     
@@ -152,11 +107,14 @@ CreateCallback('space_trucker:callback:createLogisticsOrder', function(source, c
     MySQL.insert.await('INSERT INTO space_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { company[1].id, 'order_cost', -totalOrderCost, ('Encomenda de %d %s'):format(quantity, Lang:t('item_name_' .. data.itemName))})
 
     local requestingIndustry = Industries:GetIndustry(data.requestingIndustry)
+    
+    -- [[ CORREÇÃO DEFINITIVA: USA 'pickup_industry_name' e adiciona 'destination_industry_name' ]] --
     local result = MySQL.insert.await(
-        'INSERT INTO space_trucker_logistics_orders (creator_identifier, creator_name, company_id, item_name, item_label, quantity, reward, cargo_value, pickup_industry_name, pickup_location, dropoff_location, dropoff_details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+        'INSERT INTO space_trucker_logistics_orders (creator_identifier, creator_name, company_id, item_name, item_label, quantity, reward, cargo_value, pickup_industry_name, destination_industry_name, pickup_location, dropoff_location, dropoff_details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
         {
             identifier, company[1].name, company[1].id, data.itemName, 'item_name_' .. data.itemName, quantity, truckerReward, totalCargoValue,
-            producingIndustry.name,
+            producingIndustry.name,         -- <- Usa a sua coluna original `pickup_industry_name`
+            requestingIndustry.name,        -- <- Adiciona a nova coluna `destination_industry_name`
             json.encode(producingIndustry.location),
             json.encode(requestingIndustry.location),
             company[1].name .. ' (' .. requestingIndustry.name .. ')'
@@ -171,10 +129,9 @@ CreateCallback('space_trucker:callback:createLogisticsOrder', function(source, c
     end
 end)
 
--- Ficheiro: s_logistics_hub.lua
 
-CreateCallback('space_trucker:callback:acceptLogisticsOrder', function(source, cb, data)
-    local player = exports['space_trucker']:GetPlayer(source)
+QBCore.Functions.CreateCallback('space_trucker:callback:acceptLogisticsOrder', function(source, cb, data)
+    local player = QBCore.Functions.GetPlayer(source)
     if not player then return cb({ success = false, message = "Jogador não encontrado." }) end
     
     local orderId = tonumber(data.orderId)
@@ -186,42 +143,32 @@ CreateCallback('space_trucker:callback:acceptLogisticsOrder', function(source, c
 
     if ord.status ~= 'OPEN' then return cb({ success = false, message = "Esta encomenda já foi aceite." }) end
     
-    -- [[ CORREÇÃO ESTRUTURAL APLICADA AQUI ]] --
-    
-    -- 1. Determina qual empresa é a dona da indústria de origem
     local sourceIndustryName = ord.pickup_industry_name
     local sourceOwnerResult = MySQL.query.await('SELECT company_id FROM space_trucker_company_industries WHERE industry_name = ?', { sourceIndustryName })
     local sourceCompanyId
     
     if sourceOwnerResult and sourceOwnerResult[1] then
-        sourceCompanyId = sourceOwnerResult[1].company_id -- É de um jogador
+        sourceCompanyId = sourceOwnerResult[1].company_id
     else
-        local systemCompany = MySQL.query.await('SELECT id FROM space_trucker_companies WHERE name = ?', { 'Sistema' })
-        if systemCompany and systemCompany[1] then
-            sourceCompanyId = systemCompany[1].id -- É do sistema
-        end
+        sourceCompanyId = SystemCompanyId
     end
 
     if not sourceCompanyId then
         return cb({ success = false, message = "Erro: Não foi possível identificar o dono da indústria de origem." })
     end
 
-    -- 2. VERIFICA O ESTOQUE ANTES de aceitar a missão
     local stockResult = MySQL.query.await('SELECT stock FROM space_trucker_industry_stock WHERE company_id = ? AND industry_name = ? AND item_name = ?', { sourceCompanyId, sourceIndustryName, ord.item_name })
 
     if not stockResult or not stockResult[1] or stockResult[1].stock < ord.quantity then
         return cb({ success = false, message = "A indústria de origem não tem estoque suficiente para esta encomenda." })
     end
 
-    -- 3. Se houver estoque, deduz IMEDIATAMENTE para "reservar" a carga
     MySQL.update.await('UPDATE space_trucker_industry_stock SET stock = stock - ? WHERE company_id = ? AND industry_name = ? AND item_name = ?', { ord.quantity, sourceCompanyId, sourceIndustryName, ord.item_name })
 
-    -- 4. Agora sim, atribui a missão ao jogador
     local identifier = player.PlayerData.citizenid
     local result = MySQL.update.await('UPDATE space_trucker_logistics_orders SET status = ?, taker_identifier = ? WHERE id = ? AND status = ?', { 'IN_PROGRESS', identifier, orderId, 'OPEN' })
     
     if result and result > 0 then
-        -- Lógica de pagamento para a empresa vendedora (se não for do sistema)
         if ord.creator_identifier ~= 'system' then
             local producerCompanyQuery = MySQL.query.await('SELECT ind.company_id FROM space_trucker_company_industries ind WHERE ind.industry_name = ?', { ord.pickup_industry_name })
             if producerCompanyQuery and producerCompanyQuery[1] then
@@ -230,12 +177,14 @@ CreateCallback('space_trucker:callback:acceptLogisticsOrder', function(source, c
                 MySQL.insert.await('INSERT INTO space_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { producerCompanyId, 'sale_of_goods', ord.cargo_value, ('Venda de %d %s'):format(ord.quantity, Lang:t(ord.item_label)) })
             end
         end
+        
+        -- Renomeia 'pickup_industry_name' para 'sourceIndustry' para ser consistente com o resto do script
+        ord.sourceIndustry = ord.pickup_industry_name
+        ord.destinationBusiness = ord.destination_industry_name
 
-        local industry = Industries:GetIndustry(ord.pickup_industry_name)
-        if industry then ord.pickup_industry_name = Lang:t(industry.label) end
-        cb({ success = true, orderData = ord })
+        TriggerClientEvent('space_trucker:client:startLogisticsMission', source, ord)
+        cb({ success = true })
     else
-        -- Se algo der errado ao atribuir a missão, devolve o estoque
         MySQL.update.await('UPDATE space_trucker_industry_stock SET stock = stock + ? WHERE company_id = ? AND industry_name = ? AND item_name = ?', { ord.quantity, sourceCompanyId, sourceIndustryName, ord.item_name })
         cb({ success = false, message = "Esta encomenda acabou de ser aceite por outro jogador." })
     end
@@ -243,45 +192,42 @@ end)
 
 RegisterNetEvent('space_trucker:server:completeLogisticsOrder', function(missionData)
     local src = source
-    local player = exports['space_trucker']:GetPlayer(src)
+    local player = QBCore.Functions.GetPlayer(src)
     if not player or not missionData or not missionData.orderId then return end
     
     local identifier = player.PlayerData.citizenid
     local orderId = missionData.orderId
 
-    -- Busca a encomenda para garantir que ela ainda pertence ao jogador
     local order = MySQL.query.await('SELECT * FROM space_trucker_logistics_orders WHERE id = ? AND taker_identifier = ?', { orderId, identifier })
     if not order or not order[1] then return end
     local ord = order[1]
 
-    -- Paga a recompensa ao jogador
+    -- SALVA O HISTÓRICO PRIMEIRO, USANDO OS NOMES CORRETOS DAS COLUNAS
+    local sourceIndustryDef = Industries:GetIndustry(ord.pickup_industry_name)
+    local destinationBusinessDef = Industries:GetIndustry(ord.destination_industry_name)
+
+    if sourceIndustryDef and destinationBusinessDef then
+        local distance = #(sourceIndustryDef.location - destinationBusinessDef.location) / 1000
+        MySQL.update.await('INSERT INTO space_trucker_player_stats (identifier, total_profit, total_distance, total_packages) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE total_profit = total_profit + VALUES(total_profit), total_distance = total_distance + VALUES(total_distance), total_packages = total_packages + VALUES(total_packages)', { identifier, ord.reward, distance, ord.quantity })
+        MySQL.insert.await('INSERT INTO space_trucker_mission_history (identifier, mission_id, source_industry, destination_business, item, amount, profit, distance) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', { identifier, ord.id, ord.pickup_industry_name, ord.destination_industry_name, ord.item_name, ord.quantity, ord.reward, distance })
+    end
+    
     player.Functions.AddMoney('bank', ord.reward, "Pagamento de encomenda de logística")
 
-    -- Lógica para adicionar o estoque na indústria de destino
     if ord.creator_identifier == 'system' then
         if SystemCompanyId then
-            local destinationIndustryLabel = ord.creator_name
-            local destinationIndustryName = nil
-            for name, industry in pairs(Industries:GetIndustries()) do
-                if Lang:t(industry.label) == destinationIndustryLabel then
-                    destinationIndustryName = name
-                    break
-                end
-            end
+            local destinationIndustryName = ord.destination_industry_name
             if destinationIndustryName then
                 MySQL.execute('INSERT INTO space_trucker_industry_stock (company_id, industry_name, item_name, stock) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = stock + VALUES(stock)', { SystemCompanyId, destinationIndustryName, ord.item_name, ord.quantity })
             end
         end
     else
-        local requestingIndustryName = ord.dropoff_details:match("%((.-)%)")
+        local requestingIndustryName = ord.destination_industry_name
         if requestingIndustryName and ord.company_id then
             MySQL.execute('INSERT INTO space_trucker_industry_stock (company_id, industry_name, item_name, stock) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = stock + VALUES(stock)', { ord.company_id, requestingIndustryName, ord.item_name, ord.quantity })
         end
     end
 
-    -- [[ CORREÇÃO APLICADA AQUI ]] --
-    -- Em vez de atualizar o status, agora a encomenda é excluída do banco de dados.
     MySQL.execute('DELETE FROM space_trucker_logistics_orders WHERE id = ?', { orderId })
-
     TriggerClientEvent('QBCore:Notify', src, ('Encomenda concluída! Você recebeu $%s.'):format(ord.reward), 'success')
 end)

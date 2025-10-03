@@ -52,7 +52,7 @@ const NoCompanyView: React.FC<{ onAppSelect: (app: string) => void }> = ({ onApp
     );
 };
 
-// Componente principal da HomeScreen (com ícones atualizados)
+// Componente principal da HomeScreen (com o novo botão adicionado)
 export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwner, playerRole, onAppSelect }) => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -64,29 +64,36 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
     const timeFormatter = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
     const dateFormatter = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
 
-    // ========= ✨ VISÃO PARA JOGADOR SEM EMPRESA (COM BOTÃO DE PERFIL) ✨ =========
+    // ========= VISÃO PARA JOGADOR SEM EMPRESA (COM BOTÃO DE CARGAS) =========
     if (!company) {
         return (
             <div className="flex flex-col h-full">
                 <NoCompanyView onAppSelect={onAppSelect} />
                 <div className="p-6">
-                      <h2 className="text-lg font-semibold text-gray-400 mb-3">Serviços Públicos</h2>
-                      <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                            {/* Botão de Perfil */}
-                            <AppButton 
-                                iconPath="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
-                                iconClassName="text-green-400 w-9 h-9" 
-                                label="Meu Perfil" 
-                                onClick={() => onAppSelect('profile')} 
-                            />
-                            {/* Botão da Central de Logística */}
-                            <AppButton 
-                                iconPath="M8 16H5.373a2 2 0 01-1.99-2.226l.5-4a2 2 0 012-1.774H14V4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M15 1v4h4" 
-                                iconClassName="text-amber-400 w-9 h-9" 
-                                label="Central de Logística" 
-                                onClick={() => onAppSelect('logisticsHub')} 
-                            />
-                      </div>
+                    <h2 className="text-lg font-semibold text-gray-400 mb-3">Serviços Públicos</h2>
+                    <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                        {/* Botão de Perfil */}
+                        <AppButton 
+                            iconPath="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
+                            iconClassName="text-green-400 w-9 h-9" 
+                            label="Meu Perfil" 
+                            onClick={() => onAppSelect('profile')} 
+                        />
+                        {/* Botão da Central de Logística */}
+                        <AppButton 
+                            iconPath="M8 16H5.373a2 2 0 01-1.99-2.226l.5-4a2 2 0 012-1.774H14V4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M15 1v4h4" 
+                            iconClassName="text-amber-400 w-9 h-9" 
+                            label="Central de Logística" 
+                            onClick={() => onAppSelect('logisticsHub')} 
+                        />
+                        {/* [[ NOVO BOTÃO ADICIONADO AQUI ]] */}
+                        <AppButton 
+                            iconPath="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                            iconClassName="text-pink-400 w-9 h-9"
+                            label="Painel de Cargas"
+                            onClick={() => onAppSelect('cargo_panel')} 
+                        />
+                    </div>
                 </div>
             </div>
         )
@@ -111,7 +118,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
         return false;
     };
 
-    // ========= ✨ VISÃO PARA JOGADOR COM EMPRESA (COM BOTÃO DE PERFIL) ✨ =========
+    // ========= VISÃO PARA JOGADOR COM EMPRESA (COM BOTÃO DE CARGAS) =========
     return (
         <div className="w-full h-full p-6 flex flex-col bg-gray-900/80 backdrop-blur-md text-white">
             <header className="flex justify-between items-center pb-4 mb-4 border-b border-white/10">
@@ -179,6 +186,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
                             iconClassName="text-amber-400 w-9 h-9" 
                             label="Central de Logística" 
                             onClick={() => onAppSelect('logisticsHub')} 
+                        />
+                        {/* [[ NOVO BOTÃO ADICIONADO AQUI ]] */}
+                        <AppButton 
+                            iconPath="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                            iconClassName="text-pink-400 w-9 h-9"
+                            label="Painel de Cargas"
+                            onClick={() => onAppSelect('cargo_panel')} 
                         />
                     </div>
                 </section>
