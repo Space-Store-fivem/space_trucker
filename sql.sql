@@ -192,4 +192,30 @@ CREATE TABLE IF NOT EXISTS `space_trucker_transactions` (
   KEY `company_id` (`company_id`),
   CONSTRAINT `space_trucker_transactions_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `space_trucker_companies` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=757 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE IF NOT EXISTS `space_trucker_player_stats` (
+  `identifier` varchar(50) NOT NULL,
+  `total_profit` bigint(20) NOT NULL DEFAULT 0,
+  `total_distance` float NOT NULL DEFAULT 0,
+  `total_packages` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`identifier`)
+);
+
+CREATE TABLE IF NOT EXISTS `space_trucker_mission_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(50) NOT NULL,
+  `mission_id` varchar(50) NOT NULL,
+  `source_industry` varchar(50) NOT NULL,
+  `destination_business` varchar(50) NOT NULL,
+  `item` varchar(50) NOT NULL,
+  `amount` int(11) NOT NULL,
+  `profit` int(11) NOT NULL,
+  `distance` float NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+);
+
+
+
 INSERT INTO `space_trucker_companies` (`id`, `name`, `owner_identifier`, `balance`, `logo_url`, `level`, `reputation`, `created_at`, `permissions`, `salary_payment_enabled`, `garage_location`, `is_npc`) VALUES (6, 'Sistema', 'npc_system', 999999999, 'https://i.imgur.com/7nLz43G.png', 1, 0, '2025-09-30 14:31:02', '{}', 0, NULL, 1);

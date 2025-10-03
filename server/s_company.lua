@@ -1284,30 +1284,51 @@ CreateCallback('space_trucker:callback:rentCompanyVehicle', function(source, cb,
     end)
 end)
 
-RegisterNetEvent('space_trucker:server:updateProfile', function(data)
+
+-- [DIAGNÓSTICO E CORREÇÃO] CALLBACK PARA ATUALIZAR O PERFIL COM LOGS
+QBCore.Functions.CreateCallback('space_trucker:callback:updateProfile', function(source, cb, data)
     local src = source
-    local identifier = GetPlayerIdentifier(src, 0)
+    local player = QBCore.Functions.GetPlayer(src)
     
-    if not identifier or not data or not data.profile_name then
-        -- Adicione uma notificação de erro se desejar
+    print('--- [LOG | updateProfile] Callback Recebido ---')
+    
+    if not player then 
+        print('--- [LOG | updateProfile] ERRO: Jogador não encontrado.')
+        cb({ success = false, message = "Jogador não encontrado." })
+        return 
+    end
+
+    local identifier = player.PlayerData.citizenid
+    local profileName = data.profile_name
+    local profilePicture = data.profile_picture
+
+    print(('[--- [LOG | updateProfile] Dados Recebidos: ID: %s, Nome: %s, Avatar: %s ---]'):format(identifier, profileName, profilePicture))
+
+    if not profileName or profileName:gsub("%s*", "") == '' then
+        print('--- [LOG | updateProfile] ERRO: Nome do perfil vazio.')
+        TriggerClientEvent('QBCore:Notify', src, "O nome do perfil não pode estar vazio.", "error")
+        cb({ success = false, message = "Nome do perfil vazio." })
         return
     end
 
-    -- Limita o tamanho do nome e da URL para segurança
-    local name = string.sub(data.profile_name, 1, 50)
-    local picture = string.sub(data.profile_picture or '', 1, 255)
+    -- Usar um pcall para capturar qualquer erro do MySQL
+    local success, result = pcall(function()
+        return MySQL.update.await(
+            'INSERT INTO space_trucker_profiles (identifier, profile_name, profile_picture) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE profile_name = VALUES(profile_name), profile_picture = VALUES(profile_picture)',
+            { identifier, profileName, profilePicture }
+        )
+    end)
 
-    -- Atualiza os dados no banco de dados
-    MySQL.update.await(
-        'UPDATE space_trucker_profiles SET profile_name = ?, profile_picture = ? WHERE identifier = ?',
-        { name, picture, identifier }
-    )
-
-    -- Opcional: Adicione uma notificação de sucesso para o jogador
-    -- TriggerClientEvent('your:notification', src, 'Perfil atualizado com sucesso!', 'success')
+    if success and result then
+        print('--- [LOG | updateProfile] SUCESSO: Base de dados atualizada.')
+        TriggerClientEvent('QBCore:Notify', src, "Perfil atualizado com sucesso!", "success")
+        cb({ success = true, message = "Perfil atualizado." })
+    else
+        print('--- [LOG | updateProfile] ERRO: Falha ao executar a query no MySQL. Erro: ' .. tostring(result))
+        TriggerClientEvent('QBCore:Notify', src, "Erro ao atualizar o perfil na base de dados.", "error")
+        cb({ success = false, message = "Erro de base de dados." })
+    end
 end)
-
-
 
 
 

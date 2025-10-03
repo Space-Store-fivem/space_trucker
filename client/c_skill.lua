@@ -1,43 +1,26 @@
-local truckerData = {
-    totalProfit = 0,
-    totalPackage = 0,
-    totalDistance = 0,
-    -- Campos de XP e Nível removidos da lógica principal
-    exp = 0,
-    needExp = 0,
-    level = 0
-}
+-- space-store-fivem/space_trucker/space_trucker-teste/client/c_skill.lua (CORRIGIDO)
 
-CreateThread(function()
-    local result = RPC.execute('space_trucker:server:getSkill')
-    if result then
-        truckerData = result
-    end
-end)
+local QBCore = exports['qb-core']:GetCoreObject()
+local PlayerData = QBCore.Functions.GetPlayerData()
 
-function GetTruckerSkill()
-    return truckerData
+-- Função para obter o nível de habilidade do servidor
+function GetSkillLevel(skillName)
+    local skillLevel = QBCore.Functions.TriggerRpc('space_trucker:rpc:getSkillLevel', skillName)
+    return skillLevel
 end
 
-function UpdateSkill(key, value)
-    if not truckerData[key] then truckerData[key] = 0 end
-
-    -- Mantemos a atualização dos valores base (lucro, pacotes, distância)
-    if key == spaceconfig.SkillTypeField.currentLevel then
-        truckerData[key] = value
-    else
-        truckerData[key] = truckerData[key] + value
-    end
-
-    -- ==================================================================
-    -- ========= ✨ LÓGICA DE XP E NÍVEL REMOVIDA DAQUI ✨ =========
-    -- ==================================================================
-    -- A lógica que calculava o XP com base no lucro, pacotes e distância foi removida.
-    -- A lógica de "level up" também foi removida.
-    -- O script agora apenas acumula as estatísticas diretas.
-
-    -- Notifica a NUI com os dados atualizados (sem XP)
-    SendNUIMessage({ action = "setTruckerStats", data = truckerData })
-    -- Salva os dados no servidor
-    TriggerServerEvent('space_trucker:server:SaveSkill', truckerData)
+-- Função para verificar se o jogador tem o nível de habilidade necessário
+function HasSkill(skillName, requiredLevel)
+    local currentLevel = GetSkillLevel(skillName)
+    return currentLevel >= requiredLevel
 end
+
+-- Exemplo de como usar (não é necessário alterar, apenas para referência)
+-- RegisterCommand('checkskill', function()
+--     local hasRequiredSkill = HasSkill('TRUCKING', 5)
+--     if hasRequiredSkill then
+--         print('Você tem o nível de habilidade necessário!')
+--     else
+--         print('Você NÃO tem o nível de habilidade necessário.')
+--     end
+-- end, false)

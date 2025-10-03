@@ -52,7 +52,6 @@ function clearMission()
     missionCargoDelivered = 0
     isActionInProgress = false
     
-    -- Limpa o ID da missão e informa a UI
     currentLogisticsOrderId = nil 
     SendNUIMessage({ action = 'setActiveLogisticsOrder', payload = nil }) 
     
@@ -151,11 +150,13 @@ RegisterNetEvent('space_trucker:client:startLogisticsMission', function(orderDat
         itemLabel = orderData.item_label,
         reward = orderData.reward,
         type = 'LOGISTICS_ORDER',
-        orderId = orderData.id
+        orderId = orderData.id,
+        -- [ADICIONADO] Adiciona os nomes das indústrias para o histórico
+        sourceIndustry = orderData.source_industry_name,
+        destinationBusiness = orderData.destination_industry_name,
     }
     missionCargoLoaded = 0
     
-    -- Define o ID da missão e informa a UI
     currentLogisticsOrderId = orderData.id 
     SendNUIMessage({ action = 'setActiveLogisticsOrder', payload = currentLogisticsOrderId })
     
@@ -177,8 +178,6 @@ RegisterNetEvent('space_trucker:client:startLogisticsMission', function(orderDat
     missionPoints.collect.blip = blip
 end)
 
--- (O resto do ficheiro permanece igual ao seu original)
--- ... (copie e cole o resto do seu ficheiro c_missions.lua aqui)
 RegisterNetEvent('space_trucker:client:attemptToLoadCargo', function()
     if not currentMission or isPlayerCarryingMissionProp or isActionInProgress then return end
     isActionInProgress = true
@@ -228,7 +227,7 @@ RegisterNetEvent('space_trucker:client:attemptToLoadCargo', function()
     if not vehicleConfig.transType or not vehicleConfig.transType[transportType] then 
         QBCore.Functions.Notify("O seu "..vehicleConfig.label.." não pode transportar este tipo de carga.", "error")
         isActionInProgress = false
-        return
+        return 
     end
 
     if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
@@ -463,6 +462,8 @@ RegisterNetEvent('space_trucker:client:deliverManualCrate', function()
 
     if remaining <= 0 then
         QBCore.Functions.Notify("Todas as caixas foram entregues!", "success")
+        
+        -- [CORREÇÃO] Envia o objeto 'currentMission' completo para o servidor
         if currentMission.type == 'LOGISTICS_ORDER' then
             TriggerServerEvent('space_trucker:server:completeLogisticsOrder', currentMission)
         else
@@ -491,6 +492,7 @@ RegisterNetEvent('space_trucker:client:finishShipping', function()
     QBCore.Functions.Progressbar("unload_mission_props", "A descarregar a carga...", unloadTime, false, true, {
         disableMovement = true, disableCarMovement = true,
     }, {}, {}, {}, function()
+        -- [CORREÇÃO] Envia o objeto 'currentMission' completo para o servidor
         if currentMission.type == 'LOGISTICS_ORDER' then
             TriggerServerEvent('space_trucker:server:completeLogisticsOrder', currentMission)
         else
