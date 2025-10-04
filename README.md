@@ -1,9 +1,3 @@
-Com certeza! É uma excelente observação, e é importante que a documentação reflita a compatibilidade com ambos os frameworks.
-
-Atualizei o README.md para incluir a referência ao QBox e deixar claro que o script é compatível com ambos.
-
-Pode copiar e colar o conteúdo abaixo diretamente no seu arquivo README.md.
-
 Space Trucker - Gestão Avançada de Logística e Empresas
 Space Trucker é um script completo e robusto para FiveM, focado em criar uma economia de logística profunda e interativa. Construído para ser compatível com os frameworks QBCore e QBox, ele permite que os jogadores abandonem a vida de caminhoneiro solitário para se tornarem magnatas da logística, criando e gerindo as suas próprias empresas, contratando outros jogadores, controlando indústrias e dominando o mercado de transportes.
 
