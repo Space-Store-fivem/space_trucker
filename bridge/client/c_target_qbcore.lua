@@ -52,7 +52,7 @@ function AddTargetModels()
             bones = { 'boot', 'bodyshell', 'seat_pside_r', 'seat_dside_r', 'seat_pside_f', 'seat_dside_f' },
             canInteract = function(entity)
                 local vehicleLockStatus = GetVehicleDoorLockStatus(entity)
-                if not IsPedInAnyVehicle(PlayerPedId(), false) and vehicleLockStatus <= 1 and IsVehicleModelCanDoGSTrucker(GetEntityModel(entity)) then
+                if not IsPedInAnyVehicle(PlayerPedId(), false) and vehicleLockStatus <= 1 and IsVehicleModelCanDospacetrucker(GetEntityModel(entity)) then
                     return true
                 end
                 return false

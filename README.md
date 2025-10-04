@@ -81,11 +81,11 @@ Execute pnpm install (ou npm install / yarn install) para instalar as dependênc
 
 Execute pnpm build (ou npm run build / yarn build) para compilar a interface.
 
-Configuração: Abra o ficheiro shared/gst_config.lua e ajuste as configurações principais, especialmente o nome do item que servirá como tablet.
+Configuração: Abra o ficheiro shared/config.lua e ajuste as configurações principais, especialmente o nome do item que servirá como tablet.
 
 Garantir o Recurso: Adicione ensure space_trucker ao seu ficheiro server.cfg. Importante: certifique-se de que ele é iniciado depois de todas as suas dependências (qb-core, ox_lib, etc.).
 
-⚙️ Configuração (shared/gst_config.lua)
+⚙️ Configuração (shared/config.lua)
 Este ficheiro é o centro de toda a personalização do script. Aqui estão as opções mais importantes:
 
 Configuração

@@ -144,7 +144,7 @@ function Locale:delete(phraseTarget, prefix)
     end
 end
 
-local locales = json.decode(LoadResourceFile(GetCurrentResourceName(), ('locales/%s.json'):format(GetConvar('gstrucker:locale', 'en'))))
+local locales = json.decode(LoadResourceFile(GetCurrentResourceName(), ('locales/%s.json'):format(GetConvar('spacetrucker:locale', 'en'))))
 
 Lang = Locale:new({
     phrases = locales,

@@ -302,7 +302,7 @@ CreateCallback('space_trucker:callback:unloadPackageFromVehicleByHand', function
     if not defaultItemData then return cb({ status = false, msg = 'item_undefined' }) end
     local vehicleEntity = NetworkGetEntityFromNetworkId(vehNetId)
     local vehModelHash = GetEntityModel(vehicleEntity)
-    if not IsVehicleModelCanDoGSTrucker(vehModelHash) then return cb({ status = false, msg = Lang:t('veh_is_not_a_freight') }) end
+    if not IsVehicleModelCanDospacetrucker(vehModelHash) then return cb({ status = false, msg = Lang:t('veh_is_not_a_freight') }) end
     local checkDist = checkVehicleAndPlayerDistance(source, vehicleEntity)
     if not checkDist.status then return cb(checkDist) end
     if defaultItemData.transType ~= spaceconfig.ItemTransportType.CRATE and defaultItemData.transType ~= spaceconfig.ItemTransportType.STRONGBOX then return cb({ status = false, msg = Lang:t('item_can_not_unload_by_hand') }) end
@@ -320,7 +320,7 @@ end)
 CreateCallback('space_trucker:callback:checkVehicleStorage', function(source, cb, vehNetId)
     local vehicleEntity = NetworkGetEntityFromNetworkId(vehNetId)
     local vehModelHash = GetEntityModel(vehicleEntity)
-    if not IsVehicleModelCanDoGSTrucker(vehModelHash) then return cb({ status = false, msg = Lang:t('veh_is_not_a_freight') }) end
+    if not IsVehicleModelCanDospacetrucker(vehModelHash) then return cb({ status = false, msg = Lang:t('veh_is_not_a_freight') }) end
     local checkDist = checkVehicleAndPlayerDistance(source, vehicleEntity)
     if not checkDist.status then return cb(checkDist) end
     if GetVehicleDoorLockStatus(vehicleEntity) >= 2 then return cb({ status = false, msg = Lang:t('veh_door_locked') }) end

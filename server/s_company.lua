@@ -1133,7 +1133,7 @@ end)
 
 -- NOTA IMPORTANTE:
 -- Para que a compra e venda funcionem, você precisa de definir os preços das indústrias
--- no seu ficheiro de configuração (ex: shared/gst_config.lua ou onde as indústrias são registadas).
+-- no seu ficheiro de configuração (ex: shared/config.lua ou onde as indústrias são registadas).
 -- Exemplo:
 -- Industries:AddIndustry('nome_da_industria', 'Label', ...):SetPurchasePrice(1000000) -- Preço de 1,000,000
 

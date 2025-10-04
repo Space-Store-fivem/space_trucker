@@ -535,7 +535,7 @@ function OnPlayerCheckVehicleStorage(entity)
         Notify(Lang:t('veh_door_locked'), 'error')
         return false
     end
-    if not IsVehicleModelCanDoGSTrucker(vehModelHash) then
+    if not IsVehicleModelCanDospacetrucker(vehModelHash) then
         Notify(Lang:t('veh_is_not_a_freight'), 'error')
         return false
     end

@@ -1,10 +1,10 @@
 -- OIL FIELD
 Industries:AddIndustry(
-    spaceconfig.Industry.Name.OILFIELD_MURRIETA,-- This is industry name define in gst_config
+    spaceconfig.Industry.Name.OILFIELD_MURRIETA,-- This is industry name define in config
     Lang:t('industry_name_oilfield_murrieta'),-- This is label of industry
     spaceconfig.Industry.Status.OPEN,           -- Status default is Open  
     spaceconfig.Industry.Tier.PRIMARY,          -- Tier: PRIMARY, SECONDARY, BUSINESS
-    spaceconfig.Industry.Type.Primary.OILFIELD,         -- Type: OILFIELD define in gst_config
+    spaceconfig.Industry.Type.Primary.OILFIELD,         -- Type: OILFIELD define in config
     vector3(1535.7732, -2098.0173, 77.1174),  -- vector3: Main Location of industry
     { -- for Sale Storage Location
         ['fuel'] = vector3(1548.8333, -2116.9224, 77.2558)

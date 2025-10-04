@@ -328,7 +328,7 @@ spaceconfig.VehicleTransportTypeLabel = {
 -- Define Industries, Businesses Items (NOT RELATED TO ITEMS IN INVENTORY)
 spaceconfig.IndustryItems = {
     --terciarias
-    -- shared/gst_config.lua (dentro de spaceconfig.IndustryItems)
+    -- shared/config.lua (dentro de spaceconfig.IndustryItems)
 
 -- ############### INÍCIO DOS ITENS DAS INDÚSTRIAS TERCIÁRIAS ###############
 
@@ -2905,7 +2905,7 @@ function IsItemTransportTypeCanMix(transType)
     return false
 end
 
-function IsVehicleModelCanDoGSTrucker(vehicleModelHash)
+function IsVehicleModelCanDospacetrucker(vehicleModelHash)
     if spaceconfig.VehicleTransport[vehicleModelHash] then return true end
     return false
 end

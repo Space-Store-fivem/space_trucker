@@ -45,7 +45,7 @@ CreateCallback('space_trucker:callback:sellCompany', function(source, cb)
     local companyId = company[1].id
     
     if not spaceconfig or not spaceconfig.Company or not spaceconfig.Company.SellReturnValue then
-        print("^1[space_trucker] ERRO: A configuração 'spaceconfig.Company.SellReturnValue' não foi encontrada! Verifique o seu ficheiro gst_config.lua.^7")
+        print("^1[space_trucker] ERRO: A configuração 'spaceconfig.Company.SellReturnValue' não foi encontrada! Verifique o seu ficheiro config.lua.^7")
         return cb({ success = false, message = "Erro de configuração no servidor."})
     end
 
