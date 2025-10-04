@@ -53,15 +53,17 @@ QBCore.Functions.CreateCallback('space_trucker:callback:getLogisticsOrders', fun
     if orders then
         for i = 1, #orders do
             local pickupIndustry = Industries:GetIndustry(orders[i].pickup_industry_name)
-            if pickupIndustry and pickupIndustry.label then
-                orders[i].sourceLabel = Lang:t(pickupIndustry.label)
+            if pickupIndustry and pickupIndustry.name then
+                -- CORREÇÃO: Usa o nome interno da indústria para criar a chave de tradução correta.
+                orders[i].sourceLabel = Lang:t('industry_name_' .. pickupIndustry.name)
             else
                 orders[i].sourceLabel = orders[i].pickup_industry_name -- Fallback
             end
 
             local destinationIndustry = Industries:GetIndustry(orders[i].destination_industry_name)
-            if destinationIndustry and destinationIndustry.label then
-                 orders[i].destinationLabel = Lang:t(destinationIndustry.label)
+            if destinationIndustry and destinationIndustry.name then
+                -- CORREÇÃO: Usa o nome interno da indústria para criar a chave de tradução correta.
+                 orders[i].destinationLabel = Lang:t('industry_name_' .. destinationIndustry.name)
             else
                  orders[i].destinationLabel = orders[i].destination_industry_name or "Destino Desconhecido"
             end

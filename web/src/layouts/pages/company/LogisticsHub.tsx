@@ -50,11 +50,17 @@ export const LogisticsHub: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const filteredOrders = useMemo(() => {
         return orders
             .filter(order => order.type === missionType)
-            .filter(order =>
-                order.item_label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.sourceLabel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.destinationLabel?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
+            .filter(order => {
+                const destinationForSearch = (order.destinationLabel && order.destinationLabel !== "Destino Desconhecido") 
+                    ? order.destinationLabel 
+                    : order.creator_name; // Usa o nome do criador para a busca
+
+                return (
+                    order.item_label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    order.sourceLabel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    destinationForSearch?.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            });
     }, [orders, missionType, searchTerm]);
 
 
@@ -97,12 +103,19 @@ export const LogisticsHub: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         ) : (
                             filteredOrders.map(order => {
                                 const isMyActiveOrder = activeOrderId === order.id;
+                                
+                                // Determina o que exibir como destino
+                                const destination = (order.destinationLabel && order.destinationLabel !== "Destino Desconhecido") 
+                                    ? order.destinationLabel 
+                                    : order.creator_name || "Destino Desconhecido";
+
                                 return (
                                     <div key={order.id} className={`bg-gray-800 p-4 rounded-lg border shadow-md flex justify-between items-center ${isMyActiveOrder ? 'border-blue-500' : 'border-white/5'}`}>
                                         <div className="space-y-2 flex-1">
                                             <h3 className="text-lg font-bold text-amber-400">{order.item_label} <span className="text-white">x{order.quantity}</span></h3>
                                             <p className="text-sm text-gray-300"><span className="font-semibold">De:</span> {order.sourceLabel}</p>
-                                            <p className="text-sm text-gray-300"><span className="font-semibold">Para:</span> {order.destinationLabel}</p>
+                                            {/* --- LÓGICA ALTERADA PARA USAR creator_name --- */}
+                                            <p className="text-sm text-gray-300"><span className="font-semibold">Para:</span> {destination}</p>
                                             <p className="text-sm text-gray-400"><span className="font-semibold">Camião Sugerido:</span> {order.suggested_vehicle || "N/A"}</p>
                                         </div>
                                         <div className="text-right flex flex-col items-end gap-3 ml-4">

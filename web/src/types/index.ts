@@ -297,22 +297,23 @@ export interface FleetVehicle {
 
 // ADICIONE ESTA NOVA INTERFACE
 export interface FleetLog {
-    id: number;
-    player_name: string;
-    action: string;
-    timestamp: string;
+  id: number;
+  player_name: string;
+  action: string;
+  timestamp: string;
 }
 // Adicione esta nova interface no final do ficheiro
 export interface LogisticsOrder {
-    id: number;
-    item_label: string;
-    quantity: number;
-    reward: number;
+  creator_name: string;
+  id: number;
+  item_label: string;
+  quantity: number;
+  reward: number;
   cargo_value: number; // Deve estar assim
   sourceLabel?: string; // << ADICIONE ESTA LINHA SE FALTAR
   destinationLabel?: string; // << ADICIONE ESTA LINHA SE FALTAR
-    pickup_industry_name: string;
-    dropoff_details: string;
-        type: 'system' | 'player'; // Adicionado para separar missões
-    suggested_vehicle: string; // Adicionado para o caminhão sugerido
+  pickup_industry_name: string;
+  dropoff_details: string;
+  type: 'system' | 'player'; // Adicionado para separar missões
+  suggested_vehicle: string; // Adicionado para o caminhão sugerido
 }

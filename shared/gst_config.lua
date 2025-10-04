@@ -890,7 +890,7 @@ spaceconfig.IndustryItems = {
     },
     -- Vehicles
     ['vehicle'] = { --Done check location clear
-        label = Lang:t('item_name_vehicles'),
+        label = Lang:t('item_name_vehicle'),
         capacity = 10,
         transType = spaceconfig.ItemTransportType.VEHICLE,
         minPrice = 7450,

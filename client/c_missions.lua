@@ -190,7 +190,7 @@ RegisterNetEvent('space_trucker:client:attemptToLoadCargo', function()
     if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
         vehicleToCheck = GetClosestVehicle(GetEntityCoords(playerPed), 15.0, 0, 70)
         if not DoesEntityExist(vehicleToCheck) then 
-            QBCore.Functions.Notify("Você precisa de um veículo de carga por perto.", "error")
+            QBCore.Functions.Notify("Você precisa descer do veiculo e buscar as caixas.", "error")
             isActionInProgress = false
             return 
         end
