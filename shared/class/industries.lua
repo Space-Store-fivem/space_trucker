@@ -30,12 +30,12 @@ function Industries:GetIndustries()
 end
 
 function Industries:GetIndustryTypeList(_tier)
-    if _tier == spaceconfig.Industry.Tier.PRIMARY then
-        return spaceconfig.Industry.Type.Primary
-    elseif _tier == spaceconfig.Industry.Tier.SECONDARY then
-        return spaceconfig.Industry.Type.Secondary
-    elseif _tier == spaceconfig.Industry.Tier.BUSINESS then
-        return spaceconfig.Industry.Type.Business
+    if _tier == config.Industry.Tier.PRIMARY then
+        return config.Industry.Type.Primary
+    elseif _tier == config.Industry.Tier.SECONDARY then
+        return config.Industry.Type.Secondary
+    elseif _tier == config.Industry.Tier.BUSINESS then
+        return config.Industry.Type.Business
     end
 end
 
@@ -63,11 +63,11 @@ function Industries:AddIndustry(_name, _label, _status, _tier, _type, _location,
     local industry = Industry.new(_name, _label, _status, _tier, _type, _location, _forSaleLocation, _wantedLocation,
         _tradeData)
     self.industries_by_name[_name] = industry
-    if _tier == spaceconfig.Industry.Tier.PRIMARY then
+    if _tier == config.Industry.Tier.PRIMARY then
         self.primary_count = self.primary_count + 1
-    elseif _tier == spaceconfig.Industry.Tier.SECONDARY then
+    elseif _tier == config.Industry.Tier.SECONDARY then
         self.secondary_count = self.secondary_count + 1
-    elseif _tier == spaceconfig.Industry.Tier.BUSINESS then
+    elseif _tier == config.Industry.Tier.BUSINESS then
         self.business_count = self.business_count + 1
     end
 
@@ -127,12 +127,12 @@ function Industries:GetCounts()
 end
 
 function Industries:generateIndustryItemPrice(_industryName, _itemName)
-    local randPrice = math.random(spaceconfig.IndustryItems[_itemName].minPrice,
-        spaceconfig.IndustryItems[_itemName].maxPrice)
+    local randPrice = math.random(config.IndustryItems[_itemName].minPrice,
+        config.IndustryItems[_itemName].maxPrice)
 
     self.industriesItemsPriceData[_industryName][_itemName] = {
         price = randPrice,
-        profitPrice = randPrice + (randPrice * spaceconfig.IndustryItems[_itemName].percentProfit)
+        profitPrice = randPrice + (randPrice * config.IndustryItems[_itemName].percentProfit)
     }
 
     return self.industriesItemsPriceData[_industryName][_itemName]
@@ -143,7 +143,7 @@ end
 ---@param _itemName string
 ---@return table
 function Industries:GetIndustryItemPriceData(_industryName, _itemName)
-    if not spaceconfig.IndustryItems[_itemName] then
+    if not config.IndustryItems[_itemName] then
         return {
             price = 0,
             profitPrice = 0,
@@ -199,7 +199,7 @@ Industries = Industries.new()
 function Industries:GetIndustryThatProduces(_itemName)
     -- A correção é usar "self.industries_by_name", que é a tabela correta neste script.
     for _, industry in pairs(self.industries_by_name) do
-        if industry.tradeData and industry.tradeData[spaceconfig.Industry.TradeType.FORSALE] and industry.tradeData[spaceconfig.Industry.TradeType.FORSALE][_itemName] then
+        if industry.tradeData and industry.tradeData[config.Industry.TradeType.FORSALE] and industry.tradeData[config.Industry.TradeType.FORSALE][_itemName] then
             return industry
         end
     end

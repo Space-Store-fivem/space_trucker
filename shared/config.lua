@@ -1,17 +1,17 @@
 -- GST is mean Gasman Studio Trucker
-spaceconfig = {}
-spaceconfig.DropPackageWhenDie = true          --SET = true or false (Need call function OnPlayerDeath() when player die to turn this system)
-spaceconfig.ShowTradePointBlipOnMinimap = true --SET = true or false (To enable or disabled Sell & Buy trade point of industries and businesses)
-spaceconfig.AddVehicleProps = true             --SET = true or false (To enable or disabled Add vehicle crate/pallet props)
+config = {}
+config.DropPackageWhenDie = true          --SET = true or false (Need call function OnPlayerDeath() when player die to turn this system)
+config.ShowTradePointBlipOnMinimap = true --SET = true or false (To enable or disabled Sell & Buy trade point of industries and businesses)
+config.AddVehicleProps = true             --SET = true or false (To enable or disabled Add vehicle crate/pallet props)
 
-spaceconfig.JobName = 'trucker'           --SET = string name of job you wanted
-spaceconfig.JobRequired = true           --SET = true or false (To enable job require or not)
--- Industries spaceconfig
-spaceconfig.Company = {
+config.JobName = 'trucker'           --SET = string name of job you wanted
+config.JobRequired = true           --SET = true or false (To enable job require or not)
+-- Industries config
+config.Company = {
     CreateCost = 50000, -- O custo para criar uma nova empresa
     SellReturnValue = 25000, -- O valor fixo que o jogador recebe ao vender a empresa
 }
-spaceconfig.Industry = {
+config.Industry = {
     UpdateTime = 3600, -- (seconds) Update Industries Every hour
     -- Status of industries, Open or Close
     Status = {
@@ -263,7 +263,7 @@ Tier = {
     },
 }
 
-spaceconfig.NUIVisibleType = {
+config.NUIVisibleType = {
     NONE = 0,
     MODAL = 1,
     VEHICLE_STORAGE = 2,
@@ -271,27 +271,27 @@ spaceconfig.NUIVisibleType = {
     TRUCK_RENTAL_MENU = 4
 }
 
-spaceconfig.NUIModalType = {
+config.NUIModalType = {
     CONFIRM = 0,
     DIALOG = 1
 }
 
-spaceconfig.ToggleModalConfirmKvp = {
+config.ToggleModalConfirmKvp = {
     key = 'gst_toggle_modal_confirm',
     on = 1,
     off = 2,
 }
 
-spaceconfig.IsRequiredForkLiftToBuyItemCargo = false -- This feature will be update soon
+config.IsRequiredForkLiftToBuyItemCargo = false -- This feature will be update soon
 
-spaceconfig.IsAllowToSellCrateByVehicle = true       -- Allow player can sell Crate/Strongbox by vehicle
+config.IsAllowToSellCrateByVehicle = true       -- Allow player can sell Crate/Strongbox by vehicle
 -- If allow sell by vehicle so player will waiting more time
-spaceconfig.DelayTimeWhenSellCrateByVehicle = 5      -- (Seconds) (Progress bar when sell crate/strongbox by vehicle will add more 1seconds per box)
+config.DelayTimeWhenSellCrateByVehicle = 5      -- (Seconds) (Progress bar when sell crate/strongbox by vehicle will add more 1seconds per box)
 
-spaceconfig.DelayBuyItemByHandTime = 3000            --3seconds Delay Spam Action button to buy vehicle
-spaceconfig.ItemBackRate = 0.95                      --When player back item to industries will lost 5% cash, ANTI SPAM
+config.DelayBuyItemByHandTime = 3000            --3seconds Delay Spam Action button to buy vehicle
+config.ItemBackRate = 0.95                      --When player back item to industries will lost 5% cash, ANTI SPAM
 -- Type of Transport Item, you can't add more type now
-spaceconfig.ItemTransportType = {
+config.ItemTransportType = {
     CRATE = 0,     --load/unload by hand
     LIQUIDS = 1,   --load/unload by vehicle
     LOOSE = 2,     --load/unload by vehicle
@@ -303,179 +303,179 @@ spaceconfig.ItemTransportType = {
 }
 
 -- Unit Label Transport Item
-spaceconfig.ItemTransportUnit = {
-    [spaceconfig.ItemTransportType.CRATE] = Lang:t('item_transport_unit_crate'),
-    [spaceconfig.ItemTransportType.LIQUIDS] = Lang:t('item_transport_unit_liquid'),
-    [spaceconfig.ItemTransportType.LOOSE] = Lang:t('item_transport_unit_loose'),
-    [spaceconfig.ItemTransportType.VEHICLE] = Lang:t('item_transport_unit_vehicle'),
-    [spaceconfig.ItemTransportType.STRONGBOX] = Lang:t('item_transport_unit_strongbox'),
-    [spaceconfig.ItemTransportType.PALLET] = Lang:t('item_transport_unit_pallet'),
-    [spaceconfig.ItemTransportType.WOODLOG] = Lang:t('item_transport_unit_woodlog'),
-    [spaceconfig.ItemTransportType.CONCRETE] = Lang:t('item_transport_unit_concrete'),
+config.ItemTransportUnit = {
+    [config.ItemTransportType.CRATE] = Lang:t('item_transport_unit_crate'),
+    [config.ItemTransportType.LIQUIDS] = Lang:t('item_transport_unit_liquid'),
+    [config.ItemTransportType.LOOSE] = Lang:t('item_transport_unit_loose'),
+    [config.ItemTransportType.VEHICLE] = Lang:t('item_transport_unit_vehicle'),
+    [config.ItemTransportType.STRONGBOX] = Lang:t('item_transport_unit_strongbox'),
+    [config.ItemTransportType.PALLET] = Lang:t('item_transport_unit_pallet'),
+    [config.ItemTransportType.WOODLOG] = Lang:t('item_transport_unit_woodlog'),
+    [config.ItemTransportType.CONCRETE] = Lang:t('item_transport_unit_concrete'),
 }
 -- Label Item Transport Type
-spaceconfig.VehicleTransportTypeLabel = {
-    [spaceconfig.ItemTransportType.CRATE] = Lang:t('vehicle_transport_type_label_crate'),
-    [spaceconfig.ItemTransportType.LIQUIDS] = Lang:t('vehicle_transport_type_label_liquid'),
-    [spaceconfig.ItemTransportType.LOOSE] = Lang:t('vehicle_transport_type_label_loose'),
-    [spaceconfig.ItemTransportType.VEHICLE] = Lang:t('vehicle_transport_type_label_vehicle'),
-    [spaceconfig.ItemTransportType.STRONGBOX] = Lang:t('vehicle_transport_type_label_strongbox'),
-    [spaceconfig.ItemTransportType.PALLET] = Lang:t('vehicle_transport_type_label_pallet'),
-    [spaceconfig.ItemTransportType.WOODLOG] = Lang:t('vehicle_transport_type_label_woodlog'),
-    [spaceconfig.ItemTransportType.CONCRETE] = Lang:t('vehicle_transport_type_label_concrete'),
+config.VehicleTransportTypeLabel = {
+    [config.ItemTransportType.CRATE] = Lang:t('vehicle_transport_type_label_crate'),
+    [config.ItemTransportType.LIQUIDS] = Lang:t('vehicle_transport_type_label_liquid'),
+    [config.ItemTransportType.LOOSE] = Lang:t('vehicle_transport_type_label_loose'),
+    [config.ItemTransportType.VEHICLE] = Lang:t('vehicle_transport_type_label_vehicle'),
+    [config.ItemTransportType.STRONGBOX] = Lang:t('vehicle_transport_type_label_strongbox'),
+    [config.ItemTransportType.PALLET] = Lang:t('vehicle_transport_type_label_pallet'),
+    [config.ItemTransportType.WOODLOG] = Lang:t('vehicle_transport_type_label_woodlog'),
+    [config.ItemTransportType.CONCRETE] = Lang:t('vehicle_transport_type_label_concrete'),
 }
 
 -- Define Industries, Businesses Items (NOT RELATED TO ITEMS IN INVENTORY)
-spaceconfig.IndustryItems = {
+config.IndustryItems = {
     --terciarias
-    -- shared/config.lua (dentro de spaceconfig.IndustryItems)
+    -- shared/config.lua (dentro de config.IndustryItems)
 
 -- ############### INÍCIO DOS ITENS DAS INDÚSTRIAS TERCIÁRIAS ###############
 
     ['smartphone'] = {
         label = 'Smartphone',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['tablet'] = {
         label = 'Tablet',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['sofa_modern'] = {
         label = 'Sofá Moderno',
         capacity = 2,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['mesa_vidro'] = {
         label = 'Mesa de Vidro',
         capacity = 2,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['electric_car'] = {
         label = 'Carro Elétrico',
         capacity = 10,
-        transType = spaceconfig.ItemTransportType.VEHICLE,
+        transType = config.ItemTransportType.VEHICLE,
     },
     ['motor_electric'] = {
         label = 'Motor Elétrico',
         capacity = 2,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['perfume'] = {
         label = 'Perfume',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['creme_rejuv'] = {
         label = 'Creme Rejuvenescedor',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['jaqueta_luxo'] = {
         label = 'Jaqueta de Luxo',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['sapato_design'] = {
         label = 'Sapato de Grife',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['smart_tv'] = {
         label = 'Smart TV',
         capacity = 2,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['soundbar'] = {
         label = 'Soundbar',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['scanner_ct'] = {
         label = 'Tomógrafo',
         capacity = 5,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['ventilator'] = {
         label = 'Ventilador Pulmonar',
         capacity = 2,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['router_5g'] = {
         label = 'Roteador 5G',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['antenna_array'] = {
         label = 'Painel de Antenas',
         capacity = 2,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['console_nextgen'] = {
         label = 'Console de Videogame',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['vr_headset'] = {
         label = 'Headset VR',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['robot_arm'] = {
         label = 'Braço Robótico',
         capacity = 3,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['automation_unit'] = {
         label = 'Unidade de Automação',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['watch_gold'] = {
         label = 'Relógio de Ouro',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.STRONGBOX,
+        transType = config.ItemTransportType.STRONGBOX,
     },
     ['watch_silver'] = {
         label = 'Relógio de Prata',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.STRONGBOX,
+        transType = config.ItemTransportType.STRONGBOX,
     },
     ['packaged_software'] = {
         label = 'Software (Caixa)',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['bolsa_couro'] = {
         label = 'Bolsa de Couro',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['oculos_design'] = {
         label = 'Óculos de Grife',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['wine_premium'] = {
         label = 'Vinho Premium',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['whisky_aged'] = {
         label = 'Whisky Envelhecido',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['parfum_exclusive'] = {
         label = 'Perfume Exclusivo',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
     },
     ['essence_flower'] = {
         label = 'Essência Floral',
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.LIQUIDS,
+        transType = config.ItemTransportType.LIQUIDS,
     },
 
 -- ############### FIM DOS ITENS DAS INDÚSTRIAS TERCIÁRIAS ###############
@@ -483,7 +483,7 @@ spaceconfig.IndustryItems = {
     ['gunpowder'] = {                                                             --SET = string unique (id of item)
         label = Lang:t('item_name_gunpowder'),                                    --SET = string (label of item)
         capacity = 1,                                                             --SET = number (Capacity is the space occupied in the vehicle's trunk by the item. If capacity is 2 and there are 2 items, it will be 2x2=4 capacity of the vehicle.)
-        transType = spaceconfig.ItemTransportType.CRATE,                            --SET = ItemTransportType Constant (Type of item transport)
+        transType = config.ItemTransportType.CRATE,                            --SET = ItemTransportType Constant (Type of item transport)
         minPrice = 30,                                                            --SET = number (Min Price of item)
         maxPrice = 50,                                                            --SET = number (Max Price of item)
         percentProfit = math.random(2, 10) / 100,                                 --SET = number (Profit percentage Trucker will get when sell item to businesses or secondary industries)
@@ -503,7 +503,7 @@ spaceconfig.IndustryItems = {
     ['steel_shapes'] = {
         label = Lang:t('item_name_steel_shapes'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 300,
         maxPrice = 500,
         percentProfit = math.random(2, 10) / 100,
@@ -524,7 +524,7 @@ spaceconfig.IndustryItems = {
     ['clothes'] = {
         label = Lang:t('item_name_clothes'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 200,
         maxPrice = 250,
         percentProfit = math.random(2, 10) / 100,
@@ -544,7 +544,7 @@ spaceconfig.IndustryItems = {
     ['beverages'] = {
         label = Lang:t('item_name_beverages'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 280,
         maxPrice = 300,
         percentProfit = math.random(2, 10) / 100,
@@ -564,7 +564,7 @@ spaceconfig.IndustryItems = {
     ['meal'] = {
         label = Lang:t('item_name_meal'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 480,
         maxPrice = 530,
         percentProfit = math.random(2, 10) / 100,
@@ -584,7 +584,7 @@ spaceconfig.IndustryItems = {
     ['car_parts'] = {
         label = Lang:t('item_name_car_parts'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 300,
         maxPrice = 330,
         percentProfit = math.random(2, 10) / 100,
@@ -604,7 +604,7 @@ spaceconfig.IndustryItems = {
     ['appliances'] = {
         label = Lang:t('item_name_appliances'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 300,
         maxPrice = 330,
         percentProfit = math.random(2, 10) / 100,
@@ -624,7 +624,7 @@ spaceconfig.IndustryItems = {
     ['fruits'] = {
         label = Lang:t('item_name_fruits'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 28,
         maxPrice = 40,
         percentProfit = math.random(2, 10) / 100,
@@ -645,7 +645,7 @@ spaceconfig.IndustryItems = {
     ['meat'] = {
         label = Lang:t('item_name_meat'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 236,
         maxPrice = 249,
         percentProfit = math.random(7, 16) / 100,
@@ -665,7 +665,7 @@ spaceconfig.IndustryItems = {
     ['eggs'] = {
         label = Lang:t('item_name_eggs'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 136,
         maxPrice = 149,
         percentProfit = math.random(2, 10) / 100,
@@ -685,7 +685,7 @@ spaceconfig.IndustryItems = {
     ['paper'] = {
         label = Lang:t('item_name_paper'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 100,
         maxPrice = 149,
         percentProfit = math.random(8, 12) / 100,
@@ -705,7 +705,7 @@ spaceconfig.IndustryItems = {
     ['furniture'] = {
         label = Lang:t('item_name_furniture'),
         capacity = 2,
-        transType = spaceconfig.ItemTransportType.CRATE,
+        transType = config.ItemTransportType.CRATE,
         minPrice = 800,
         maxPrice = 949,
         percentProfit = math.random(8, 12) / 100,
@@ -728,7 +728,7 @@ spaceconfig.IndustryItems = {
         minPrice = 2300,
         maxPrice = 2500,
         percentProfit = math.random(25, 35) / 100,
-        transType = spaceconfig.ItemTransportType.WOODLOG,
+        transType = config.ItemTransportType.WOODLOG,
         prop = {
             model = `prop_log_01`
         },
@@ -741,7 +741,7 @@ spaceconfig.IndustryItems = {
         minPrice = 3800,
         maxPrice = 4200,
         percentProfit = math.random(25, 35) / 100,
-        transType = spaceconfig.ItemTransportType.PALLET,
+        transType = config.ItemTransportType.PALLET,
         prop = {
             model = `prop_woodpile_01a`
         },
@@ -754,7 +754,7 @@ spaceconfig.IndustryItems = {
         minPrice = 3300,
         maxPrice = 3500,
         percentProfit = math.random(15, 25) / 100,
-        transType = spaceconfig.ItemTransportType.PALLET,
+        transType = config.ItemTransportType.PALLET,
         prop = {
             model = `prop_elecbox_12`
         },
@@ -764,7 +764,7 @@ spaceconfig.IndustryItems = {
     ['building_materials'] = {
         label = Lang:t('item_name_building_materials'),
         capacity = 6,
-        transType = spaceconfig.ItemTransportType.PALLET,
+        transType = config.ItemTransportType.PALLET,
         minPrice = 911,
         maxPrice = 1250,
         percentProfit = math.random(8, 14) / 100,
@@ -778,7 +778,7 @@ spaceconfig.IndustryItems = {
     ['fuel'] = { --Done check location clear
         label = Lang:t('item_name_fuel'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.LIQUIDS,
+        transType = config.ItemTransportType.LIQUIDS,
         minPrice = 528,
         maxPrice = 792,
         percentProfit = math.random(2, 10) / 100,
@@ -791,14 +791,14 @@ spaceconfig.IndustryItems = {
         minPrice = 811,
         maxPrice = 1050,
         percentProfit = math.random(5, 15) / 100,
-        transType = spaceconfig.ItemTransportType.LIQUIDS,
+        transType = config.ItemTransportType.LIQUIDS,
         buyFromInfo = ('%s'):format(Lang:t('industry_type_label_farm')),
         sellToInfo = ('%s'):format(Lang:t('industry_type_label_food_processing_plant')),
     },
     ['dyes'] = { --Done check location clear
         label = Lang:t('item_name_dyes'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.LIQUIDS,
+        transType = config.ItemTransportType.LIQUIDS,
         minPrice = 70,
         maxPrice = 100,
         percentProfit = math.random(15, 18) / 100,
@@ -810,7 +810,7 @@ spaceconfig.IndustryItems = {
     ['scrap_metal'] = { --Done check location clear
         label = Lang:t('item_name_scrap_metal'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.LOOSE,
+        transType = config.ItemTransportType.LOOSE,
         minPrice = 155,
         maxPrice = 230,
         percentProfit = math.random(9, 14) / 100,
@@ -820,7 +820,7 @@ spaceconfig.IndustryItems = {
     ['cotton'] = { --Done check location clear
         label = Lang:t('item_name_cotton'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.LOOSE,
+        transType = config.ItemTransportType.LOOSE,
         minPrice = 785,
         maxPrice = 1320,
         percentProfit = math.random(2, 6) / 100,
@@ -830,7 +830,7 @@ spaceconfig.IndustryItems = {
     ['cereal'] = { --Done check location clear
         label = Lang:t('item_name_cereal'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.LOOSE,
+        transType = config.ItemTransportType.LOOSE,
         minPrice = 1254,
         maxPrice = 2000,
         percentProfit = math.random(2, 6) / 100,
@@ -841,7 +841,7 @@ spaceconfig.IndustryItems = {
     ['malt'] = { --Done check location clear
         label = Lang:t('item_name_malt'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.LOOSE,
+        transType = config.ItemTransportType.LOOSE,
         minPrice = 600,
         maxPrice = 700,
         percentProfit = math.random(8, 14) / 100,
@@ -854,14 +854,14 @@ spaceconfig.IndustryItems = {
         minPrice = 111,
         maxPrice = 200,
         percentProfit = math.random(8, 14) / 100,
-        transType = spaceconfig.ItemTransportType.LOOSE,
+        transType = config.ItemTransportType.LOOSE,
         buyFromInfo = ('%s, %s'):format(Lang:t('industry_type_label_mineral'), Lang:t('industry_type_label_quarry')),
         sellToInfo = ('%s'):format(Lang:t('industry_type_label_concrete_plant')),
     },
     ['ore'] = { --Done check location clear
         label = Lang:t('item_name_ore'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.LOOSE,
+        transType = config.ItemTransportType.LOOSE,
         minPrice = 150,
         maxPrice = 200,
         percentProfit = math.random(8, 16) / 100,
@@ -871,7 +871,7 @@ spaceconfig.IndustryItems = {
     ['metal_ores'] = { --Done check location clear
         label = Lang:t('item_name_metal_ores'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.LOOSE,
+        transType = config.ItemTransportType.LOOSE,
         minPrice = 450,
         maxPrice = 600,
         percentProfit = math.random(8, 16) / 100,
@@ -881,7 +881,7 @@ spaceconfig.IndustryItems = {
     ['concrete'] = { --Done check location clear
         label = Lang:t('item_name_concrete'),
         capacity = 1,
-        transType = spaceconfig.ItemTransportType.CONCRETE,
+        transType = config.ItemTransportType.CONCRETE,
         minPrice = 550,
         maxPrice = 620,
         percentProfit = math.random(12, 20) / 100,
@@ -892,7 +892,7 @@ spaceconfig.IndustryItems = {
     ['vehicle'] = { --Done check location clear
         label = Lang:t('item_name_vehicle'),
         capacity = 10,
-        transType = spaceconfig.ItemTransportType.VEHICLE,
+        transType = config.ItemTransportType.VEHICLE,
         minPrice = 7450,
         maxPrice = 8600,
         percentProfit = math.random(8, 16) / 100,
@@ -906,7 +906,7 @@ spaceconfig.IndustryItems = {
     ['weapons'] = {
         label = Lang:t('item_name_weapons'),
         capacity = 2,
-        transType = spaceconfig.ItemTransportType.STRONGBOX,
+        transType = config.ItemTransportType.STRONGBOX,
         minPrice = 2500,
         maxPrice = 3000,
         percentProfit = math.random(8, 18) / 100,
@@ -926,7 +926,7 @@ spaceconfig.IndustryItems = {
     ['coins'] = {
         label = Lang:t('item_name_coins'),
         capacity = 2,
-        transType = spaceconfig.ItemTransportType.STRONGBOX,
+        transType = config.ItemTransportType.STRONGBOX,
         minPrice = 1500,
         maxPrice = 2000,
         percentProfit = math.random(8, 16) / 100,
@@ -947,16 +947,16 @@ spaceconfig.IndustryItems = {
 }
 
 -- Define Fix Pos Z of crate when attach to vehicle, now you don't need care of it
-spaceconfig.FixCratePropPosZ = {
+config.FixCratePropPosZ = {
     [`hei_prop_heist_wooden_box`] = 0.255,
 }
 
-spaceconfig.VehicleImageUrl = 'https://docs.fivem.net/vehicles/%s.webp' --%s is name of vehicle
-spaceconfig.VehicleRentBaseCost = 200                                   -- If vehicle no have rentPrice -> BaseCost x VehicleCapacity for Rent price
-spaceconfig.VehicleRentReturnFeePercent = 60
+config.VehicleImageUrl = 'https://docs.fivem.net/vehicles/%s.webp' --%s is name of vehicle
+config.VehicleRentBaseCost = 200                                   -- If vehicle no have rentPrice -> BaseCost x VehicleCapacity for Rent price
+config.VehicleRentReturnFeePercent = 60
 
 --Will give back 60% to player when player return vehicle
-spaceconfig.VehicleRentLocations = {                            --Trucker Rental
+config.VehicleRentLocations = {                            --Trucker Rental
     ['truck_rent_point_1'] = {                                --SET = string (id of rent place)
         id = 'truck_rent_point_1',                            --SET = string (id of rent place)
         title = 'Truck Rental Point No.1',                    --SET = string (Label of rent place will show on marker)
@@ -972,7 +972,7 @@ spaceconfig.VehicleRentLocations = {                            --Trucker Rental
             vector4(728.6129, -1390.6893, 26.1824, 90.7290),
             vector4(727.8906, -1384.9747, 25.9341, 89.6029)
         },
-        vehList = {    --Vehicles pick from spaceconfig.VehicleTransport (Make sure the vehicle is defined in spaceconfig.VehicleTransport)
+        vehList = {    --Vehicles pick from config.VehicleTransport (Make sure the vehicle is defined in config.VehicleTransport)
             `minivan`, --SET = hash (`vehicle_model`)
             `dloader`,
             `rebel`,
@@ -1094,7 +1094,7 @@ spaceconfig.VehicleRentLocations = {                            --Trucker Rental
         spawnPositions = {                                     --Vehicle Spawn Locations (Automatic detect and select slot are clear to spawn)
             vector4(3619.2842, 3742.1467, 28.1441, 145.5521),  --SET = vector4(x,y,z,w) (location of vehicle spawn)
         },
-        vehList = {                                            --Vehicles pick from spaceconfig.VehicleTransport (Make sure the vehicle is defined in spaceconfig.VehicleTransport)
+        vehList = {                                            --Vehicles pick from config.VehicleTransport (Make sure the vehicle is defined in config.VehicleTransport)
             `forklift`,                                        --SET = hash (`vehicle_model`)
         },
         private = true,                                        --SET = true or false (Show on list in trucker PDA)
@@ -1111,7 +1111,7 @@ spaceconfig.VehicleRentLocations = {                            --Trucker Rental
         spawnPositions = {                                     --Vehicle Spawn Locations (Automatic detect and select slot are clear to spawn)
             vector4(1421.4524, 1108.5861, 113.8547, 274.8860), --SET = vector4(x,y,z,w) (location of vehicle spawn)
         },
-        vehList = {                                            --Vehicles pick from spaceconfig.VehicleTransport (Make sure the vehicle is defined in spaceconfig.VehicleTransport)
+        vehList = {                                            --Vehicles pick from config.VehicleTransport (Make sure the vehicle is defined in config.VehicleTransport)
             `forklift`,                                        --SET = hash (`vehicle_model`)
         },
         private = true,                                        --SET = true or false (Show on list in trucker PDA)
@@ -1353,18 +1353,18 @@ spaceconfig.VehicleRentLocations = {                            --Trucker Rental
 -- level = 40->49 Trucker Can use vehicle capacity up to 50 (Crate, Pallet, strongbox, loose)
 -- level = >= 50 Pro Trucker Can use all vehicle (Crate, Pallet, strongbox, loose, liquids, vehicle)
 -- Define Vehicles
-spaceconfig.VehicleTransport = {
+config.VehicleTransport = {
     [`dloader`] = {                                    --SET = hash (`vehicle_model`)
         name = 'dloader',                              --SET = string (vehicle_model)
         label = 'Duneloader',                          --SET = string (Label of vehicle)
         capacity = 6,                                  --SET = number (Vehicle Storage Capacities related with item capacity)
         level = 100,                                     --SET = number (Level Required Player Can Use This Vehicle)
         transType = {                                  --SET = table (Table of transport type)
-            [spaceconfig.ItemTransportType.CRATE] = true --SET = [ITEM_TRANSPORT_TYPE] = true or false (Transport type vehicle can handler)
+            [config.ItemTransportType.CRATE] = true --SET = [ITEM_TRANSPORT_TYPE] = true or false (Transport type vehicle can handler)
         },
         props = {                                      --Vehicle Prop Offset Defined
             bone = 'chassic',                          --Bone of vehicle Prop default is chassic
-            [spaceconfig.ItemTransportType.CRATE] = {    --SET = [ITEM_TRANSPORT_TYPE] = table of position offset prop will put on vehicle
+            [config.ItemTransportType.CRATE] = {    --SET = [ITEM_TRANSPORT_TYPE] = table of position offset prop will put on vehicle
                 vector3(-0.335, -0.78, 0.41),
                 vector3(0.36, -0.78, 0.41),
                 vector3(-0.33, -1.48, 0.41),
@@ -1381,11 +1381,11 @@ spaceconfig.VehicleTransport = {
         capacity = 3,
         level = 100,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.35, -0.86, 0.055),
                 vector3(0.345, -0.86, 0.055),
                 vector3(-0.005, -1.465, 0.055),
@@ -1399,11 +1399,11 @@ spaceconfig.VehicleTransport = {
         capacity = 4,
         level = 100,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.27, -1.69, 0.26),
                 vector3(0.29, -1.69, 0.26),
                 vector3(-0.26, -2.345, 0.26),
@@ -1418,11 +1418,11 @@ spaceconfig.VehicleTransport = {
         capacity = 3,
         level = 100,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(0.005, -1.905, 0.095),
                 vector3(0.005, -2.455, 0.095),
                 vector3(0.005, -2.995, 0.095),
@@ -1436,11 +1436,11 @@ spaceconfig.VehicleTransport = {
         capacity = 4,
         level = 100,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.315, -1.42, 0.21),
                 vector3(0.32, -1.42, 0.21),
                 vector3(-0.305, -1.98, 0.21),
@@ -1455,11 +1455,11 @@ spaceconfig.VehicleTransport = {
         capacity = 6,
         level = 100,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.26, -1.04, 0.36),
                 vector3(0.26, -1.04, 0.36),
                 vector3(-0.26, -1.635, 0.36),
@@ -1476,11 +1476,11 @@ spaceconfig.VehicleTransport = {
         capacity = 7,
         level = 100,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.28, -1.31, 0.1),
                 vector3(0.28, -1.31, 0.1),
                 vector3(-0.275, -1.83, 0.1),
@@ -1498,11 +1498,11 @@ spaceconfig.VehicleTransport = {
         capacity = 11,
         level = 200,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.27, -0.815, -0.2),
                 vector3(0.26, -0.815, -0.2),
                 vector3(-0.515, -1.36, -0.2),
@@ -1524,11 +1524,11 @@ spaceconfig.VehicleTransport = {
         capacity = 7,
         level = 100,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.5, -1.235, 0.0),
                 vector3(0.07, -1.24, 0.0),
                 vector3(0.615, -1.24, 0.0),
@@ -1546,11 +1546,11 @@ spaceconfig.VehicleTransport = {
         capacity = 5,
         level = 100,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.255, -1.36, 0.51),
                 vector3(0.255, -1.36, 0.51),
                 vector3(0.55, -1.99, 0.405),
@@ -1566,11 +1566,11 @@ spaceconfig.VehicleTransport = {
         capacity = 6,
         level = 150,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.23, -0.795, 0.295),
                 vector3(0.28, -0.795, 0.295),
                 vector3(0.28, -1.39, 0.295),
@@ -1587,11 +1587,11 @@ spaceconfig.VehicleTransport = {
         capacity = 6,
         level = 150,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.23, -0.795, 0.295),
                 vector3(0.28, -0.795, 0.295),
                 vector3(0.28, -1.39, 0.295),
@@ -1608,11 +1608,11 @@ spaceconfig.VehicleTransport = {
         capacity = 4,
         level = 120,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.31, -1.4, 0.27),
                 vector3(0.33, -1.4, 0.27),
                 vector3(0.33, -1.935, 0.27),
@@ -1629,11 +1629,11 @@ spaceconfig.VehicleTransport = {
         capacity = 300,
         level = 1,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.005, -1.14, 0.26),
                 vector3(0.32, -1.72, 0.26),
                 vector3(-0.33, -1.72, 0.26),
@@ -1649,11 +1649,11 @@ spaceconfig.VehicleTransport = {
         capacity = 250,
         level = 1,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.005, -1.14, 0.26),
                 vector3(0.32, -1.72, 0.26),
                 vector3(-0.33, -1.72, 0.26),
@@ -1669,11 +1669,11 @@ spaceconfig.VehicleTransport = {
         capacity = 18,
         level = 600,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.655, -0.09, 0.09),
                 vector3(0.67, -0.09, 0.09),
                 vector3(0.67, -0.62, 0.09),
@@ -1702,11 +1702,11 @@ spaceconfig.VehicleTransport = {
         capacity = 18,
         level = 650,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.655, -0.09, 0.09),
                 vector3(0.67, -0.09, 0.09),
                 vector3(0.67, -0.62, 0.09),
@@ -1735,11 +1735,11 @@ spaceconfig.VehicleTransport = {
         capacity = 18,
         level = 650,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.655, -0.09, 0.09),
                 vector3(0.67, -0.09, 0.09),
                 vector3(0.67, -0.62, 0.09),
@@ -1768,11 +1768,11 @@ spaceconfig.VehicleTransport = {
         capacity = 18,
         level = 650,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.655, -0.09, 0.09),
                 vector3(0.67, -0.09, 0.09),
                 vector3(0.67, -0.62, 0.09),
@@ -1801,11 +1801,11 @@ spaceconfig.VehicleTransport = {
         capacity = 10,
         level = 100,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.625, -0.445, -0.285),
                 vector3(4.336808689942e-17, -0.445, -0.285),
                 vector3(0.605, -0.445, -0.285),
@@ -1826,11 +1826,11 @@ spaceconfig.VehicleTransport = {
         capacity = 10,
         level = 150,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.625, -0.445, -0.285),
                 vector3(4.336808689942e-17, -0.445, -0.285),
                 vector3(0.605, -0.445, -0.285),
@@ -1851,11 +1851,11 @@ spaceconfig.VehicleTransport = {
         capacity = 10,
         level = 150,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.625, -0.445, -0.285),
                 vector3(4.336808689942e-17, -0.445, -0.285),
                 vector3(0.605, -0.445, -0.285),
@@ -1876,11 +1876,11 @@ spaceconfig.VehicleTransport = {
         capacity = 10,
         level = 180,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.625, -0.445, -0.285),
                 vector3(4.336808689942e-17, -0.445, -0.285),
                 vector3(0.605, -0.445, -0.285),
@@ -1901,11 +1901,11 @@ spaceconfig.VehicleTransport = {
         capacity = 10,
         level = 180,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.625, -0.445, -0.285),
                 vector3(4.336808689942e-17, -0.445, -0.285),
                 vector3(0.605, -0.445, -0.285),
@@ -1926,11 +1926,11 @@ spaceconfig.VehicleTransport = {
         capacity = 10,
         level = 190,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.625, -0.445, -0.285),
                 vector3(4.336808689942e-17, -0.445, -0.285),
                 vector3(0.605, -0.445, -0.285),
@@ -1951,11 +1951,11 @@ spaceconfig.VehicleTransport = {
         capacity = 10,
         level = 200,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.625, -0.445, -0.285),
                 vector3(4.336808689942e-17, -0.445, -0.285),
                 vector3(0.605, -0.445, -0.285),
@@ -1976,11 +1976,11 @@ spaceconfig.VehicleTransport = {
         capacity = 12,
         level = 500,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.665, -0.065, -0.435),
                 vector3(0.01, -0.065, -0.435),
                 vector3(0.645, -0.065, -0.435),
@@ -2003,11 +2003,11 @@ spaceconfig.VehicleTransport = {
         capacity = 4,
         level = 300,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.255, -1.375, -0.195),
                 vector3(0.245, -1.375, -0.195),
                 vector3(0.245, -1.925, -0.195),
@@ -2022,11 +2022,11 @@ spaceconfig.VehicleTransport = {
         capacity = 4,
         level = 300,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.255, -1.375, -0.195),
                 vector3(0.245, -1.375, -0.195),
                 vector3(0.245, -1.925, -0.195),
@@ -2041,11 +2041,11 @@ spaceconfig.VehicleTransport = {
         capacity = 13,
         level = 350,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.595, 0.035, -0.21),
                 vector3(0.035, 0.035, -0.21),
                 vector3(0.63, 0.035, -0.21),
@@ -2069,11 +2069,11 @@ spaceconfig.VehicleTransport = {
         capacity = 13,
         level = 350,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.595, 0.035, -0.21),
                 vector3(0.035, 0.035, -0.21),
                 vector3(0.63, 0.035, -0.21),
@@ -2097,11 +2097,11 @@ spaceconfig.VehicleTransport = {
         capacity = 12,
         level = 400,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.585, -0.22, -0.49),
                 vector3(-0.02, -0.22, -0.49),
                 vector3(0.555, -0.22, -0.49),
@@ -2124,11 +2124,11 @@ spaceconfig.VehicleTransport = {
         capacity = 12,
         level = 410,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.585, -0.22, -0.49),
                 vector3(-0.02, -0.22, -0.49),
                 vector3(0.555, -0.22, -0.49),
@@ -2151,11 +2151,11 @@ spaceconfig.VehicleTransport = {
         capacity = 12,
         level = 415,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.585, -0.22, -0.49),
                 vector3(-0.02, -0.22, -0.49),
                 vector3(0.555, -0.22, -0.49),
@@ -2178,11 +2178,11 @@ spaceconfig.VehicleTransport = {
         capacity = 13,
         level = 450,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.52, -0.05, -0.145),
                 vector3(0.005, -0.05, -0.145),
                 vector3(0.555, -0.05, -0.145),
@@ -2206,11 +2206,11 @@ spaceconfig.VehicleTransport = {
         capacity = 13,
         level = 450,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.52, -0.05, -0.145),
                 vector3(0.005, -0.05, -0.145),
                 vector3(0.555, -0.05, -0.145),
@@ -2234,11 +2234,11 @@ spaceconfig.VehicleTransport = {
         capacity = 13,
         level = 450,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.52, -0.05, -0.145),
                 vector3(0.005, -0.05, -0.145),
                 vector3(0.555, -0.05, -0.145),
@@ -2262,11 +2262,11 @@ spaceconfig.VehicleTransport = {
         capacity = 8,
         level = 120,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.47, 0.095, -0.125),
                 vector3(0.515, 0.095, -0.125),
                 vector3(0.515, -0.52, -0.125),
@@ -2285,11 +2285,11 @@ spaceconfig.VehicleTransport = {
         capacity = 8,
         level = 130,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.47, 0.095, -0.125),
                 vector3(0.515, 0.095, -0.125),
                 vector3(0.515, -0.52, -0.125),
@@ -2309,8 +2309,8 @@ spaceconfig.VehicleTransport = {
         level = 700,
         rentPrice = 18000,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -5.0, 1.5)
     },
@@ -2321,8 +2321,8 @@ spaceconfig.VehicleTransport = {
         level = 700,
         rentPrice = 20000,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -8.0, 2.2)
     },
@@ -2333,8 +2333,8 @@ spaceconfig.VehicleTransport = {
         level = 750,
         rentPrice = 20000,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -8.0, 2.2)
     },
@@ -2345,8 +2345,8 @@ spaceconfig.VehicleTransport = {
         level = 800,
         rentPrice = 17000,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -3.3, 1.6)
     },
@@ -2357,8 +2357,8 @@ spaceconfig.VehicleTransport = {
         level = 850,
         rentPrice = 17000,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -3.3, 1.6)
     },
@@ -2369,8 +2369,8 @@ spaceconfig.VehicleTransport = {
         level = 860,
         rentPrice = 17000,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -3.3, 1.6)
     },
@@ -2381,8 +2381,8 @@ spaceconfig.VehicleTransport = {
         level = 890,
         rentPrice = 17000,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -3.3, 1.6)
     },
@@ -2393,13 +2393,13 @@ spaceconfig.VehicleTransport = {
         level = 900,
         rentPrice = 14000,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true,
-            [spaceconfig.ItemTransportType.WOODLOG] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true,
+            [config.ItemTransportType.WOODLOG] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.255, 0.925, 0.0),
                 vector3(0.28, 0.925, 0.0),
                 vector3(0.28, 0.375, 0.0),
@@ -2421,12 +2421,12 @@ spaceconfig.VehicleTransport = {
                 vector3(-0.28, -2.78, 0.0),
                 vector3(-0.28, -2.78, 0.0),
             },
-            [spaceconfig.ItemTransportType.PALLET] = {
+            [config.ItemTransportType.PALLET] = {
                 vector3(0.0, -1.07, -0.005),
                 vector3(0.0, 0.27, -0.005),
                 vector3(0.0, -2.415, -0.005),
             },
-            [spaceconfig.ItemTransportType.WOODLOG] = {
+            [config.ItemTransportType.WOODLOG] = {
                 vector3(-0.285, -0.895, 0.3),
                 vector3(0.27, -0.895, 0.3),
                 vector3(-0.595, -0.905, 0.74),
@@ -2444,8 +2444,8 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -6.0, 0.6)
     },
@@ -2457,8 +2457,8 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -6.0, 0.6)
     },
@@ -2470,8 +2470,8 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -6.0, 0.6)
     },
@@ -2483,8 +2483,8 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.CRATE] = true,
-            [spaceconfig.ItemTransportType.PALLET] = true
+            [config.ItemTransportType.CRATE] = true,
+            [config.ItemTransportType.PALLET] = true
         },
         trunkOffset = vector3(0.0, -6.0, 0.6)
     },
@@ -2496,12 +2496,12 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.PALLET] = true,
-            [spaceconfig.ItemTransportType.WOODLOG] = true
+            [config.ItemTransportType.PALLET] = true,
+            [config.ItemTransportType.WOODLOG] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.PALLET] = {
+            [config.ItemTransportType.PALLET] = {
                 vector3(0.0, 0.0, 0.47),
                 vector3(0.0, 4.4849999999999, 0.47),
                 vector3(0.0, -5.0349999999999, 0.47),
@@ -2511,7 +2511,7 @@ spaceconfig.VehicleTransport = {
                 vector3(0.0, 1.475, 0.47),
                 vector3(0.0, -1.34, 0.47),
             },
-            [spaceconfig.ItemTransportType.WOODLOG] = {
+            [config.ItemTransportType.WOODLOG] = {
                 vector3(-0.6, 1.935, 0.695),
                 vector3(-0.01, 1.935, 0.695),
                 vector3(0.595, 1.935, 0.695),
@@ -2536,7 +2536,7 @@ spaceconfig.VehicleTransport = {
         capacity = 14,
         level = 900,
         transType = {
-            [spaceconfig.ItemTransportType.LOOSE] = true
+            [config.ItemTransportType.LOOSE] = true
         }
     },
     [`tiptruck2`] = {
@@ -2545,7 +2545,7 @@ spaceconfig.VehicleTransport = {
         capacity = 14,
         level = 950,
         transType = {
-            [spaceconfig.ItemTransportType.LOOSE] = true
+            [config.ItemTransportType.LOOSE] = true
         }
     },
     [`rubble`] = {
@@ -2554,7 +2554,7 @@ spaceconfig.VehicleTransport = {
         capacity = 16,
         level = 950,
         transType = {
-            [spaceconfig.ItemTransportType.LOOSE] = true
+            [config.ItemTransportType.LOOSE] = true
         }
     },
     [`biff`] = {
@@ -2563,7 +2563,7 @@ spaceconfig.VehicleTransport = {
         capacity = 16,
         level = 950,
         transType = {
-            [spaceconfig.ItemTransportType.LOOSE] = true
+            [config.ItemTransportType.LOOSE] = true
         }
     },
     [`graintrailer`] = {
@@ -2573,7 +2573,7 @@ spaceconfig.VehicleTransport = {
         capacity = 16,
         level = 0,
         transType = {
-            [spaceconfig.ItemTransportType.LOOSE] = true
+            [config.ItemTransportType.LOOSE] = true
         }
     },
     [`mixer`] = {
@@ -2582,7 +2582,7 @@ spaceconfig.VehicleTransport = {
         capacity = 16,
         level = 950,
         transType = {
-            [spaceconfig.ItemTransportType.CONCRETE] = true
+            [config.ItemTransportType.CONCRETE] = true
         }
     },
     [`mixer2`] = {
@@ -2591,7 +2591,7 @@ spaceconfig.VehicleTransport = {
         capacity = 16,
         level = 950,
         transType = {
-            [spaceconfig.ItemTransportType.CONCRETE] = true
+            [config.ItemTransportType.CONCRETE] = true
         }
     },
     -- STRONGBOX
@@ -2601,13 +2601,13 @@ spaceconfig.VehicleTransport = {
         capacity = 8,
         level = 600,
         transType = {
-            [spaceconfig.ItemTransportType.STRONGBOX] = true,
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.STRONGBOX] = true,
+            [config.ItemTransportType.CRATE] = true
         },
         rentPrice = 7000,
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.37, -1.22, 0.425),
                 vector3(0.365, -1.22, 0.425),
                 vector3(0.365, -1.77, 0.425),
@@ -2617,7 +2617,7 @@ spaceconfig.VehicleTransport = {
                 vector3(0.385, -2.89, 0.425),
                 vector3(-0.385, -2.89, 0.425),
             },
-            [spaceconfig.ItemTransportType.STRONGBOX] = { --capacity of strongbox is 2 per units
+            [config.ItemTransportType.STRONGBOX] = { --capacity of strongbox is 2 per units
                 vector3(-0.37, -1.22, 0.425),
                 vector3(0.365, -1.22, 0.425),
                 vector3(0.365, -1.77, 0.425),
@@ -2632,12 +2632,12 @@ spaceconfig.VehicleTransport = {
         capacity = 8,
         level = 610,
         transType = {
-            [spaceconfig.ItemTransportType.STRONGBOX] = true,
-            [spaceconfig.ItemTransportType.CRATE] = true
+            [config.ItemTransportType.STRONGBOX] = true,
+            [config.ItemTransportType.CRATE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.CRATE] = {
+            [config.ItemTransportType.CRATE] = {
                 vector3(-0.37, -1.22, 0.425),
                 vector3(0.365, -1.22, 0.425),
                 vector3(0.365, -1.77, 0.425),
@@ -2647,7 +2647,7 @@ spaceconfig.VehicleTransport = {
                 vector3(0.385, -2.89, 0.425),
                 vector3(-0.385, -2.89, 0.425),
             },
-            [spaceconfig.ItemTransportType.STRONGBOX] = {
+            [config.ItemTransportType.STRONGBOX] = {
                 vector3(-0.37, -1.22, 0.425),
                 vector3(0.365, -1.22, 0.425),
                 vector3(0.365, -1.77, 0.425),
@@ -2665,7 +2665,7 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.LIQUIDS] = true
+            [config.ItemTransportType.LIQUIDS] = true
         }
     },
     [`tanker`] = {
@@ -2676,7 +2676,7 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.LIQUIDS] = true
+            [config.ItemTransportType.LIQUIDS] = true
         }
     },
     [`tanker2`] = {
@@ -2687,7 +2687,7 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.LIQUIDS] = true
+            [config.ItemTransportType.LIQUIDS] = true
         }
     },
     -- VEHICLE
@@ -2699,7 +2699,7 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.VEHICLE] = true
+            [config.ItemTransportType.VEHICLE] = true
         }
     },
     [`tr2`] = {
@@ -2710,11 +2710,11 @@ spaceconfig.VehicleTransport = {
         level = 0,
         rentPrice = 0,
         transType = {
-            [spaceconfig.ItemTransportType.VEHICLE] = true
+            [config.ItemTransportType.VEHICLE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.VEHICLE] = {
+            [config.ItemTransportType.VEHICLE] = {
                 { x = 0.0,   y = 4.8049999999999,  z = 0.425, rx = 0.0,              ry = 0.0, rz = 0.0 },
                 { x = 0.0,   y = 0.085,            z = 0.54,  rx = -3.4199999999999, ry = 0.0, rz = 0.0 },
                 { x = 0.0,   y = -4.8199999999999, z = 0.45,  rx = 4.1049999999999,  ry = 0.0, rz = 0.0 },
@@ -2731,11 +2731,11 @@ spaceconfig.VehicleTransport = {
         level = 1000,
         rentPrice = 15000,
         transType = {
-            [spaceconfig.ItemTransportType.VEHICLE] = true
+            [config.ItemTransportType.VEHICLE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.VEHICLE] = {
+            [config.ItemTransportType.VEHICLE] = {
                 vector3(0.0, -0.95, 0.425),
                 vector3(0.01, -4.7699999999999, 0.425),
             }
@@ -2748,11 +2748,11 @@ spaceconfig.VehicleTransport = {
         level = 1000,
         rentPrice = 15000,
         transType = {
-            [spaceconfig.ItemTransportType.VEHICLE] = true
+            [config.ItemTransportType.VEHICLE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.VEHICLE] = {
+            [config.ItemTransportType.VEHICLE] = {
                 vector3(0.0, -0.95, 0.425),
                 vector3(0.01, -4.7699999999999, 0.425),
             }
@@ -2766,11 +2766,11 @@ spaceconfig.VehicleTransport = {
         level = 1000,
         rentPrice = 15000,
         transType = {
-            [spaceconfig.ItemTransportType.VEHICLE] = true
+            [config.ItemTransportType.VEHICLE] = true
         },
         props = {
             bone = 'chassic',
-            [spaceconfig.ItemTransportType.VEHICLE] = {
+            [config.ItemTransportType.VEHICLE] = {
                 vector3(0.0, -0.95, 0.425),
                 vector3(0.01, -4.7699999999999, 0.425),
             }
@@ -2784,12 +2784,12 @@ spaceconfig.VehicleTransport = {
         level = 100,                                      --SET = number (Level Required Player Can Use This Vehicle)
         rentPrice = 300,
         transType = {                                   --SET = table (Table of transport type)
-            [spaceconfig.ItemTransportType.CRATE] = true, --SET = [ITEM_TRANSPORT_TYPE] = true or false (Transport type vehicle can handler)
-            [spaceconfig.ItemTransportType.STRONGBOX] = true
+            [config.ItemTransportType.CRATE] = true, --SET = [ITEM_TRANSPORT_TYPE] = true or false (Transport type vehicle can handler)
+            [config.ItemTransportType.STRONGBOX] = true
         },
         props = {                                   --Vehicle Prop Offset Defined
             boneIndex = 3,                          --Bone of vehicle Prop default is chassic
-            [spaceconfig.ItemTransportType.CRATE] = { --SET = [ITEM_TRANSPORT_TYPE] = table of position offset prop will put on vehicle
+            [config.ItemTransportType.CRATE] = { --SET = [ITEM_TRANSPORT_TYPE] = table of position offset prop will put on vehicle
                 vector3(0.0, 0.565, -0.51),
                 vector3(0.0, 1.045, -0.51),
                 vector3(0.0, 0.56, -0.04),
@@ -2799,7 +2799,7 @@ spaceconfig.VehicleTransport = {
                 vector3(1.7347234759768e-18, 0.55, 0.915),
                 vector3(1.7347234759768e-18, 1.03, 0.915),
             },
-            [spaceconfig.ItemTransportType.STRONGBOX] = { --SET = [ITEM_TRANSPORT_TYPE] = table of position offset prop will put on vehicle
+            [config.ItemTransportType.STRONGBOX] = { --SET = [ITEM_TRANSPORT_TYPE] = table of position offset prop will put on vehicle
                 vector3(0.0, 0.585, -0.505),
                 vector3(0.0, 1.1, -0.505),
                 vector3(0.0, 0.59, 4.336808689942e-17),
@@ -2816,10 +2816,10 @@ local function tablelength(T)
 end
 
 
-spaceconfig.VehicleTransportCount = tablelength(spaceconfig.VehicleTransport)
+config.VehicleTransportCount = tablelength(config.VehicleTransport)
 
 -- Trucker Handbook, you can add more step or delete something, handbook will show in Menu (c_menu.lua)
-spaceconfig.TruckerHandbook = {
+config.TruckerHandbook = {
     title = 'Become a trucker in 5 step',
     handbook = {
         {
@@ -2872,9 +2872,9 @@ spaceconfig.TruckerHandbook = {
     }
 }
 
-spaceconfig.SkillTable = 'space_trucker_skills'
+config.SkillTable = 'space_trucker_skills'
 
-spaceconfig.SkillTypeField = {
+config.SkillTypeField = {
     totalProfit = 'totalProfit',
     totalPackage = 'totalPackage',
     totalDistance = 'totalDistance',
@@ -2882,9 +2882,9 @@ spaceconfig.SkillTypeField = {
     currentLevel = 'level'
 }
 
-spaceconfig.IsPackageMultiplyItemCapacity = true
+config.IsPackageMultiplyItemCapacity = true
 
-spaceconfig.RateExp = {
+config.RateExp = {
     profit = 100,      -- EX: You get $500 -> 500/100 = 5 Exp
     profitByHand = 10, -- Hand Crate
     package = 1,
@@ -2898,21 +2898,21 @@ end
 
 function IsItemTransportTypeCanMix(transType)
     -- With these types of items, the vehicle can carry many different types of goods
-    if transType == spaceconfig.ItemTransportType.CRATE or
-        transType == spaceconfig.ItemTransportType.STRONGBOX then
+    if transType == config.ItemTransportType.CRATE or
+        transType == config.ItemTransportType.STRONGBOX then
         return true
     end
     return false
 end
 
 function IsVehicleModelCanDospacetrucker(vehicleModelHash)
-    if spaceconfig.VehicleTransport[vehicleModelHash] then return true end
+    if config.VehicleTransport[vehicleModelHash] then return true end
     return false
 end
 
 function IsVehicleModelCanTransportType(vehicleModelHash, transType)
-    if not spaceconfig.VehicleTransport[vehicleModelHash] then return false end
-    for key, value in pairs(spaceconfig.VehicleTransport[vehicleModelHash].transType) do
+    if not config.VehicleTransport[vehicleModelHash] then return false end
+    for key, value in pairs(config.VehicleTransport[vehicleModelHash].transType) do
         if key == transType then return true end
     end
 
@@ -2921,13 +2921,13 @@ end
 
 -- Industry Global Function
 function GetIndustryTierLabel(_tier)
-    if _tier == spaceconfig.Industry.Tier.PRIMARY then
+    if _tier == config.Industry.Tier.PRIMARY then
         return Lang:t('industry_tier_label_primary')
-    elseif _tier == spaceconfig.Industry.Tier.SECONDARY then
+    elseif _tier == config.Industry.Tier.SECONDARY then
         return Lang:t('industry_tier_label_secondary')
-    elseif _tier == spaceconfig.Industry.Tier.TERTIARY then -- ADICIONADO
+    elseif _tier == config.Industry.Tier.TERTIARY then -- ADICIONADO
         return Lang:t('industry_tier_label_tertiary')      -- ADICIONADO (Você precisará adicionar esta tradução no seu arquivo de localidade)
-    elseif _tier == spaceconfig.Industry.Tier.BUSINESS then
+    elseif _tier == config.Industry.Tier.BUSINESS then
         return Lang:t('industry_tier_label_business')
     end
 end
@@ -2935,47 +2935,47 @@ end
 function GetIndustryTypeLabel(_tier, _type)
     local typeLabel = {
         -- Primary
-        [spaceconfig.Industry.Tier.PRIMARY] = {
-            [spaceconfig.Industry.Type.Primary.OILFIELD] = Lang:t('industry_type_label_oilfield'),
-            [spaceconfig.Industry.Type.Primary.CHEMICAL] = Lang:t('industry_type_label_chemical'),
-            [spaceconfig.Industry.Type.Primary.SCRAPYARD] = Lang:t('industry_type_label_scrapyard'),
-            [spaceconfig.Industry.Type.Primary.FOREST] = Lang:t('industry_type_label_forest'),
-            [spaceconfig.Industry.Type.Primary.FARM] = Lang:t('industry_type_label_farm'),
-            [spaceconfig.Industry.Type.Primary.MINERAL] = Lang:t('industry_type_label_mineral'),
-            [spaceconfig.Industry.Type.Primary.QUARRY] = Lang:t('industry_type_label_quarry'),
+        [config.Industry.Tier.PRIMARY] = {
+            [config.Industry.Type.Primary.OILFIELD] = Lang:t('industry_type_label_oilfield'),
+            [config.Industry.Type.Primary.CHEMICAL] = Lang:t('industry_type_label_chemical'),
+            [config.Industry.Type.Primary.SCRAPYARD] = Lang:t('industry_type_label_scrapyard'),
+            [config.Industry.Type.Primary.FOREST] = Lang:t('industry_type_label_forest'),
+            [config.Industry.Type.Primary.FARM] = Lang:t('industry_type_label_farm'),
+            [config.Industry.Type.Primary.MINERAL] = Lang:t('industry_type_label_mineral'),
+            [config.Industry.Type.Primary.QUARRY] = Lang:t('industry_type_label_quarry'),
         },
-        [spaceconfig.Industry.Tier.SECONDARY] = {
+        [config.Industry.Tier.SECONDARY] = {
             --] Secondary
-            [spaceconfig.Industry.Type.Secondary.MINT] = Lang:t('industry_type_label_mint'), -- Federal Mint
-            [spaceconfig.Industry.Type.Secondary.WEAPON_FACTORY] = Lang:t('industry_type_label_weapon_factory'),
-            [spaceconfig.Industry.Type.Secondary.STEEL_MILL] = Lang:t('industry_type_label_steel_mill'),
-            [spaceconfig.Industry.Type.Secondary.SAWMILL] = Lang:t('industry_type_label_sawmill'),
-            [spaceconfig.Industry.Type.Secondary.TEXTILE_FACTORY] = Lang:t('industry_type_label_textile_factory'),
-            [spaceconfig.Industry.Type.Secondary.BREWERY] = Lang:t('industry_type_label_brewery'),
-            [spaceconfig.Industry.Type.Secondary.FOOD_PROCESSING_PLANT] = Lang:t(
+            [config.Industry.Type.Secondary.MINT] = Lang:t('industry_type_label_mint'), -- Federal Mint
+            [config.Industry.Type.Secondary.WEAPON_FACTORY] = Lang:t('industry_type_label_weapon_factory'),
+            [config.Industry.Type.Secondary.STEEL_MILL] = Lang:t('industry_type_label_steel_mill'),
+            [config.Industry.Type.Secondary.SAWMILL] = Lang:t('industry_type_label_sawmill'),
+            [config.Industry.Type.Secondary.TEXTILE_FACTORY] = Lang:t('industry_type_label_textile_factory'),
+            [config.Industry.Type.Secondary.BREWERY] = Lang:t('industry_type_label_brewery'),
+            [config.Industry.Type.Secondary.FOOD_PROCESSING_PLANT] = Lang:t(
                 'industry_type_label_food_processing_plant'),
-            [spaceconfig.Industry.Type.Secondary.CONCRETE_PLANT] = Lang:t('industry_type_label_concrete_plant'),
-            [spaceconfig.Industry.Type.Secondary.DISTILLERY] = Lang:t('industry_type_label_distillery'),
-            [spaceconfig.Industry.Type.Secondary.MALT_HOUSE] = Lang:t('industry_type_label_malt_house'),
-            [spaceconfig.Industry.Type.Secondary.APPLIANCES] = Lang:t('industry_type_label_appliances'),
-            [spaceconfig.Industry.Type.Secondary.AUTOS] = Lang:t('industry_type_label_autos'),
-            [spaceconfig.Industry.Type.Secondary.METALLURGICAL] = Lang:t('industry_type_label_metallurgical'),
+            [config.Industry.Type.Secondary.CONCRETE_PLANT] = Lang:t('industry_type_label_concrete_plant'),
+            [config.Industry.Type.Secondary.DISTILLERY] = Lang:t('industry_type_label_distillery'),
+            [config.Industry.Type.Secondary.MALT_HOUSE] = Lang:t('industry_type_label_malt_house'),
+            [config.Industry.Type.Secondary.APPLIANCES] = Lang:t('industry_type_label_appliances'),
+            [config.Industry.Type.Secondary.AUTOS] = Lang:t('industry_type_label_autos'),
+            [config.Industry.Type.Secondary.METALLURGICAL] = Lang:t('industry_type_label_metallurgical'),
         },
-        [spaceconfig.Industry.Tier.BUSINESS] = {
+        [config.Industry.Tier.BUSINESS] = {
             --] BUSINESS
-            [spaceconfig.Industry.Type.Business.CONSTRUCTIONS] = Lang:t('industry_type_label_constructions'),
-            [spaceconfig.Industry.Type.Business.POWERPLANT] = Lang:t('industry_type_label_powerplant'),
-            [spaceconfig.Industry.Type.Business.AMMUNATION] = Lang:t('industry_type_label_ammunation'),
-            [spaceconfig.Industry.Type.Business.RETAIL_STORE] = Lang:t('industry_type_label_retail_store'),
-            [spaceconfig.Industry.Type.Business.AUTOMOTIVE_SHOP] = Lang:t('industry_type_label_automotive_shop'), --car_parts, dyes
-            [spaceconfig.Industry.Type.Business.FOOD_N_DRINK] = Lang:t('industry_type_label_food_n_drink'),
-            [spaceconfig.Industry.Type.Business.CLOTHING_STORE] = Lang:t('industry_type_label_clothing_store'),
-            [spaceconfig.Industry.Type.Business.DEALERSHIP] = Lang:t('industry_type_label_dealership'),
-            [spaceconfig.Industry.Type.Business.GAS_STATION] = Lang:t('industry_type_label_gas_station'),
-            [spaceconfig.Industry.Type.Business.FURNITURE_SHOP] = Lang:t('industry_type_label_furniture_shop'),
-            [spaceconfig.Industry.Type.Business.OFFICE] = Lang:t('industry_type_label_office'),
-            [spaceconfig.Industry.Type.Business.BANK] = Lang:t('industry_type_label_bank'),
-            [spaceconfig.Industry.Type.Business.FRUIT_STAND] = Lang:t('industry_type_label_fruit_stand'),
+            [config.Industry.Type.Business.CONSTRUCTIONS] = Lang:t('industry_type_label_constructions'),
+            [config.Industry.Type.Business.POWERPLANT] = Lang:t('industry_type_label_powerplant'),
+            [config.Industry.Type.Business.AMMUNATION] = Lang:t('industry_type_label_ammunation'),
+            [config.Industry.Type.Business.RETAIL_STORE] = Lang:t('industry_type_label_retail_store'),
+            [config.Industry.Type.Business.AUTOMOTIVE_SHOP] = Lang:t('industry_type_label_automotive_shop'), --car_parts, dyes
+            [config.Industry.Type.Business.FOOD_N_DRINK] = Lang:t('industry_type_label_food_n_drink'),
+            [config.Industry.Type.Business.CLOTHING_STORE] = Lang:t('industry_type_label_clothing_store'),
+            [config.Industry.Type.Business.DEALERSHIP] = Lang:t('industry_type_label_dealership'),
+            [config.Industry.Type.Business.GAS_STATION] = Lang:t('industry_type_label_gas_station'),
+            [config.Industry.Type.Business.FURNITURE_SHOP] = Lang:t('industry_type_label_furniture_shop'),
+            [config.Industry.Type.Business.OFFICE] = Lang:t('industry_type_label_office'),
+            [config.Industry.Type.Business.BANK] = Lang:t('industry_type_label_bank'),
+            [config.Industry.Type.Business.FRUIT_STAND] = Lang:t('industry_type_label_fruit_stand'),
         },
     }
     return typeLabel[_tier][_type]

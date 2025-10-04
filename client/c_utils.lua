@@ -84,8 +84,8 @@ end
 
 function GetMarkerForItemTransType(_tradeType, _itemName)
     local transType = GetItemTransportType(_itemName)
-    if transType == spaceconfig.ItemTransportType.CRATE or transType == spaceconfig.ItemTransportType.STRONGBOX then
-        if _tradeType == spaceconfig.Industry.TradeType.FORSALE then
+    if transType == config.ItemTransportType.CRATE or transType == config.ItemTransportType.STRONGBOX then
+        if _tradeType == config.Industry.TradeType.FORSALE then
             return 21, 0.0
         else
             return 22, 180.0
@@ -103,13 +103,13 @@ end
 function GetTradePointDescription(_industryName, _tradeType, _tradeItem)
     local tradeData = Industries:GetIndustryTradeData(_industryName)
     if not tradeData or not tradeData[_tradeType] or not tradeData[_tradeType][_tradeItem] then return '~r~Error' end
-    if not spaceconfig.IndustryItems[_tradeItem] then return 'item_undefined' end
+    if not config.IndustryItems[_tradeItem] then return 'item_undefined' end
 
     local itemTradeData = tradeData[_tradeType][_tradeItem]
     local description = string.format("%s%s~w~~n~[%s]~n~%s~n~%s/%s",
-        _tradeType == spaceconfig.Industry.TradeType.FORSALE and "~y~" or "~g~",
-        Lang:t(_tradeType == spaceconfig.Industry.TradeType.FORSALE and "trade_point_for_sale_label" or
-            "trade_point_wanted_label"), spaceconfig.IndustryItems[_tradeItem].label,
+        _tradeType == config.Industry.TradeType.FORSALE and "~y~" or "~g~",
+        Lang:t(_tradeType == config.Industry.TradeType.FORSALE and "trade_point_for_sale_label" or
+            "trade_point_wanted_label"), config.IndustryItems[_tradeItem].label,
         Lang:t("trade_point_storage_label", { current = itemTradeData.inStock, max = itemTradeData.storageSize }),
         Lang:t("trade_point_price_label", { price = math.groupdigits(itemTradeData.price) }),
         GetItemTransportUnit(_tradeItem))
@@ -121,24 +121,24 @@ function GetItemTransportUnit(_itemName)
     local itemTransportType = GetItemTransportType(_itemName)
     if not itemTransportType then return 'undefined' end
 
-    return spaceconfig.ItemTransportUnit[itemTransportType]
+    return config.ItemTransportUnit[itemTransportType]
 end
 
 function GetItemLabel(_itemName)
-    if not spaceconfig.IndustryItems[_itemName] then return 'undefined' end
-    return spaceconfig.IndustryItems[_itemName].label
+    if not config.IndustryItems[_itemName] then return 'undefined' end
+    return config.IndustryItems[_itemName].label
 end
 
 function GetItemTransportType(_itemName)
-    if not spaceconfig.IndustryItems[_itemName] then return nil end
-    return spaceconfig.IndustryItems[_itemName].transType
+    if not config.IndustryItems[_itemName] then return nil end
+    return config.IndustryItems[_itemName].transType
 end
 
 function GetVehicleTransportTypeLabel(_transType)
     local str = ''
     for k, v in pairs(_transType) do
         if str ~= '' then str = str .. ', ' end
-        str = str .. spaceconfig.VehicleTransportTypeLabel[k]
+        str = str .. config.VehicleTransportTypeLabel[k]
     end
     return str
 end

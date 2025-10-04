@@ -182,12 +182,12 @@ RegisterNetEvent('space_trucker:client:attemptToLoadCargo', function()
     if not currentMission or isPlayerCarryingMissionProp or isActionInProgress then return end
     isActionInProgress = true
 
-    local itemInfo = spaceconfig.IndustryItems[currentMission.item]
+    local itemInfo = config.IndustryItems[currentMission.item]
     local transportType = itemInfo.transType
     local playerPed = PlayerPedId()
     local vehicleToCheck
 
-    if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
+    if transportType == config.ItemTransportType.CRATE or transportType == config.ItemTransportType.STRONGBOX then
         vehicleToCheck = GetClosestVehicle(GetEntityCoords(playerPed), 15.0, 0, 70)
         if not DoesEntityExist(vehicleToCheck) then 
             QBCore.Functions.Notify("Você precisa descer do veiculo e buscar as caixas.", "error")
@@ -212,7 +212,7 @@ RegisterNetEvent('space_trucker:client:attemptToLoadCargo', function()
     local modelName = GetDisplayNameFromVehicleModel(vehicleModelHash)
     local vehicleConfig
 
-    for spawnName, config in pairs(spaceconfig.VehicleTransport) do
+    for spawnName, config in pairs(config.VehicleTransport) do
         if GetHashKey(tostring(spawnName)) == vehicleModelHash or (tonumber(spawnName) and tonumber(spawnName) == vehicleModelHash) then
             vehicleConfig = config
             break
@@ -230,7 +230,7 @@ RegisterNetEvent('space_trucker:client:attemptToLoadCargo', function()
         return 
     end
 
-    if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
+    if transportType == config.ItemTransportType.CRATE or transportType == config.ItemTransportType.STRONGBOX then
         TriggerEvent('space_trucker:client:startManualLoading', vehicleToCheck, vehicleConfig, itemInfo)
     else
         TriggerEvent('space_trucker:client:startAutomaticLoading', vehicleToCheck, vehicleConfig, itemInfo)
@@ -307,7 +307,7 @@ function HandleUnloadingPropCarrying(prop, vehicle)
     RequestAnimDict(carryingAnimDict); while not HasAnimDictLoaded(carryingAnimDict) do Wait(100) end
     
     local playerPed = PlayerPedId()
-    local item = spaceconfig.IndustryItems[currentMission.item]
+    local item = config.IndustryItems[currentMission.item]
     AttachEntityToEntity(prop, playerPed, GetPedBoneIndex(playerPed, item.prop.boneId or 28422), item.prop.x or -0.05, item.prop.y or 0.0, item.prop.z or -0.10, item.prop.rx or 0.0, item.prop.ry or 0.0, item.prop.rz or 0.0, true, true, false, true, 2, true)
     TaskPlayAnim(playerPed, carryingAnimDict, carryingAnimName, 8.0, -8.0, -1, 49, 0, false, false, false)
     isPlayerCarryingMissionProp = true
@@ -330,7 +330,7 @@ end)
 
 RegisterNetEvent('space_trucker:client:startAutomaticLoading', function(vehicle, config, item)
     QBCore.Functions.Progressbar("load_mission_auto", "A carregar o veículo...", 5000, false, true, {}, {}, {}, {}, function()
-        if item.transType ~= spaceconfig.ItemTransportType.LIQUIDS and item.transType ~= spaceconfig.ItemTransportType.LOOSE and item.transType ~= spaceconfig.ItemTransportType.CONCRETE then
+        if item.transType ~= config.ItemTransportType.LIQUIDS and item.transType ~= config.ItemTransportType.LOOSE and item.transType ~= config.ItemTransportType.CONCRETE then
             if config.props and config.props[item.transType] then
                 local propModel = item.prop and item.prop.model or `hei_prop_heist_wooden_box`; RequestModel(propModel)
                 while not HasModelLoaded(propModel) do Wait(10) end
@@ -371,8 +371,8 @@ RegisterNetEvent("space_trucker:client:startDeliveryPhase", function(vehicle)
             if not currentMission then return end
 
             DrawMarker(2, destinationCoords.x, destinationCoords.y, destinationCoords.z-0.98, 0,0,0,0,0,0, 1.0, 1.0, 1.0, 0, 255, 0, 100, false, true, 2, false, nil, nil, false)
-            local itemInfo = spaceconfig.IndustryItems[currentMission.item]
-            local isManual = itemInfo.transType == spaceconfig.ItemTransportType.CRATE or itemInfo.transType == spaceconfig.ItemTransportType.STRONGBOX
+            local itemInfo = config.IndustryItems[currentMission.item]
+            local isManual = itemInfo.transType == config.ItemTransportType.CRATE or itemInfo.transType == config.ItemTransportType.STRONGBOX
 
             if isManual then
                 if isPlayerCarryingMissionProp then
@@ -393,15 +393,15 @@ RegisterNetEvent("space_trucker:client:startDeliveryPhase", function(vehicle)
     BeginTextCommandSetBlipName("STRING"); AddTextComponentString('Entregar Carga (' .. currentMission.itemLabel .. ')'); EndTextCommandSetBlipName(blip)
     missionPoints.deliver.blip = blip
 
-    local itemInfo = spaceconfig.IndustryItems[currentMission.item]
-    if itemInfo.transType == spaceconfig.ItemTransportType.CRATE or itemInfo.transType == spaceconfig.ItemTransportType.STRONGBOX then
+    local itemInfo = config.IndustryItems[currentMission.item]
+    if itemInfo.transType == config.ItemTransportType.CRATE or itemInfo.transType == config.ItemTransportType.STRONGBOX then
         CreateThread(function()
             while missionPoints.deliver do
                 Wait(5)
                 if DoesEntityExist(missionVehicle) and missionCargoDelivered < currentMission.amount then
                     local vehicleConfig
                     local vehicleModelHash = GetEntityModel(missionVehicle)
-                    for spawnName, config in pairs(spaceconfig.VehicleTransport) do
+                    for spawnName, config in pairs(config.VehicleTransport) do
                         if GetHashKey(tostring(spawnName)) == vehicleModelHash or (tonumber(spawnName) and tonumber(spawnName) == vehicleModelHash) then
                             vehicleConfig = config
                             break
@@ -480,9 +480,9 @@ end)
 RegisterNetEvent('space_trucker:client:finishShipping', function()
     if not currentMission or not missionPoints.deliver then return end
     
-    local itemInfo = spaceconfig.IndustryItems[currentMission.item]
+    local itemInfo = config.IndustryItems[currentMission.item]
     local transportType = itemInfo.transType
-    if transportType == spaceconfig.ItemTransportType.CRATE or transportType == spaceconfig.ItemTransportType.STRONGBOX then
+    if transportType == config.ItemTransportType.CRATE or transportType == config.ItemTransportType.STRONGBOX then
         QBCore.Functions.Notify("Você precisa entregar as caixas uma a uma no ponto.", "error")
         return
     end

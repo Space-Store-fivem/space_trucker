@@ -20,7 +20,7 @@ end
 -- Target Logic adapted for ox_target and QBCore environment
 function AddTargetModels()
     if #vehModels == 0 then
-        for vHash, _ in pairs(spaceconfig.VehicleTransport) do
+        for vHash, _ in pairs(config.VehicleTransport) do
             vehModels[#vehModels + 1] = vHash
         end
     end
@@ -35,7 +35,7 @@ function AddTargetModels()
                 local vehicleLockStatus = GetVehicleDoorLockStatus(entity)
                 if HasPlayerCarryItem() and vehicleLockStatus <= 1 then
                     local carryItemName = GetPlayerCarryItemName()
-                    if IsVehicleModelCanTransportType(GetEntityModel(entity), spaceconfig.IndustryItems[carryItemName].transType) then
+                    if IsVehicleModelCanTransportType(GetEntityModel(entity), config.IndustryItems[carryItemName].transType) then
                         return true
                     end
                 end

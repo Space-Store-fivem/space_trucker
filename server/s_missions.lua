@@ -11,7 +11,7 @@ local function generateMissions()
     local allIndustries = Industries:GetIndustries()
     local destinationBusinesses = {}
     for name, industry in pairs(allIndustries) do
-        if industry.tier == spaceconfig.Industry.Tier.BUSINESS then
+        if industry.tier == config.Industry.Tier.BUSINESS then
             table.insert(destinationBusinesses, industry)
         end
     end
@@ -32,17 +32,17 @@ local function generateMissions()
         local sourceIndustryName = stockItem.industry_name
         local sourceIndustryDef = Industries:GetIndustry(sourceIndustryName)
 
-        if sourceIndustryDef and (sourceIndustryDef.tier == spaceconfig.Industry.Tier.PRIMARY or sourceIndustryDef.tier == spaceconfig.Industry.Tier.SECONDARY) and
-           (sourceIndustryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE] and sourceIndustryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE][stockItem.item_name]) then
+        if sourceIndustryDef and (sourceIndustryDef.tier == config.Industry.Tier.PRIMARY or sourceIndustryDef.tier == config.Industry.Tier.SECONDARY) and
+           (sourceIndustryDef.tradeData[config.Industry.TradeType.FORSALE] and sourceIndustryDef.tradeData[config.Industry.TradeType.FORSALE][stockItem.item_name]) then
 
             local destination = destinationBusinesses[math.random(#destinationBusinesses)]
             local itemToTransport = stockItem.item_name
-            local itemInfo = spaceconfig.IndustryItems[itemToTransport]
+            local itemInfo = config.IndustryItems[itemToTransport]
             
             local vehicleRequirement = "Veículo de Carga Padrão"
             if itemInfo and itemInfo.transType then
                 local compatibleVehicles = {}
-                for vehicleName, vehicleData in pairs(spaceconfig.VehicleTransport) do
+                for vehicleName, vehicleData in pairs(config.VehicleTransport) do
                     if vehicleData.transType and vehicleData.transType[itemInfo.transType] then
                         table.insert(compatibleVehicles, vehicleData.label)
                         if #compatibleVehicles >= 2 then break end
@@ -121,7 +121,7 @@ RegisterNetEvent('space_trucker:server:missionCompleted', function(missionData)
         -- [[ CORREÇÃO APLICADA AQUI ]] --
         -- 1. Calcula o valor total da venda PRIMEIRO, antes de verificar o dono.
         local industryDef = Industries:GetIndustry(missionData.sourceIndustry)
-        local itemPrice = industryDef and industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE] and industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE][missionData.item].price or 0
+        local itemPrice = industryDef and industryDef.tradeData[config.Industry.TradeType.FORSALE] and industryDef.tradeData[config.Industry.TradeType.FORSALE][missionData.item].price or 0
         local totalSale = 0
         if itemPrice > 0 then
             totalSale = itemPrice * missionData.amount

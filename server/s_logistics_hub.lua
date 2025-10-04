@@ -18,20 +18,20 @@ end)
 QBCore.Functions.CreateCallback('space_trucker:callback:getOrderItemPrice', function(source, cb, data)
     if not data or not data.itemName then return cb(0) end
     local producingIndustry = Industries:GetIndustryThatProduces(data.itemName)
-    if not producingIndustry or not producingIndustry.tradeData or not producingIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE] then return cb(0) end
-    local itemData = producingIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][data.itemName]
+    if not producingIndustry or not producingIndustry.tradeData or not producingIndustry.tradeData[config.Industry.TradeType.FORSALE] then return cb(0) end
+    local itemData = producingIndustry.tradeData[config.Industry.TradeType.FORSALE][data.itemName]
     if not itemData or not itemData.price then return cb(0) end
     cb(itemData.price)
 end)
 
 local function getSuggestedVehicle(itemName, quantity)
-    local item = spaceconfig.IndustryItems[itemName]
+    local item = config.IndustryItems[itemName]
     if not item then return "Camião de Carga" end
     local requiredCapacity = (item.capacity or 1) * quantity
     local itemTransType = item.transType
     local bestVehicle = nil
     local smallestCapacity = math.huge
-    for model, vehicleData in pairs(spaceconfig.VehicleTransport) do
+    for model, vehicleData in pairs(config.VehicleTransport) do
         if not vehicleData.isTrailer then
             local canTransport = false
             if vehicleData.transType and vehicleData.transType[itemTransType] then
@@ -94,7 +94,7 @@ QBCore.Functions.CreateCallback('space_trucker:callback:createLogisticsOrder', f
     local producingIndustry = Industries:GetIndustryThatProduces(data.itemName)
     if not producingIndustry then return cb({ success = false, message = "Nenhuma indústria produz este item." }) end
     
-    local itemPrice = producingIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][data.itemName].price
+    local itemPrice = producingIndustry.tradeData[config.Industry.TradeType.FORSALE][data.itemName].price
     if not itemPrice or itemPrice <= 0 then return cb({ success = false, message = "Não foi possível calcular o custo. O preço do item é zero." }) end
     
     local totalCargoValue = itemPrice * quantity

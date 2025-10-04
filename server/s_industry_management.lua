@@ -10,24 +10,24 @@ function GetOwnedIndustryDetails(companyId, industryName)
     if not industryDef then return nil end
     local products, inputs = {}, {}
     if industryDef.tradeData then
-        if industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE] then
-            for itemName, itemData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
+        if industryDef.tradeData[config.Industry.TradeType.FORSALE] then
+            for itemName, itemData in pairs(industryDef.tradeData[config.Industry.TradeType.FORSALE]) do
                 local stockResult = MySQL.query.await('SELECT stock FROM space_trucker_industry_stock WHERE company_id = ? AND industry_name = ? AND item_name = ?', { companyId, industryName, itemName })
                 
                 -- ## CORREÇÃO SEGURA APLICADA AQUI ##
                 -- Verifica se o item existe na config. Se sim, usa o nome correto.
                 -- Se não, usa o nome antigo para evitar que o script quebre.
-                local itemLabel = (spaceconfig.IndustryItems[itemName] and spaceconfig.IndustryItems[itemName].label) or ('item_name_' .. itemName)
+                local itemLabel = (config.IndustryItems[itemName] and config.IndustryItems[itemName].label) or ('item_name_' .. itemName)
                 
                 products[itemName] = { label = itemLabel, inStock = stockResult and stockResult[1] and stockResult[1].stock or 0, storageSize = itemData.storageSize, price = itemData.price }
             end
         end
-        if industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED] then
-            for itemName, itemData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
+        if industryDef.tradeData[config.Industry.TradeType.WANTED] then
+            for itemName, itemData in pairs(industryDef.tradeData[config.Industry.TradeType.WANTED]) do
                 local stockResult = MySQL.query.await('SELECT stock FROM space_trucker_industry_stock WHERE company_id = ? AND industry_name = ? AND item_name = ?', { companyId, industryName, itemName })
 
                 -- ## CORREÇÃO SEGURA APLICADA AQUI ##
-                local itemLabel = (spaceconfig.IndustryItems[itemName] and spaceconfig.IndustryItems[itemName].label) or ('item_name_' .. itemName)
+                local itemLabel = (config.IndustryItems[itemName] and config.IndustryItems[itemName].label) or ('item_name_' .. itemName)
 
                 inputs[itemName] = { label = itemLabel, inStock = stockResult and stockResult[1] and stockResult[1].stock or 0, storageSize = itemData.storageSize }
             end
@@ -74,7 +74,7 @@ end)
 local function findItemSource(itemName, requiredAmount)
     local allIndustries = Industries:GetIndustries()
     for name, industry in pairs(allIndustries) do
-        if industry.tradeData and industry.tradeData[spaceconfig.Industry.TradeType.FORSALE] and industry.tradeData[spaceconfig.Industry.TradeType.FORSALE][itemName] then
+        if industry.tradeData and industry.tradeData[config.Industry.TradeType.FORSALE] and industry.tradeData[config.Industry.TradeType.FORSALE][itemName] then
             local ownerResult = MySQL.query.await('SELECT company_id FROM space_trucker_company_industries WHERE industry_name = ?', { name })
             local companyIdToCheck
             if ownerResult and ownerResult[1] then
@@ -109,13 +109,13 @@ Citizen.CreateThread(function()
         for _, row in ipairs(purchasedIndustries) do purchasedMap[row.industry_name] = row end
 
         for industryName, industryDef in pairs(allIndustries) do
-            if not industryDef.tradeData or not industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE] then goto continue_production end
+            if not industryDef.tradeData or not industryDef.tradeData[config.Industry.TradeType.FORSALE] then goto continue_production end
             local ownerData = purchasedMap[industryName]
             local isPlayerOwned = (ownerData ~= nil)
             local companyId = isPlayerOwned and ownerData.company_id or SystemCompanyId
             local hasAllMaterials = true
-            if industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED] and next(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) then
-                for materialName, materialData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
+            if industryDef.tradeData[config.Industry.TradeType.WANTED] and next(industryDef.tradeData[config.Industry.TradeType.WANTED]) then
+                for materialName, materialData in pairs(industryDef.tradeData[config.Industry.TradeType.WANTED]) do
                     local requiredAmount = materialData.amount_needed or 1
                     local stockResult = MySQL.query.await('SELECT stock FROM space_trucker_industry_stock WHERE company_id = ? AND industry_name = ? AND item_name = ?', { companyId, industryName, materialName })
                     if not stockResult or not stockResult[1] or stockResult[1].stock < requiredAmount then
@@ -128,14 +128,14 @@ Citizen.CreateThread(function()
                 if not company or not company[1] or company[1].balance < 500 then hasAllMaterials = false end
             end
             if hasAllMaterials then
-                if industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED] and next(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) then
-                    for materialName, materialData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
+                if industryDef.tradeData[config.Industry.TradeType.WANTED] and next(industryDef.tradeData[config.Industry.TradeType.WANTED]) then
+                    for materialName, materialData in pairs(industryDef.tradeData[config.Industry.TradeType.WANTED]) do
                         MySQL.update.await('UPDATE space_trucker_industry_stock SET stock = stock - ? WHERE company_id = ? AND industry_name = ? AND item_name = ?', { materialData.amount_needed or 1, companyId, industryName, materialName })
                     end
                 elseif isPlayerOwned then
                     MySQL.update.await('UPDATE space_trucker_companies SET balance = balance - ? WHERE id = ?', { 500, companyId })
                 end
-                for itemName, itemData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
+                for itemName, itemData in pairs(industryDef.tradeData[config.Industry.TradeType.FORSALE]) do
                     local baseProduction = itemData.production or 5
                     if isPlayerOwned then
                         baseProduction = baseProduction + (ownerData.investment_level or 0) * 2 + (ownerData.npc_workers or 0) * 1
@@ -147,16 +147,16 @@ Citizen.CreateThread(function()
         end
 
         for name, industryDef in pairs(allIndustries) do
-            if not purchasedMap[name] and industryDef.tier ~= spaceconfig.Industry.Tier.BUSINESS then
-                if industryDef.tradeData and industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED] and next(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) then
-                    for materialName, materialData in pairs(industryDef.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
+            if not purchasedMap[name] and industryDef.tier ~= config.Industry.Tier.BUSINESS then
+                if industryDef.tradeData and industryDef.tradeData[config.Industry.TradeType.WANTED] and next(industryDef.tradeData[config.Industry.TradeType.WANTED]) then
+                    for materialName, materialData in pairs(industryDef.tradeData[config.Industry.TradeType.WANTED]) do
                         local existingOrder = MySQL.query.await('SELECT id FROM space_trucker_logistics_orders WHERE creator_name = ? AND item_name = ? AND status = ?', { industryDef.label, materialName, 'OPEN' })
                         if not existingOrder or #existingOrder == 0 then
                             local maxStorage = materialData.storageSize or 100
                             local orderAmount = math.random(math.max(10, math.floor(maxStorage * 0.20)), math.min(maxStorage, math.floor(maxStorage * 0.30)))
                             local sourceIndustry = findItemSource(materialName, orderAmount)
                             if sourceIndustry then
-                                local itemPrice = sourceIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][materialName].price
+                                local itemPrice = sourceIndustry.tradeData[config.Industry.TradeType.FORSALE][materialName].price
                                 if itemPrice then
                                     local distance = #(sourceIndustry.location - industryDef.location)
                                     local reward = math.floor((itemPrice * orderAmount * 0.1) + (distance / 5))
@@ -197,7 +197,7 @@ CreateCallback('space_trucker:callback:getIndustryStatus', function(source, cb)
     local statusData = {}
 
     for name, def in pairs(allIndustries) do
-        if def.tier ~= spaceconfig.Industry.Tier.BUSINESS then
+        if def.tier ~= config.Industry.Tier.BUSINESS then
             local ownerData = purchasedMap[name]
             local isPlayerOwned = (ownerData ~= nil)
             local companyId = isPlayerOwned and ownerData.company_id or SystemCompanyId
@@ -209,13 +209,13 @@ CreateCallback('space_trucker:callback:getIndustryStatus', function(source, cb)
             local currentIndustryStock = stockMap[industryStockKey] or {}
 
             if def.tradeData then
-                if def.tradeData[spaceconfig.Industry.TradeType.WANTED] then
-                    for itemName, itemData in pairs(def.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
+                if def.tradeData[config.Industry.TradeType.WANTED] then
+                    for itemName, itemData in pairs(def.tradeData[config.Industry.TradeType.WANTED]) do
                         -- [[ CORREÇÃO PARA PREÇO DE INPUT ]] --
                         local sourceIndustry = findItemSource(itemName, 1) -- Encontra quem vende
                         local price = 0
-                        if sourceIndustry and sourceIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][itemName] then
-                            price = sourceIndustry.tradeData[spaceconfig.Industry.TradeType.FORSALE][itemName].price or 0
+                        if sourceIndustry and sourceIndustry.tradeData[config.Industry.TradeType.FORSALE][itemName] then
+                            price = sourceIndustry.tradeData[config.Industry.TradeType.FORSALE][itemName].price or 0
                         end
                         table.insert(industryStatus.inputs, {
                             label = Lang:t('item_name_' .. itemName),
@@ -225,8 +225,8 @@ CreateCallback('space_trucker:callback:getIndustryStatus', function(source, cb)
                         })
                     end
                 end
-                if def.tradeData[spaceconfig.Industry.TradeType.FORSALE] then
-                     for itemName, itemData in pairs(def.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
+                if def.tradeData[config.Industry.TradeType.FORSALE] then
+                     for itemName, itemData in pairs(def.tradeData[config.Industry.TradeType.FORSALE]) do
                         table.insert(industryStatus.outputs, {
                             label = Lang:t('item_name_' .. itemName),
                             stock = currentIndustryStock[itemName] or 0,
@@ -238,7 +238,7 @@ CreateCallback('space_trucker:callback:getIndustryStatus', function(source, cb)
             end
 
             local hasAllMaterials = true
-            if def.tier == spaceconfig.Industry.Tier.PRIMARY and isPlayerOwned then
+            if def.tier == config.Industry.Tier.PRIMARY and isPlayerOwned then
                 local company = MySQL.query.await('SELECT balance FROM space_trucker_companies WHERE id = ?', { companyId })
                 if not company or not company[1] or company[1].balance < 500 then
                     hasAllMaterials = false

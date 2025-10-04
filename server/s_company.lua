@@ -1238,7 +1238,7 @@ CreateCallback('space_trucker:callback:rentCompanyVehicle', function(source, cb,
             
             local companyData = companies[1]
             -- Usamos a chave para encontrar os dados do veículo. ISTO VAI RESOLVER O ERRO.
-            local vehicleData = spaceconfig.VehicleTransport[vehicleKey]
+            local vehicleData = config.VehicleTransport[vehicleKey]
             if not vehicleData then
                 return cb({ success = false, message = "Veículo inválido." })
             end
@@ -1247,7 +1247,7 @@ CreateCallback('space_trucker:callback:rentCompanyVehicle', function(source, cb,
                 return cb({ success = false, message = ('Reputação %d necessária para alugar este veículo.'):format(vehicleData.level) })
             end
 
-            local rentPrice = vehicleData.rentPrice or (spaceconfig.VehicleRentBaseCost * vehicleData.capacity)
+            local rentPrice = vehicleData.rentPrice or (config.VehicleRentBaseCost * vehicleData.capacity)
             if (companyData.balance or 0) < rentPrice then
                 return cb({ success = false, message = "A sua empresa não tem saldo suficiente." })
             end
@@ -1260,7 +1260,7 @@ CreateCallback('space_trucker:callback:rentCompanyVehicle', function(source, cb,
                     MySQL.Async.execute('INSERT INTO space_trucker_transactions (company_id, type, amount, description) VALUES (?, ?, ?, ?)', { companyId, 'rental', -rentPrice, description })
                     
                     local plate = "LOC" .. math.random(100, 999) .. companyId
-                    local rentalHours = spaceconfig.Company.RentalDurationHours or 24
+                    local rentalHours = config.Company.RentalDurationHours or 24
                     
                     -- ## CORREÇÃO FINAL AQUI ##
                     -- Usamos 'vehicleData.name' para guardar o NOME DO MODELO (texto) na base de dados

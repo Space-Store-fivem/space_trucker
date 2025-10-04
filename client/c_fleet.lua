@@ -133,12 +133,12 @@ end)
 RegisterNUICallback('getCompanyRentableVehicles', function(_, cb)
     QBCore.Functions.TriggerCallback('space_trucker:callback:getCompanyReputation', function(reputation)
         local rentableTrucks = {}
-        for vehicleKey, vehicleData in pairs(spaceconfig.VehicleTransport) do
+        for vehicleKey, vehicleData in pairs(config.VehicleTransport) do
             -- ## LÓGICA CORRIGIDA AQUI ##
             -- O filtro agora inclui qualquer veículo que tenha um requisito de 'level'.
             -- Isto garante que tanto os camiões rígidos como os que precisam de reboque apareçam.
             if vehicleData.level and vehicleData.level >= 30 then
-                local rentPrice = vehicleData.rentPrice or (spaceconfig.VehicleRentBaseCost * vehicleData.capacity)
+                local rentPrice = vehicleData.rentPrice or (config.VehicleRentBaseCost * vehicleData.capacity)
                 table.insert(rentableTrucks, {
                     key = vehicleKey,             -- O identificador para o servidor (pode ser número ou texto)
                     model = vehicleData.name,     -- O nome do modelo para a imagem (é sempre texto)
@@ -161,7 +161,7 @@ RegisterNUICallback('rentCompanyVehicle', function(data, cb)
     local vehicleKey = data.vehicleName 
     
     -- Apenas verificamos se a chave existe na configuração para evitar erros
-    if not spaceconfig.VehicleTransport[vehicleKey] then
+    if not config.VehicleTransport[vehicleKey] then
         QBCore.Functions.Notify("Erro: Chave do veículo inválida na configuração do cliente.", 'error', 8000)
         return cb({ success = false, message = "Erro de configuração." })
     end

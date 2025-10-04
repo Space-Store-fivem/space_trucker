@@ -5,12 +5,12 @@ local QBCore = exports['qb-core']:GetCoreObject()
 QBCore.Functions.CreateCallback('space_trucker:callback:getCargoAndVehicleData', function(source, cb)
     local cargoData = {}
 
-    -- 1. Itera sobre todos os itens (cargas) definidos no seu spaceconfig
-    for itemName, itemInfo in pairs(spaceconfig.IndustryItems) do
+    -- 1. Itera sobre todos os itens (cargas) definidos no seu config
+    for itemName, itemInfo in pairs(config.IndustryItems) do
         local compatibleVehicles = {}
 
         -- 2. Para cada item, procura todos os veículos compatíveis
-        for vehicleSpawn, vehicleInfo in pairs(spaceconfig.VehicleTransport) do
+        for vehicleSpawn, vehicleInfo in pairs(config.VehicleTransport) do
             -- 3. Verifica se o tipo de transporte do veículo corresponde ao do item
             if vehicleInfo.transType and itemInfo.transType and vehicleInfo.transType[itemInfo.transType] then
                 table.insert(compatibleVehicles, {

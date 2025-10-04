@@ -19,8 +19,8 @@ PlayerCarryData = {
 
 local function addTradePoint(_industryName, _forSaleLocation, _wantedLocation)
     for key, value in pairs(_forSaleLocation) do
-        if spaceconfig.ShowTradePointBlipOnMinimap then
-            AddTradeBlip(_industryName .. '_' .. key, spaceconfig.Industry.TradeType.FORSALE, value)
+        if config.ShowTradePointBlipOnMinimap then
+            AddTradeBlip(_industryName .. '_' .. key, config.Industry.TradeType.FORSALE, value)
         end
 
         local point = Point.add({
@@ -28,10 +28,10 @@ local function addTradePoint(_industryName, _forSaleLocation, _wantedLocation)
             distance = 15,
             industryName = _industryName,
             tradeItem = key,
-            tradeType = spaceconfig.Industry.TradeType.FORSALE
+            tradeType = config.Industry.TradeType.FORSALE
         })
 
-        local marker, rotate = GetMarkerForItemTransType(spaceconfig.Industry.TradeType.FORSALE, key)
+        local marker, rotate = GetMarkerForItemTransType(config.Industry.TradeType.FORSALE, key)
 
         function point:onPedStanding()
             DrawMarker(marker, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, rotate, 0.0, 1.0, 1.0,
@@ -39,12 +39,12 @@ local function addTradePoint(_industryName, _forSaleLocation, _wantedLocation)
 
             if self.currentDistance < 10 then
                 Draw3DText(self.coords.x, self.coords.y, self.coords.z,
-                    GetTradePointDescription(self.industryName, spaceconfig.Industry.TradeType.FORSALE, self.tradeItem), 4,
+                    GetTradePointDescription(self.industryName, config.Industry.TradeType.FORSALE, self.tradeItem), 4,
                     0.1, 0.1)
             end
 
             local playerPed = PlayerPedId()
-            if GetGameTimer() - player_action_hand_buy_time < spaceconfig.DelayBuyItemByHandTime then return end
+            if GetGameTimer() - player_action_hand_buy_time < config.DelayBuyItemByHandTime then return end
 
             if (self.currentDistance <= 2) or (IsPedInAnyVehicle(playerPed, false) and self.currentDistance <= 5) then
                 ShowHelpNotify(Lang:t('help_text_press_e_to_interact'))
@@ -56,8 +56,8 @@ local function addTradePoint(_industryName, _forSaleLocation, _wantedLocation)
         end
     end
     for key, value in pairs(_wantedLocation) do
-        if spaceconfig.ShowTradePointBlipOnMinimap then
-            AddTradeBlip(_industryName .. '_' .. key, spaceconfig.Industry.TradeType.WANTED, value)
+        if config.ShowTradePointBlipOnMinimap then
+            AddTradeBlip(_industryName .. '_' .. key, config.Industry.TradeType.WANTED, value)
         end
 
         local point = Point.add({
@@ -65,10 +65,10 @@ local function addTradePoint(_industryName, _forSaleLocation, _wantedLocation)
             distance = 15,
             industryName = _industryName,
             tradeItem = key,
-            tradeType = spaceconfig.Industry.TradeType.WANTED
+            tradeType = config.Industry.TradeType.WANTED
         })
 
-        local marker, rotate = GetMarkerForItemTransType(spaceconfig.Industry.TradeType.WANTED, key)
+        local marker, rotate = GetMarkerForItemTransType(config.Industry.TradeType.WANTED, key)
 
         function point:onPedStanding()
             DrawMarker(marker, self.coords.x, self.coords.y, self.coords.z + 0.5, 0.0, 0.0, 0.0, 0.0, rotate, 0.0, 1.0,
@@ -76,7 +76,7 @@ local function addTradePoint(_industryName, _forSaleLocation, _wantedLocation)
 
             if self.currentDistance < 10 then
                 Draw3DText(self.coords.x, self.coords.y, self.coords.z,
-                    GetTradePointDescription(self.industryName, spaceconfig.Industry.TradeType.WANTED, self.tradeItem), 4,
+                    GetTradePointDescription(self.industryName, config.Industry.TradeType.WANTED, self.tradeItem), 4,
                     0.1, 0.1)
             end
 
@@ -131,7 +131,7 @@ local function addVehicleProp(entity, vehPropData)
     local object = NetworkGetEntityFromNetworkId(vehPropData.objectNetId)
     if not DoesEntityExist(object) then return end
     local entityModel = GetEntityModel(object)
-    local addFixZ = spaceconfig.FixCratePropPosZ[entityModel]
+    local addFixZ = config.FixCratePropPosZ[entityModel]
     local rot = vector3(0.0, 0.0, 0.0)
     if vehPropData.rot then
         rot = vector3(vehPropData.rot.x, vehPropData.rot.y, vehPropData.rot.z)
@@ -148,10 +148,10 @@ function GetIndustryInformation(_industryName)
     local industryData = Industries:GetIndustry(_industryName)
     local _industryDataForSale = {}
     local _industryDataWanted = {}
-    if industryData.tradeData[spaceconfig.Industry.TradeType.FORSALE] and next(industryData.tradeData[spaceconfig.Industry.TradeType.FORSALE]) then
-        for key, value in pairs(industryData.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
-            local productionStr = industryData.tier == spaceconfig.Industry.Tier.PRIMARY and "+" .. value.production or Lang:t("production_per_resources", { value = value.production })
-            local defaultItemData = spaceconfig.IndustryItems[key]
+    if industryData.tradeData[config.Industry.TradeType.FORSALE] and next(industryData.tradeData[config.Industry.TradeType.FORSALE]) then
+        for key, value in pairs(industryData.tradeData[config.Industry.TradeType.FORSALE]) do
+            local productionStr = industryData.tier == config.Industry.Tier.PRIMARY and "+" .. value.production or Lang:t("production_per_resources", { value = value.production })
+            local defaultItemData = config.IndustryItems[key]
             _industryDataForSale[#_industryDataForSale + 1] = {
                 name = key,
                 label = defaultItemData.label,
@@ -159,15 +159,15 @@ function GetIndustryInformation(_industryName)
                 production = productionStr,
                 inStock = value.inStock,
                 storageSize = value.storageSize,
-                unit = spaceconfig.ItemTransportUnit[defaultItemData.transType],
+                unit = config.ItemTransportUnit[defaultItemData.transType],
                 buyFromInfo = defaultItemData.buyFromInfo,
                 sellToInfo = defaultItemData.sellToInfo
             }
         end
     end
-    if industryData.tradeData[spaceconfig.Industry.TradeType.WANTED] and next(industryData.tradeData[spaceconfig.Industry.TradeType.WANTED]) then
-        for key, value in pairs(industryData.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
-            local defaultItemData = spaceconfig.IndustryItems[key]
+    if industryData.tradeData[config.Industry.TradeType.WANTED] and next(industryData.tradeData[config.Industry.TradeType.WANTED]) then
+        for key, value in pairs(industryData.tradeData[config.Industry.TradeType.WANTED]) do
+            local defaultItemData = config.IndustryItems[key]
             _industryDataWanted[#_industryDataWanted + 1] = {
                 name = key,
                 label = defaultItemData.label,
@@ -175,7 +175,7 @@ function GetIndustryInformation(_industryName)
                 consumption = Lang:t("consumption_per_hour", { value = value.consumption }),
                 inStock = value.inStock,
                 storageSize = value.storageSize,
-                unit = spaceconfig.ItemTransportUnit[defaultItemData.transType],
+                unit = config.ItemTransportUnit[defaultItemData.transType],
                 buyFromInfo = defaultItemData.buyFromInfo,
                 sellToInfo = defaultItemData.sellToInfo
             }
@@ -186,8 +186,8 @@ function GetIndustryInformation(_industryName)
             name = industryData.name,
             label = industryData.label,
             status = 1,
-            isPrimaryIndustry = industryData.tier == spaceconfig.Industry.Tier.PRIMARY,
-            isBusiness = industryData.tier == spaceconfig.Industry.Tier.BUSINESS,
+            isPrimaryIndustry = industryData.tier == config.Industry.Tier.PRIMARY,
+            isBusiness = industryData.tier == config.Industry.Tier.BUSINESS,
         },
         industryDataForSale = _industryDataForSale,
         industryDataWanted = _industryDataWanted
@@ -205,7 +205,7 @@ local function checkVehicleCanAddItemToStorage(_vehNetId, _industryTradeItemName
             if not itemName then
                 return { status = false, msg = Lang:t('error_when_buy_item') }
             end
-            if not IsItemTransportTypeCanMix(spaceconfig.IndustryItems[itemName].transType) then
+            if not IsItemTransportTypeCanMix(config.IndustryItems[itemName].transType) then
                 if itemName ~= _industryTradeItemName then
                     return { status = false, msg = Lang:t('currently_another_type_of_cargo') }
                 end
@@ -240,30 +240,30 @@ function OnPlayerJoin()
     getAllIndustriesData()
     generateIndustriesBlipAndTradePoint()
     PlayerCarryData = { isCarry = false, carryItemName = '', carryItemPrice = 0, carryItemFromIndustry = '' }
-    local toggleModalConfirm = GetResourceKvpInt(spaceconfig.ToggleModalConfirmKvp.key)
+    local toggleModalConfirm = GetResourceKvpInt(config.ToggleModalConfirmKvp.key)
     if toggleModalConfirm == 0 then
-        SetResourceKvpInt(spaceconfig.ToggleModalConfirmKvp.key, spaceconfig.ToggleModalConfirmKvp.on)
+        SetResourceKvpInt(config.ToggleModalConfirmKvp.key, config.ToggleModalConfirmKvp.on)
     end
     is_industries_loaded = true
 end
 
 function OnPlayerActiveForSaleLocation(_industryName, _industryTradeItemName)
     if is_player_busy then return end
-    local defaultItemData = spaceconfig.IndustryItems[_industryTradeItemName]
+    local defaultItemData = config.IndustryItems[_industryTradeItemName]
     if not defaultItemData then return end
     local industryData = Industries:GetIndustry(_industryName)
     if not industryData then
         Notify(Lang:t('not_found_industry'), 'error')
         return
     end
-    local itemTradeData = industryData.tradeData[spaceconfig.Industry.TradeType.FORSALE][_industryTradeItemName]
+    local itemTradeData = industryData.tradeData[config.Industry.TradeType.FORSALE][_industryTradeItemName]
     if not itemTradeData then
         Notify(Lang:t('not_found_item'), 'error')
         return
     end
 
     local playerPed = PlayerPedId()
-    if (defaultItemData.transType == spaceconfig.ItemTransportType.CRATE or defaultItemData.transType == spaceconfig.ItemTransportType.STRONGBOX) then
+    if (defaultItemData.transType == config.ItemTransportType.CRATE or defaultItemData.transType == config.ItemTransportType.STRONGBOX) then
         if IsPedInAnyVehicle(playerPed, false) then
             Notify(Lang:t('you_need_to_get_out_car'), 'error')
             return
@@ -277,14 +277,14 @@ function OnPlayerActiveForSaleLocation(_industryName, _industryTradeItemName)
                 amount = 1, type = GetItemTransportUnit(_industryTradeItemName),
                 item = Lang:t(defaultItemData.label), price = math.groupdigits(itemTradeData.price)
             })
-        local toggleModalConfirm = GetResourceKvpInt(spaceconfig.ToggleModalConfirmKvp.key)
-        local confirmData = toggleModalConfirm == spaceconfig.ToggleModalConfirmKvp.on and ShowModal({
-            type = spaceconfig.NUIModalType.CONFIRM,
+        local toggleModalConfirm = GetResourceKvpInt(config.ToggleModalConfirmKvp.key)
+        local confirmData = toggleModalConfirm == config.ToggleModalConfirmKvp.on and ShowModal({
+            type = config.NUIModalType.CONFIRM,
             title = Lang:t('trade_point_of', { industry = Lang:t(industryData.label) }),
             description = desc, extraArgs = {}
         }) or { confirm = true }
         if confirmData and confirmData.confirm then
-            local result = TriggerCallbackAwait('space_trucker:callback:buyItem', spaceconfig.Industry.TradeState.onFoot, _industryName, _industryTradeItemName)
+            local result = TriggerCallbackAwait('space_trucker:callback:buyItem', config.Industry.TradeState.onFoot, _industryName, _industryTradeItemName)
             if not result.status then
                 Notify(result.msg, 'error')
                 return
@@ -332,7 +332,7 @@ function OnPlayerActiveForSaleLocation(_industryName, _industryTradeItemName)
             return false
         end
         local modalData = ShowModal({
-            type = spaceconfig.NUIModalType.DIALOG,
+            type = config.NUIModalType.DIALOG,
             title = Lang:t('buy_amount_label'),
             description = Lang:t('enter_quantity_you_want', { max = maxAmount }),
             extraArgs = { min = 1, max = maxAmount, default = maxAmount }
@@ -343,7 +343,7 @@ function OnPlayerActiveForSaleLocation(_industryName, _industryTradeItemName)
         if amountInput > tonumber(availableCapacity) or amountInput < 1 then return false end
         local args = { buyAmount = amountInput, vehNetId = vehNetId }
         is_player_busy = true
-        local result = TriggerCallbackAwait('space_trucker:callback:buyItem', spaceconfig.Industry.TradeState.onVehicle, _industryName, _industryTradeItemName, args)
+        local result = TriggerCallbackAwait('space_trucker:callback:buyItem', config.Industry.TradeState.onVehicle, _industryName, _industryTradeItemName, args)
         if not result.status then
             Notify(result.msg, 'error')
             is_player_busy = false
@@ -369,20 +369,20 @@ end
 
 function OnPlayerActiveWantedLocation(_industryName, _industryTradeItemName)
     if is_player_busy then return end
-    local defaultItemData = spaceconfig.IndustryItems[_industryTradeItemName]
+    local defaultItemData = config.IndustryItems[_industryTradeItemName]
     if not defaultItemData then return end
     local industryData = Industries:GetIndustry(_industryName)
     if not industryData then
         Notify(Lang:t('not_found_industry'), 'error')
         return
     end
-    local itemTradeData = industryData.tradeData[spaceconfig.Industry.TradeType.WANTED][_industryTradeItemName]
+    local itemTradeData = industryData.tradeData[config.Industry.TradeType.WANTED][_industryTradeItemName]
     if not itemTradeData then
         Notify(Lang:t('not_found_item'), 'error')
         return
     end
     local playerPed = PlayerPedId()
-    if not IsPedInAnyVehicle(playerPed, false) and (defaultItemData.transType == spaceconfig.ItemTransportType.CRATE or defaultItemData.transType == spaceconfig.ItemTransportType.STRONGBOX) then
+    if not IsPedInAnyVehicle(playerPed, false) and (defaultItemData.transType == config.ItemTransportType.CRATE or defaultItemData.transType == config.ItemTransportType.STRONGBOX) then
         local carryItem = TriggerCallbackAwait('space_trucker:callback:checkCarryItem')
         if not carryItem then
             Notify(Lang:t('you_no_have_goods_on_hand'), 'error')
@@ -392,9 +392,9 @@ function OnPlayerActiveWantedLocation(_industryName, _industryTradeItemName)
             Notify(Lang:t('not_selling_point'), 'error')
             return
         end
-        local toggleModalConfirm = GetResourceKvpInt(spaceconfig.ToggleModalConfirmKvp.key)
-        local confirmData = toggleModalConfirm == spaceconfig.ToggleModalConfirmKvp.on and ShowModal({
-            type = spaceconfig.NUIModalType.CONFIRM,
+        local toggleModalConfirm = GetResourceKvpInt(config.ToggleModalConfirmKvp.key)
+        local confirmData = toggleModalConfirm == config.ToggleModalConfirmKvp.on and ShowModal({
+            type = config.NUIModalType.CONFIRM,
             title = Lang:t('trade_point_of', { industry = Lang:t(industryData.label) }),
             description = Lang:t('are_you_sure_want_to_sell', {
                 type = GetItemTransportUnit(_industryTradeItemName),
@@ -404,7 +404,7 @@ function OnPlayerActiveWantedLocation(_industryName, _industryTradeItemName)
             extraArgs = {}
         }) or { confirm = true }
         if confirmData and confirmData.confirm then
-            local result = TriggerCallbackAwait('space_trucker:callback:sellItem', spaceconfig.Industry.TradeState.onFoot, _industryName, _industryTradeItemName)
+            local result = TriggerCallbackAwait('space_trucker:callback:sellItem', config.Industry.TradeState.onFoot, _industryName, _industryTradeItemName)
             if not result.status then
                 Notify(result.msg, 'error')
                 return
@@ -450,7 +450,7 @@ function OnPlayerActiveWantedLocation(_industryName, _industryTradeItemName)
         local maxAmount = itemTradeData.storageSize - itemTradeData.inStock
         maxAmount = (maxAmount > sellItemData.amount) and sellItemData.amount or maxAmount
         local modalData = ShowModal({
-            type = spaceconfig.NUIModalType.DIALOG,
+            type = config.NUIModalType.DIALOG,
             title = Lang:t('sell_amount_label'),
             description = Lang:t('enter_quantity_you_want_sell', { max = maxAmount }),
             extraArgs = { min = 1, max = maxAmount, default = maxAmount }
@@ -461,7 +461,7 @@ function OnPlayerActiveWantedLocation(_industryName, _industryTradeItemName)
         if amountInput > sellItemData.amount or amountInput < 1 then return false end
         local args = { sellAmount = amountInput, vehNetId = vehNetId }
         is_player_busy = true
-        local result = TriggerCallbackAwait('space_trucker:callback:sellItem', spaceconfig.Industry.TradeState.onVehicle, _industryName, _industryTradeItemName, args)
+        local result = TriggerCallbackAwait('space_trucker:callback:sellItem', config.Industry.TradeState.onVehicle, _industryName, _industryTradeItemName, args)
         if not result.status then
             Notify(result.msg, 'error')
             is_player_busy = false
@@ -485,7 +485,7 @@ function OnPlayerLoadPackageIntoVehicle(entity)
         return false
     end
     local carryItemName = GetPlayerCarryItemName()
-    if not IsVehicleModelCanTransportType(vehModelHash, spaceconfig.IndustryItems[carryItemName].transType) then
+    if not IsVehicleModelCanTransportType(vehModelHash, config.IndustryItems[carryItemName].transType) then
         Notify(Lang:t('veh_is_not_a_freight'), 'error')
         return false
     end
@@ -498,12 +498,12 @@ function OnPlayerLoadPackageIntoVehicle(entity)
         Notify(checkStorageCB.msg, 'error')
         return false
     end
-    local toggleModalConfirm = GetResourceKvpInt(spaceconfig.ToggleModalConfirmKvp.key)
-    local confirmData = toggleModalConfirm == spaceconfig.ToggleModalConfirmKvp.on and ShowModal({
-        type = spaceconfig.NUIModalType.CONFIRM,
+    local toggleModalConfirm = GetResourceKvpInt(config.ToggleModalConfirmKvp.key)
+    local confirmData = toggleModalConfirm == config.ToggleModalConfirmKvp.on and ShowModal({
+        type = config.NUIModalType.CONFIRM,
         title = Lang:t('modal_load_package_into_vehicle_title'),
         description = Lang:t('modal_load_package_into_vehicle_desc', {
-            item = Lang:t(spaceconfig.IndustryItems[carryItemName].label),
+            item = Lang:t(config.IndustryItems[carryItemName].label),
             plate = GetVehicleNumberPlateText(entity)
         }),
         extraArgs = {}
@@ -555,14 +555,14 @@ function OnPlayerUnloadFromVehicleStorage(_vehEntity, _itemName)
     end
     local vehNetId = VehToNet(_vehEntity)
     local vehicleLockStatus = GetVehicleDoorLockStatus(_vehEntity)
-    local defaultItemData = spaceconfig.IndustryItems[_itemName]
+    local defaultItemData = config.IndustryItems[_itemName]
     if not defaultItemData then return false end
     if HasPlayerCarryItem() then
         Notify(Lang:t('you_have_other_goods_on_hand'), 'error')
         return false
     end
-    if defaultItemData.transType ~= spaceconfig.ItemTransportType.CRATE and
-        defaultItemData.transType ~= spaceconfig.ItemTransportType.STRONGBOX then
+    if defaultItemData.transType ~= config.ItemTransportType.CRATE and
+        defaultItemData.transType ~= config.ItemTransportType.STRONGBOX then
         Notify(Lang:t('item_can_not_unload_by_hand'), 'error')
         return false
     end
@@ -579,7 +579,7 @@ function OnPlayerUnloadFromVehicleStorage(_vehEntity, _itemName)
 end
 
 function OnPlayerDeath()
-    if spaceconfig.DropPackageWhenDie then
+    if config.DropPackageWhenDie then
         local result = TriggerCallbackAwait('space_trucker:callback:onPlayerDeath')
         if result then
             removePlayerCarryProp()
@@ -590,16 +590,16 @@ end
 -- Blip Functions
 local tradeBlips = {}
 function AddTradeBlip(id, _tradeType, _blipCoords)
-    if not spaceconfig.ShowTradePointBlipOnMinimap then return end
+    if not config.ShowTradePointBlipOnMinimap then return end
     
     if tradeBlips[id] then RemoveBlip(tradeBlips[id]) end
 
     local blip = AddBlipForCoord(_blipCoords.x, _blipCoords.y, _blipCoords.z)
-    SetBlipSprite(blip, _tradeType == spaceconfig.Industry.TradeType.FORSALE and 120 or 106)
+    SetBlipSprite(blip, _tradeType == config.Industry.TradeType.FORSALE and 120 or 106)
     SetBlipDisplay(blip, 5)
     SetBlipScale(blip, 0.5)
     SetBlipAsShortRange(blip, true)
-    SetBlipColour(blip, _tradeType == spaceconfig.Industry.TradeType.FORSALE and 5 or 2)
+    SetBlipColour(blip, _tradeType == config.Industry.TradeType.FORSALE and 5 or 2)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString(id) -- Apenas para debug, pode ser alterado para um nome mais amigável
     EndTextCommandSetBlipName(blip)

@@ -7,7 +7,7 @@ local modalResponse = nil
 -- Carrega o ficheiro de tradução para a interface
 RegisterNUICallback('loadLocale', function(_, cb)
     cb(1)
-    local JSON = LoadResourceFile(GetCurrentResourceName(), ('locales/%s.json'):format(spaceconfig.Locale)) or LoadResourceFile(GetCurrentResourceName(), 'locales/en.json')
+    local JSON = LoadResourceFile(GetCurrentResourceName(), ('locales/%s.json'):format(config.Locale)) or LoadResourceFile(GetCurrentResourceName(), 'locales/en.json')
     SendNUIMessage({
         action = 'setLocale',
         data = json.decode(JSON).ui
@@ -25,9 +25,9 @@ RegisterNUICallback('hideFrame', function(data, cb)
     cb(1)
     TriggerScreenblurFadeOut(1000)
     SetNuiFocus(false, false)
-    if data.visibleType == spaceconfig.NUIVisibleType.MODAL then
+    if data.visibleType == config.NUIVisibleType.MODAL then
         OnModalResponse(data)
-    elseif data.visibleType == spaceconfig.NUIVisibleType.VEHICLE_STORAGE then
+    elseif data.visibleType == config.NUIVisibleType.VEHICLE_STORAGE then
         OnVehicleStorageUnloadResponse(data)
     end
 end)

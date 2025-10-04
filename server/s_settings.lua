@@ -44,12 +44,12 @@ CreateCallback('space_trucker:callback:sellCompany', function(source, cb)
 
     local companyId = company[1].id
     
-    if not spaceconfig or not spaceconfig.Company or not spaceconfig.Company.SellReturnValue then
-        print("^1[space_trucker] ERRO: A configuração 'spaceconfig.Company.SellReturnValue' não foi encontrada! Verifique o seu ficheiro config.lua.^7")
+    if not config or not config.Company or not config.Company.SellReturnValue then
+        print("^1[space_trucker] ERRO: A configuração 'config.Company.SellReturnValue' não foi encontrada! Verifique o seu ficheiro config.lua.^7")
         return cb({ success = false, message = "Erro de configuração no servidor."})
     end
 
-    local sellValue = spaceconfig.Company.SellReturnValue
+    local sellValue = config.Company.SellReturnValue
     print(('[space_trucker] A tentar vender a empresa #%s. Valor de Venda Fixo a ser pago: %s'):format(companyId, sellValue))
 
     -- [[ CORREÇÃO: Usar MySQL.update.await para a operação DELETE ]]

@@ -89,17 +89,17 @@ Garantir o Recurso: Adicione ensure space_trucker ao seu ficheiro server.cfg. Im
 Este ficheiro é o centro de toda a personalização do script. Aqui estão as opções mais importantes:
 
 Configuração
-spaceconfig.Framework	Define o framework a ser usado. Mantenha como "qb-core". O script é compatível com QBox por usar as mesmas funções base.
-spaceconfig.TabletItem	(MUITO IMPORTANTE) O nome do item que abrirá o painel de gestão. Ex: "tablet". Certifique-se de que este item existe nos shared/items.lua do seu framework.
-spaceconfig.Company.CreationCost	O custo em dinheiro (banco) para criar uma nova empresa.
-spaceconfig.Company.Locations	Coordenadas para os NPCs de criação de empresa e gestão de indústrias.
-spaceconfig.Industry.UpdateTime	Intervalo de tempo (em segundos) para o cron job de pagamento de salários.
-spaceconfig.VehicleTransport	Tabela para configurar todos os veículos de transporte, a sua capacidade, tipo de carga e props visuais.
-spaceconfig.IndustryItems	Tabela para configurar todos os tipos de carga, o seu "label", capacidade e tipo de transporte.
+config.Framework	Define o framework a ser usado. Mantenha como "qb-core". O script é compatível com QBox por usar as mesmas funções base.
+config.TabletItem	(MUITO IMPORTANTE) O nome do item que abrirá o painel de gestão. Ex: "tablet". Certifique-se de que este item existe nos shared/items.lua do seu framework.
+config.Company.CreationCost	O custo em dinheiro (banco) para criar uma nova empresa.
+config.Company.Locations	Coordenadas para os NPCs de criação de empresa e gestão de indústrias.
+config.Industry.UpdateTime	Intervalo de tempo (em segundos) para o cron job de pagamento de salários.
+config.VehicleTransport	Tabela para configurar todos os veículos de transporte, a sua capacidade, tipo de carga e props visuais.
+config.IndustryItems	Tabela para configurar todos os tipos de carga, o seu "label", capacidade e tipo de transporte.
 
 Esporta in Fogli
 🎮 Como Usar (Guia para Jogadores)
-Obter o Tablet: Adquira o item definido em spaceconfig.TabletItem (por exemplo, numa loja).
+Obter o Tablet: Adquira o item definido em config.TabletItem (por exemplo, numa loja).
 
 Usar o Item: Use o item a partir do seu inventário para abrir a interface do Space Trucker.
 
