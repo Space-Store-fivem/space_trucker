@@ -1,21 +1,7 @@
-local QBCore = exports['qb-core']:GetCoreObject()
-local tpdaRadialOption
-local vehModels = {}
 
-function AddTruckPDAOption()
-    -- Adiciona opções no Radial Menu do ox_lib
-    lib.addRadialItem({
-        {
-            id = 'space-trucker',
-            label = Lang:t('tpda_main_menu_title'),
-            icon = 'truck-pickup',
-            onSelect = function()
-                TriggerEvent('gstrucker:client:showTruckerPDA')
-            end,
-            close = true
-        }
-    })
-end
+
+local QBCore = exports['qb-core']:GetCoreObject()
+local vehModels = {}
 
 
 -- Notify
@@ -26,7 +12,7 @@ end
 
 -- Progressbar From QBCore
 function Progressbar(name, label, duration, useWhileDead, canCancel, disableControls, animation, prop, propTwo,
-                     onFinish, onCancel)
+                      onFinish, onCancel)
     return QBCore.Functions.Progressbar(name, label, duration, useWhileDead, canCancel, disableControls, animation,
         prop, propTwo, onFinish, onCancel)
 end
@@ -80,14 +66,10 @@ end
 
 function RemoveTargetModels()
     if #vehModels > 0 then
-        exports.ox_target:removeModel(vehModels, { "Load goods into the car", "Check Vehicle Storage" })
+        -- Corrigido para remover pelo nome da label traduzida
+        exports.ox_target:removeModel(vehModels, { Lang:t('veh_load_package'), Lang:t('veh_check_storage') })
     end
 end
-
--- Add radial menu option when player loads
-AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
-    AddTruckPDAOption()
-end)
 
 -- Add target models when the resource starts
 AddEventHandler('onResourceStart', function(resourceName)
@@ -100,9 +82,6 @@ end)
 AddEventHandler('onResourceStop', function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
         return
-    end
-    if tpdaRadialOption then
-        exports['qb-radialmenu']:RemoveOption(tpdaRadialOption)
     end
     RemoveTargetModels()
 end)

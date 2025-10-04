@@ -1,39 +1,27 @@
-// space_trucker/web/src/layouts/App.tsx (CORRIGIDO)
+// space_trucker/web/src/layouts/App.tsx (VERSÃO FINAL E LIMPA)
 
 import { useNuiEvent } from '../hooks/useNuiEvent';
 import React, { useEffect, useState } from 'react';
 import { fetchNui } from '../utils/fetchNui';
 import { Switch, Case } from 'react-if';
 import { isEnvBrowser } from '../utils/misc';
-import { PDAVisibilityType, VisibilityType } from '../utils/enum';
+import { VisibilityType } from '../utils/enum';
 import { useSetModalData } from '../state/modal';
-import { useSetPlayerRentalInfoData, useSetVehicleRentalInfoData, useSetVehicleStorageData } from '../state/vehicle';
-import {
-  ModalData, VehicleStorage, TrukerData, PDAData, CarryData, VehicleRentalInfo, PlayerRentalInfo, FullCompanyInfo,
-} from '../types';
+import { useSetVehicleStorageData } from '../state/vehicle';
+import { ModalData, VehicleStorage, FullCompanyInfo } from '../types';
 import IndustryModal from './components/IndustryModal';
 import VehicleStorageComp from './components/VehicleStorage';
-import TruckerPDA from './pages/TruckerPDA';
-import { useSetCarryData, useSetPDAData, useSetTruckerData } from '../state/pda';
-import TruckRental from './pages/TruckRental';
 import CompanyPanel from './pages/company/CompanyPanel';
-import { useSetPDAVisibility, useVisibilityState } from '../state/visibility';
+import { useVisibilityState } from '../state/visibility';
 import GarageMenu from './GarageMenu';
 
 export const App: React.FC = () => {
   const [visible, setVisible] = useVisibilityState();
   const setVehicleStorageData = useSetVehicleStorageData();
   const setModalData = useSetModalData();
-  const setTruckerData = useSetTruckerData();
-  const setPDAData = useSetPDAData();
-  const setCarryData = useSetCarryData();
-  const setVehicleRentalInfo = useSetVehicleRentalInfoData();
-  const setPlayerRentalInfo = useSetPlayerRentalInfoData();
-  const setPDAVisible = useSetPDAVisibility();
-  const [toggleModalConfirm, setToggleModalConfirm] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1.0);
-  
-  // Estados para os dois painéis principais
+
+  // Estados para os painéis principais
   const [showCompanyPanel, setShowCompanyPanel] = useState(false);
   const [companyData, setCompanyData] = useState<FullCompanyInfo | null>(null);
   const [garageVisible, setGarageVisible] = useState<boolean>(false);
@@ -46,33 +34,30 @@ export const App: React.FC = () => {
 
   const handleClosePanels = () => {
     if (showCompanyPanel) {
-        if (!isEnvBrowser()) {
-            fetchNui('closePanel');
-        }
-        setShowCompanyPanel(false);
-        setCompanyData(null);
+      if (!isEnvBrowser()) {
+        fetchNui('closePanel');
+      }
+      setShowCompanyPanel(false);
+      setCompanyData(null);
     }
   };
 
   const handleCloseGarage = () => {
     setGarageVisible(false);
     fetchNui('space_trucker:garage_close');
-  }
+  };
 
-  // ## INÍCIO DA CORREÇÃO ##
-  // Adicionado listener para o evento 'closePanel' que é enviado pelo client script (c_nui.lua)
+  // Listener para fechar o painel a partir do lado do cliente
   useNuiEvent<void>('closePanel', () => {
-    // Esta ação irá fechar o painel da empresa
     setShowCompanyPanel(false);
     setCompanyData(null);
   });
-  // ## FIM DA CORREÇÃO ##
 
-  // Listener para o painel da empresa
+  // Listener para mostrar o painel da empresa
   useNuiEvent<FullCompanyInfo>('showCompanyPanel', (data) => {
     setCompanyData(data);
     setShowCompanyPanel(true);
-    setVisible(VisibilityType.None); 
+    setVisible(VisibilityType.None);
   });
 
   // Listener para o menu da garagem
@@ -81,18 +66,7 @@ export const App: React.FC = () => {
     setGarageVisible(data.show);
   });
 
-  useNuiEvent(
-    'sendTruckerPDA',
-    (data: { truckerData: TrukerData; pdaData: PDAData; carryData: CarryData; isToggleModalConfirm: boolean }) => {
-      setTruckerData(data.truckerData);
-      setPDAData(data.pdaData);
-      setCarryData(data.carryData);
-      setToggleModalConfirm(data.isToggleModalConfirm);
-      setVisible(VisibilityType.TruckerPDA);
-      setShowCompanyPanel(false);
-    }
-  );
-
+  // Listeners para os modais que ainda são usados
   useNuiEvent('sendIndustryModal', (data: { modalData: ModalData }) => {
     setModalData(data.modalData);
     setVisible(VisibilityType.Modal);
@@ -103,56 +77,40 @@ export const App: React.FC = () => {
     setVisible(VisibilityType.VehicleStorage);
   });
 
-  useNuiEvent(
-    'sendTruckRentalMenu',
-    (data: { truckRentalInfo: VehicleRentalInfo[]; playerRentalInfo: PlayerRentalInfo }) => {
-      setVehicleRentalInfo(data.truckRentalInfo);
-      setPlayerRentalInfo(data.playerRentalInfo);
-      setVisible(VisibilityType.TruckRentalMenu);
-    }
-  );
-
+  // Lógica para fechar os painéis com a tecla 'Escape'
   useEffect(() => {
     const keyHandler = (e: KeyboardEvent) => {
-        const isOldUIVisible = visible !== VisibilityType.None;
-        
-        if (['Escape'].includes(e.code)) {
-            if (garageVisible) {
-                handleCloseGarage();
-            } else if (isOldUIVisible) {
-                if (!isEnvBrowser()) {
-                    fetchNui('hideFrame', { visibleType: visible, proceed: false });
-                }
-                setPDAVisible(PDAVisibilityType.Statics);
-                setVisible(VisibilityType.None);
-            } else if (showCompanyPanel) {
-                handleClosePanels();
-            }
-        } else if (visible === VisibilityType.TruckerPDA && ['Backspace'].includes(e.code)) {
-            setPDAVisible(PDAVisibilityType.Statics);
+      const isOldUIVisible = visible !== VisibilityType.None;
+
+      if (['Escape'].includes(e.code)) {
+        if (garageVisible) {
+          handleCloseGarage();
+        } else if (isOldUIVisible) {
+          if (!isEnvBrowser()) {
+            fetchNui('hideFrame', { visibleType: visible, proceed: false });
+          }
+          setVisible(VisibilityType.None);
+        } else if (showCompanyPanel) {
+          handleClosePanels();
         }
+      }
     };
 
     window.addEventListener('keydown', keyHandler);
     return () => window.removeEventListener('keydown', keyHandler);
-  }, [visible, showCompanyPanel, garageVisible, setVisible, setPDAVisible]);
+  }, [visible, showCompanyPanel, garageVisible, setVisible]);
 
-
+  // Lógica para ajustar o zoom da interface
   const handleResize = () => {
-    var zoomCountOne = document.body.clientWidth / 1920;
-    var zoomCountTwo = document.body.clientHeight / 1080;
+    const zoomCountOne = document.body.clientWidth / 1920;
+    const zoomCountTwo = document.body.clientHeight / 1080;
+    setZoomLevel(zoomCountOne < zoomCountTwo ? zoomCountOne : zoomCountTwo);
+  };
 
-    if (zoomCountOne < zoomCountTwo) setZoomLevel(zoomCountOne);
-    else setZoomLevel(zoomCountTwo);
-  }
-  
-  useEffect(() => {
-  }, [zoomLevel])
-  
   useEffect(() => {
     const isAnyUIVisible = visible !== VisibilityType.None || showCompanyPanel || garageVisible;
     if (!isAnyUIVisible) return;
-    
+
     handleResize();
     window.addEventListener("resize", handleResize);
 
@@ -160,7 +118,7 @@ export const App: React.FC = () => {
   }, [visible, showCompanyPanel, garageVisible]);
 
   return (
-    <section style={{zoom: zoomLevel}}>
+    <section style={{ zoom: zoomLevel }}>
       <Switch>
         <Case condition={visible === VisibilityType.Modal}>
           <IndustryModal />
@@ -168,17 +126,10 @@ export const App: React.FC = () => {
         <Case condition={visible === VisibilityType.VehicleStorage}>
           <VehicleStorageComp />
         </Case>
-        <Case condition={visible === VisibilityType.TruckerPDA}>
-          <TruckerPDA toggleModal={toggleModalConfirm} />
-        </Case>
-        <Case condition={visible === VisibilityType.TruckRentalMenu}>
-          <TruckRental />
-        </Case>
       </Switch>
 
-      {/* A lógica de renderização agora está correta para ambos os painéis */}
+      {/* Renderiza os painéis principais */}
       {showCompanyPanel && companyData && <CompanyPanel data={companyData} updateCompanyData={updateCompanyData} />}
-      
       {garageVisible && <GarageMenu vehicles={garageVehicles} onClose={handleCloseGarage} />}
     </section>
   );

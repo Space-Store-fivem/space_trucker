@@ -1,4 +1,3 @@
-spaceconfig.MaxServerVehicleDistanceCheck = 10 --don't tounch
 
 local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -30,14 +29,3 @@ function GetPlayerUniqueId(source)
     if not Player then return false end
     return Player.PlayerData.citizenid
 end
-
-CreateCallback('gstrucker:callback:getPlayerJob', function(source, cb)
-    local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return cb(false) end
-    local job = Player.PlayerData.job
-    return cb and cb(job) or job
-end)
-
-AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
-    LoadPlayerTruckerSkill(Player.PlayerData.source)
-end)

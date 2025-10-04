@@ -5,9 +5,9 @@ lua54 "yes"
 --[[ Resource Information ]]
 --
 name "space_trucker"
-author "Gasman"
+author "Space Studios"
 version "3.0.1"
-description "space trucker Job V3 - Simulator, Dynamic, Skills, Over 1000 Truck Routes"
+description "space trucker -  A Advanced Trucker simulator job v1"
 
 --[[ Manifest ]]
 --
@@ -48,14 +48,12 @@ client_scripts {
 	"client/c_utils.lua",
 	"client/c_points.lua",
 	"client/c_main.lua",
-	"client/c_skill.lua",
 	"client/c_events.lua",
 	"client/c_nui.lua",
-	"client/c_rental.lua",
-"client/c_company.lua",
-'client/c_industry_management.lua',
-'client/c_settings.lua',
-'client/c_finance.lua',
+    "client/c_company.lua",
+    'client/c_industry_management.lua',
+    'client/c_settings.lua',
+    'client/c_finance.lua',
 	"client/c_tablet.lua",
 	"client/c_missions.lua",
 	'client/c_logistics_hub.lua',
@@ -69,16 +67,13 @@ server_scripts {
 	"bridge/server/s_framework_qbcore.lua",
 	-- "bridge/server/s_framework_esx.lua",
 	"server/s_main.lua",
-	"server/s_skill.lua",
 	"server/s_cronjob.lua",
-	"server/s_anticheat.lua",
 	"server/s_company.lua",
 	'server/s_industry_management.lua',
 	'server/s_settings.lua',
 	'server/s_finance.lua',
 	'server/s_missions.lua',
-	"server/s_rental.lua",
-	'server/s_company_gps.lua', -- ADICIONADO
+	'server/s_company_gps.lua',
 	'server/s_info_panels.lua',
 	 'server/s_logistics_hub.lua'
 }

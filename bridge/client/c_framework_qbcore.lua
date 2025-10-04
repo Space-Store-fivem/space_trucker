@@ -1,24 +1,14 @@
+-- =================================================================
+-- ARQUIVO bridge/client/c_framework_qbcore.lua (VERSÃO FINAL E LIMPA)
+-- =================================================================
+
 local QBCore = exports['qb-core']:GetCoreObject()
 
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    OnPlayerJoin()
-    AddTruckPDAOption()
-    AddTruckRentalPoint()
-end)
-
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function(jobData)
-    QBCore.PlayerData.job = jobData
-    OnPlayerJobUpdate(jobData.name)
-end)
-
-function GetPlayerJobName()
-    if not QBCore.PlayerData.job then
-        local data = TriggerCallbackAwait('gstrucker:callback:getPlayerJob')
-        QBCore.PlayerData.job = data
-        return data.name
-    end
-    return QBCore.PlayerData.job.name
-end
+--[[
+    NOTA: Os eventos 'OnPlayerLoaded', 'OnJobUpdate' e a função 'GetPlayerJobName'
+    foram removidos pois pertenciam ao sistema antigo (PDA, aluguer, empregos)
+    e não são mais utilizados. Apenas as funções essenciais de callback foram mantidas.
+]]
 
 function TriggerCallback(name, cb, ...)
     QBCore.Functions.TriggerCallback(name, cb, ...)

@@ -1,123 +1,13 @@
----@param _industry Industry
-local function updatePrimaryIndustry(_industry)
 
-    local updateData = {}
-    for itemName, value in pairs(_industry.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
-        if not _industry:IsStorageFull(spaceconfig.Industry.TradeType.FORSALE, itemName) then
-            _industry:AddItemAmount(spaceconfig.Industry.TradeType.FORSALE, itemName, value.production, false)
-            updateData[itemName] = {
-                amount = _industry:GetInStockAmount(spaceconfig.Industry.TradeType.FORSALE, itemName)
-            }
-        end
-    end
-
-    return updateData
-end
-
----@param _industry Industry
-local function updateBusinessIndustry(_industry)
-    local updateData = {}
-    for itemName, value in pairs(_industry.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
-        if _industry:GetInStockAmount(spaceconfig.Industry.TradeType.WANTED, itemName) > 0 then
-            _industry:RemoveItemAmount(spaceconfig.Industry.TradeType.WANTED, itemName, value.consumption, false)
-            updateData[itemName] = {
-                amount = _industry:GetInStockAmount(spaceconfig.Industry.TradeType.WANTED, itemName)
-            }
-        end
-    end
-
-    return updateData
-end
-
-
----@param _industry Industry
-local function updateSecondaryIndustry(_industry)
-    local updateData = {}
-    updateData[spaceconfig.Industry.TradeType.FORSALE] = {}
-    updateData[spaceconfig.Industry.TradeType.WANTED] = {}
-    
-    local canConsumption = false
-    local resourceCanConsumptionCount = 0
-    -- Đầu tiên kiểm tra tất cả hàng đang bán xem có full hết chưa, nếu chưa full thì tiếp tục
-    for itemName, value in pairs(_industry.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
-        -- Nếu có một loại hàng nào đó chưa Full Storage
-        if not _industry:IsStorageFull(spaceconfig.Industry.TradeType.FORSALE, itemName) then
-            canConsumption = true
-            break
-        end
-    end
-
-    -- Nếu đã full hết thì ngừng không xóa wanted
-    if not canConsumption then return updateData end
-    -- Sau đó loop qua tất cả hàng consumption (WANTED). 
-    for itemName, value in pairs(_industry.tradeData[spaceconfig.Industry.TradeType.WANTED]) do
-        -- Kiểm tra xem tài nguyên đó có còn đủ số lượng để sản xuất ko (Đủ số lượng để xóa 1 lần không)
-        if _industry:GetInStockAmount(spaceconfig.Industry.TradeType.WANTED, itemName) >= value.consumption then
-            -- Nếu Đủ thì xóa đúng số lượng và count++ không đủ thì bỏ qua.
-            _industry:RemoveItemAmount(spaceconfig.Industry.TradeType.WANTED, itemName, value.consumption, false)
-        
-            updateData[spaceconfig.Industry.TradeType.WANTED][itemName] = {
-                amount = _industry:GetInStockAmount(spaceconfig.Industry.TradeType.WANTED, itemName)
-            }
-        
-            resourceCanConsumptionCount = resourceCanConsumptionCount + 1
-        end
-    end
-
-    -- Nếu không có tài nguyên nào để có thể sản xuất thì dừng lại luôn
-    if resourceCanConsumptionCount == 0 then return updateData end
-    -- Tiếp theo loop qua tất cả hàng đang bán (FORSALE)
-    for itemName, value in pairs(_industry.tradeData[spaceconfig.Industry.TradeType.FORSALE]) do
-        -- Kiểm tra thằng nào đang ko full thì thêm số lượng cho nó bằng production*count 
-        if not _industry:IsStorageFull(spaceconfig.Industry.TradeType.FORSALE, itemName) then
-            _industry:AddItemAmount(spaceconfig.Industry.TradeType.FORSALE, itemName, value.production*resourceCanConsumptionCount, false)
-
-            updateData[spaceconfig.Industry.TradeType.FORSALE][itemName] = {
-                amount = _industry:GetInStockAmount(spaceconfig.Industry.TradeType.FORSALE, itemName)
-            }
-        end
-    end
-
-    return updateData
-end
-
-local function updateIndustry()
-    local industries = Industries:GetIndustries()
-
-    local update_industries_data = {}
-    ---@param value Industry
-    for key, value in pairs(industries) do
-        update_industries_data[value.name] = {}
-
-        if value.tier == spaceconfig.Industry.Tier.PRIMARY then
-            update_industries_data[value.name][spaceconfig.Industry.TradeType.FORSALE] = updatePrimaryIndustry(value)
-        elseif value.tier == spaceconfig.Industry.Tier.SECONDARY then
-            update_industries_data[value.name] = updateSecondaryIndustry(value)
-        elseif value.tier == spaceconfig.Industry.Tier.BUSINESS then
-            update_industries_data[value.name][spaceconfig.Industry.TradeType.WANTED] = updateBusinessIndustry(value)
-        end
-    end
-
-    TriggerClientEvent('space_trucker:client:updateIndustriesData', -1, update_industries_data)
-end
-
--- Every 1 hour update industry production and cosumption
-
-CreateThread(function ()
-    while true do
-        Wait(spaceconfig.Industry.UpdateTime * 1000)
-        updateIndustry()
-    end
-end)
-
+-- CRON JOB PARA PAGAMENTO AUTOMÁTICO DE SALÁRIOS
 CreateThread(function()
     -- Adiciona uma pequena espera inicial para garantir que todos os scripts carregaram
     Wait(5000) 
 
     while true do
-        -- Tempo de espera de 1 minuto (60000 milissegundos).
-        -- Para produção, altere para 3600000 (1 hora).
-        Wait(60000)
+        -- Tempo de espera de 1 hora (3600000 milissegundos).
+        -- Para testes, pode usar um valor menor como 60000 (1 minuto).
+        Wait(3600000)
 
         local QBCore = exports['qb-core']:GetCoreObject()
 
@@ -147,8 +37,8 @@ CreateThread(function()
                             for j, emp in ipairs(employees) do
                                 local player = QBCore.Functions.GetPlayerByCitizenId(emp.identifier)
                                 if player then
-                                    player.Functions.AddItem('money', emp.salary)
-                                    TriggerClientEvent('QBCore:Notify', player.PlayerData.source, 'Você recebeu o seu salário de $' .. emp.salary .. ' em dinheiro da sua empresa.', 'success', 8000)
+                                    player.Functions.AddMoney('bank', emp.salary, "Pagamento de salário da empresa")
+                                    TriggerClientEvent('QBCore:Notify', player.PlayerData.source, 'Você recebeu o seu salário de $' .. emp.salary .. ' da sua empresa.', 'success', 8000)
                                 end
                             end
                         else
@@ -170,31 +60,7 @@ CreateThread(function()
     end
 end)
 
--- Adicionado: Verificação de alugueres de frota expirados
-CreateThread(function()
-    while true do
-        -- A verificação será feita a cada 5 minutos (300,000 ms)
-        Wait(300000)
-
-        print("[space-trucker CRON] A verificar alugueres de frota expirados...")
-        
-        -- Usa a tabela correta 'space_trucker_fleet'
-        local expiredVehicles = MySQL.Sync.fetchAll('SELECT id, model, plate, company_id FROM space_trucker_fleet WHERE rent_expires_at IS NOT NULL AND rent_expires_at < NOW()')
-
-        if #expiredVehicles > 0 then
-            print(("[space-trucker CRON] %d alugueres expirados encontrados. A removê-los..."):format(#expiredVehicles))
-            for _, vehicle in ipairs(expiredVehicles) do
-                -- Remove o veículo da tabela correta
-                MySQL.Async.execute('DELETE FROM space_trucker_fleet WHERE id = ?', { vehicle.id })
-                print(("[space-trucker CRON] Veículo alugado '%s' (%s) da empresa %d foi removido por expiração."):format(vehicle.model, vehicle.plate, vehicle.company_id))
-            end
-        else
-            print("[space-trucker CRON] Nenhum aluguer expirado encontrado.")
-        end
-    end
-end)
-
--- CRON JOB PARA REMOVER VEÍCULOS ALUGADOS EXPIRADOS
+-- CRON JOB PARA REMOVER VEÍCULOS ALUGADOS EXPIRADOS DA FROTA
 CreateThread(function()
     while true do
         -- A verificação acontece a cada 15 minutos (900000 ms)
