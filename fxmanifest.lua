@@ -32,6 +32,7 @@ ui_page "web/build/index.html"
 shared_scripts {
 	"shared/locale.lua",
 	"shared/config.lua",
+	'shared/vehicles_config.lua',
 	"shared/class/industry.lua",
 	"shared/class/industries.lua",
 	"shared/industries/register_primary_industries.lua",

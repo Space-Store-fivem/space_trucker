@@ -328,15 +328,17 @@ RegisterNetEvent('space_trucker:client:startManualLoading', function(vehicle, co
     end)
 end)
 
-RegisterNetEvent('space_trucker:client:startAutomaticLoading', function(vehicle, config, item)
+RegisterNetEvent('space_trucker:client:startAutomaticLoading', function(vehicle, vehicleConfig, item)
     QBCore.Functions.Progressbar("load_mission_auto", "A carregar o veículo...", 5000, false, true, {}, {}, {}, {}, function()
+        -- CORREÇÃO: Usamos a variável 'config' global, não o parâmetro da função
         if item.transType ~= config.ItemTransportType.LIQUIDS and item.transType ~= config.ItemTransportType.LOOSE and item.transType ~= config.ItemTransportType.CONCRETE then
-            if config.props and config.props[item.transType] then
+            -- CORREÇÃO: Usamos 'vehicleConfig' para aceder aos dados específicos do veículo
+            if vehicleConfig.props and vehicleConfig.props[item.transType] then
                 local propModel = item.prop and item.prop.model or `hei_prop_heist_wooden_box`; RequestModel(propModel)
                 while not HasModelLoaded(propModel) do Wait(10) end
-                local boneName = config.props.bone or 'chassis'; local boneIndex = GetEntityBoneIndexByName(vehicle, boneName)
+                local boneName = vehicleConfig.props.bone or 'chassis'; local boneIndex = GetEntityBoneIndexByName(vehicle, boneName)
                 if boneIndex == -1 then boneIndex = 0 end
-                for _, pos in ipairs(config.props[item.transType]) do
+                for _, pos in ipairs(vehicleConfig.props[item.transType]) do
                     local prop = CreateObject(propModel, GetEntityCoords(vehicle), true, true, true)
                     AttachEntityToEntity(prop, vehicle, boneIndex, pos.x, pos.y, pos.z, 0, 0, 0, true, true, false, true, 2, true)
                     table.insert(activeCargoProps.onVehicle, prop)

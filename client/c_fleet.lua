@@ -1,4 +1,4 @@
--- space_trucker/client/c_fleet.lua
+-- space_trucker/client/c_fleet.lua (VERSÃO CORRIGIDA)
 
 local QBCore = exports['qb-core']:GetCoreObject()
 local CurrentCompanyGarage = nil
@@ -128,26 +128,26 @@ RegisterNUICallback('space_trucker:garage_close', function(data, cb)
     cb({ ok = true })
 end)
 
-
-
 RegisterNUICallback('getCompanyRentableVehicles', function(_, cb)
     QBCore.Functions.TriggerCallback('space_trucker:callback:getCompanyReputation', function(reputation)
         local rentableTrucks = {}
         for vehicleKey, vehicleData in pairs(config.VehicleTransport) do
-            -- ## LÓGICA CORRIGIDA AQUI ##
-            -- O filtro agora inclui qualquer veículo que tenha um requisito de 'level'.
-            -- Isto garante que tanto os camiões rígidos como os que precisam de reboque apareçam.
-            if vehicleData.level and vehicleData.level >= 30 then
-                local rentPrice = vehicleData.rentPrice or (config.VehicleRentBaseCost * vehicleData.capacity)
-                table.insert(rentableTrucks, {
-                    key = vehicleKey,             -- O identificador para o servidor (pode ser número ou texto)
-                    model = vehicleData.name,     -- O nome do modelo para a imagem (é sempre texto)
-                    label = vehicleData.label,
-                    capacity = vehicleData.capacity,
-                    level = vehicleData.level,
-                    rentPrice = rentPrice
-                })
+            -- ## INÍCIO DA CORREÇÃO ##
+            -- A lógica agora só considera veículos que possuem um 'rentPrice' definido.
+            if vehicleData.rentPrice and vehicleData.rentPrice > 0 then
+                -- O filtro de nível que você já tinha foi mantido.
+                if vehicleData.level and vehicleData.level >= 30 then
+                    table.insert(rentableTrucks, {
+                        key = vehicleKey,
+                        model = vehicleData.name,
+                        label = vehicleData.label,
+                        capacity = vehicleData.capacity,
+                        level = vehicleData.level,
+                        rentPrice = vehicleData.rentPrice -- Usa diretamente o preço, sem cálculo reserva.
+                    })
+                end
             end
+            -- ## FIM DA CORREÇÃO ##
         end
 
         table.sort(rentableTrucks, function(a, b) return a.rentPrice < b.rentPrice end)
@@ -157,16 +157,13 @@ RegisterNUICallback('getCompanyRentableVehicles', function(_, cb)
 end)
 
 RegisterNUICallback('rentCompanyVehicle', function(data, cb)
-    -- 'data.vehicleName' é a chave que recebemos da UI (pode ser um hash numérico ou um nome de modelo)
     local vehicleKey = data.vehicleName 
     
-    -- Apenas verificamos se a chave existe na configuração para evitar erros
     if not config.VehicleTransport[vehicleKey] then
         QBCore.Functions.Notify("Erro: Chave do veículo inválida na configuração do cliente.", 'error', 8000)
         return cb({ success = false, message = "Erro de configuração." })
     end
 
-    -- Chamamos o servidor e enviamos a CHAVE (o identificador) diretamente
     QBCore.Functions.TriggerCallback('space_trucker:callback:rentCompanyVehicle', function(result)
         if result and result.success then
             QBCore.Functions.Notify(result.message, 'success', 7500)
@@ -174,7 +171,7 @@ RegisterNUICallback('rentCompanyVehicle', function(data, cb)
             QBCore.Functions.Notify(result.message or "Ocorreu um erro no servidor.", 'error', 7500)
         end
         cb(result)
-    end, vehicleKey) -- << ENVIAMOS A CHAVE/IDENTIFICADOR DIRETAMENTE PARA O SERVIDOR
+    end, vehicleKey)
 end)
 
 function DrawText3D(x, y, z, text)
@@ -212,9 +209,7 @@ RegisterNetEvent('space_trucker:client:deleteVehicleByPlate', function(plate)
     end
 end)
 
--- Adicione este evento no final do ficheiro client/c_fleet.lua
 RegisterNetEvent('space_trucker:client:updateGarageLocation', function(companyId, location)
-    -- Verifica se a atualização é para a empresa do jogador atual
     if PlayerCompanyId and companyId == PlayerCompanyId then
         print("[space-trucker] Recebida atualização da localização da garagem em tempo real.")
         CurrentCompanyGarage = location

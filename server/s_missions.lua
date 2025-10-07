@@ -169,34 +169,44 @@ RegisterNetEvent('space_trucker:server:missionCompleted', function(missionData)
     end
 end)
 
--- (O resto do ficheiro, incluindo completeLogisticsOrder, etc., continua igual ao seu original)
 RegisterNetEvent('space_trucker:server:completeLogisticsOrder', function(orderData)
     local src = source
     local player = QBCore.Functions.GetPlayer(src)
 
+    -- Validação robusta para garantir que todos os dados necessários existem
     if not player or not orderData or type(orderData) ~= 'table' or not orderData.sourceIndustry or not orderData.destinationBusiness or not orderData.item or not orderData.amount then
-        print('[space-trucker | s_missions] ERRO: Dados de missão de LOGÍSTICA inválidos na conclusão.')
+        print('[space-trucker | s_missions] ERRO: Dados de missão de LOGÍSTICA inválidos ou incompletos na conclusão.')
         return
     end
 
     local identifier = player.PlayerData.citizenid
     local profit = orderData.reward or 0
 
-    player.Functions.AddMoney('bank', profit)
-    TriggerClientEvent('QBCore:Notify', src, ("Você recebeu $%s pela entrega da encomenda!"):format(profit), "success")
+    -- 1. Paga ao jogador
+    if profit > 0 then
+        player.Functions.AddMoney('bank', profit, "Pagamento de encomenda de logística")
+        TriggerClientEvent('QBCore:Notify', src, ("Você recebeu $%s pela entrega da encomenda!"):format(profit), "success")
+    end
 
+    -- 2. Atualiza o estado da encomenda na base de dados
     MySQL.update.await('UPDATE space_trucker_logistics_orders SET status = ? WHERE id = ?', { 'COMPLETED', orderData.orderId })
 
+    -- 3. Calcula a distância e guarda as estatísticas e o histórico (lógica copiada da outra função)
     local sourceIndustryDef = Industries:GetIndustry(orderData.sourceIndustry)
     local destinationBusinessDef = Industries:GetIndustry(orderData.destinationBusiness)
 
     if sourceIndustryDef and destinationBusinessDef then
         local distance = #(sourceIndustryDef.location - destinationBusinessDef.location) / 1000
+        
+        -- Salva as estatísticas do jogador
         MySQL.update.await('INSERT INTO space_trucker_player_stats (identifier, total_profit, total_distance, total_packages) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE total_profit = total_profit + VALUES(total_profit), total_distance = total_distance + VALUES(total_distance), total_packages = total_packages + VALUES(total_packages)', { identifier, profit, distance, orderData.amount })
+        
+        -- Salva o registo no histórico de missões
         MySQL.insert.await('INSERT INTO space_trucker_mission_history (identifier, mission_id, source_industry, destination_business, item, amount, profit, distance) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', { identifier, orderData.orderId or 'LOGISTICA', orderData.sourceIndustry, orderData.destinationBusiness, orderData.item, orderData.amount, profit, distance })
+        
         print(('[space-trucker | s_missions] Encomenda de logística #%s concluída e registada para %s.'):format(orderData.orderId, identifier))
     else
-        print(('[space-trucker | s_missions] AVISO: Não foi possível calcular a distância para a encomenda #%s. O histórico não foi salvo.'):format(orderData.orderId))
+        print(('[space-trucker | s_missions] AVISO: Não foi possível calcular a distância para a encomenda #%s. O histórico pode não ter sido salvo corretamente.'):format(orderData.orderId))
     end
 end)
 
