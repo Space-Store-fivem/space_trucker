@@ -43,6 +43,7 @@ export const ProfileManagement: React.FC<{ onBack: () => void; profile: ProfileD
     const [history, setHistory] = useState<any[]>([]);
     const [name, setName] = useState(profile?.profile_name || '');
     const [avatar, setAvatar] = useState(profile?.profile_picture || '');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     
     useEffect(() => {
         console.log("[LOG-UI] A carregar estatísticas e histórico...");
@@ -74,6 +75,22 @@ export const ProfileManagement: React.FC<{ onBack: () => void; profile: ProfileD
         } else {
             console.log("[LOG-UI] Servidor retornou erro ou falhou ao salvar o perfil.", result);
         }
+    };
+
+    const handleDeleteProfile = async () => {
+        console.log('[LOG-UI] A tentar apagar o perfil...');
+        const result = await fetchNui<{ success: boolean; message: string }>('deleteProfile').catch((e) =>
+            console.error('[LOG-UI] Erro na chamada NUI para deleteProfile:', e)
+        );
+
+        if (result && result.success) {
+            console.log('[LOG-UI] Perfil apagado com sucesso.');
+            // Idealmente, a UI fecharia ou voltaria para a tela de criação de perfil.
+            onBack(); 
+        } else {
+            console.log('[LOG-UI] Falha ao apagar o perfil.', result);
+        }
+        setShowDeleteConfirm(false);
     };
 
     return (
@@ -108,7 +125,10 @@ export const ProfileManagement: React.FC<{ onBack: () => void; profile: ProfileD
                             </div>
                         </div>
                     </div>
-                    <div className="text-right mt-4">
+                    <div className="flex justify-between items-center mt-4">
+                        <button onClick={() => setShowDeleteConfirm(true)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                            Apagar Conta
+                        </button>
                         <button onClick={handleSaveChanges} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
                             Salvar Alterações
                         </button>
@@ -146,6 +166,25 @@ export const ProfileManagement: React.FC<{ onBack: () => void; profile: ProfileD
                     )}
                 </div>
             </div>
+            {/* Modal de Confirmação para Apagar */}
+            {showDeleteConfirm && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
+                    <div className="bg-gray-800 p-6 rounded-lg border border-red-500/50 max-w-sm text-center">
+                        <h3 className="text-xl font-bold text-red-500 mb-4">Atenção!</h3>
+                        <p className="text-gray-300 mb-6">
+                            Você tem certeza que quer apagar sua conta? Todas as suas estatísticas, perfil e empresa (se for o dono) serão <span className="font-bold">permanentemente apagados</span>. Esta ação não pode ser desfeita.
+                        </p>
+                        <div className="flex justify-center space-x-4">
+                            <button onClick={() => setShowDeleteConfirm(false)} className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg">
+                                Cancelar
+                            </button>
+                            <button onClick={handleDeleteProfile} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg">
+                                Sim, Apagar Tudo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

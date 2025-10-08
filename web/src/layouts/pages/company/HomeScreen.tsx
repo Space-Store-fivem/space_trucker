@@ -34,7 +34,7 @@ const AppButton: React.FC<{ iconPath: string; iconClassName?: string; label: str
 // Componente para quando o jogador não tem empresa (sem alterações)
 const NoCompanyView: React.FC<{ onAppSelect: (app: string) => void }> = ({ onAppSelect }) => {
     return (
-        <div className="w-full h-full p-8 flex flex-col items-center justify-center text-center bg-gradient-to-br from-gray-900 to-blue-900/50 rounded-xl">
+        <div className="w-full h-full p-8 flex flex-col items-center justify-center text-center bg-transparent rounded-xl">
             <AppIcon path="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" className="w-16 h-16 text-blue-300 mb-4 drop-shadow-lg" />
             <h1 className="text-4xl font-bold text-white">Bem-vindo(a), Trabalhador(a)!</h1>
             <p className="text-gray-300 mt-2 max-w-lg">Você ainda não faz parte de uma empresa. Explore as vagas disponíveis ou abra o seu próprio negócio.</p>
@@ -64,7 +64,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
     const timeFormatter = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
     const dateFormatter = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
 
-    // ========= VISÃO PARA JOGADOR SEM EMPRESA (COM BOTÃO DE CARGAS) =========
+    // ========= VISÃO PARA JOGADOR SEM EMPRESA (COM BOTÃO DE CARGAS E PERSONALIZAR) =========
     if (!company) {
         return (
             <div className="flex flex-col h-full">
@@ -72,26 +72,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
                 <div className="p-6">
                     <h2 className="text-lg font-semibold text-gray-400 mb-3">Serviços Públicos</h2>
                     <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                        {/* Botão de Perfil */}
                         <AppButton 
                             iconPath="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
                             iconClassName="text-green-400 w-9 h-9" 
                             label="Meu Perfil" 
                             onClick={() => onAppSelect('profile')} 
                         />
-                        {/* Botão da Central de Logística */}
                         <AppButton 
                             iconPath="M8 16H5.373a2 2 0 01-1.99-2.226l.5-4a2 2 0 012-1.774H14V4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M15 1v4h4" 
                             iconClassName="text-amber-400 w-9 h-9" 
                             label="Central de Logística" 
                             onClick={() => onAppSelect('logisticsHub')} 
                         />
-                        {/* [[ NOVO BOTÃO ADICIONADO AQUI ]] */}
                         <AppButton 
                             iconPath="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
                             iconClassName="text-pink-400 w-9 h-9"
                             label="Painel de Cargas"
                             onClick={() => onAppSelect('cargo_panel')} 
+                        />
+                        {/* NOVO ÍCONE DE PERSONALIZAR AQUI */}
+                        <AppButton 
+                            iconPath="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.586-1.586a2 2 0 012.828 0l3.172 3.172a2 2 0 010 2.828L15.828 17H10V7.343z"
+                            iconClassName="text-indigo-400 w-9 h-9"
+                            label="Personalizar"
+                            onClick={() => onAppSelect('customization')} 
                         />
                     </div>
                 </div>
@@ -118,9 +122,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
         return false;
     };
 
-    // ========= VISÃO PARA JOGADOR COM EMPRESA (COM BOTÃO DE CARGAS) =========
+    // ========= VISÃO PARA JOGADOR COM EMPRESA (COM BOTÃO DE CARGAS E PERSONALIZAR) =========
     return (
-        <div className="w-full h-full p-6 flex flex-col bg-gray-900/80 backdrop-blur-md text-white">
+        <div className="w-full h-full p-6 flex flex-col text-white">
             <header className="flex justify-between items-center pb-4 mb-4 border-b border-white/10">
                 <div className="flex items-center gap-3">
                     <img src={profile?.profile_picture || 'https://i.imgur.com/default-avatar.png'} alt="Avatar" className="w-12 h-12 rounded-full object-cover border-2 border-blue-400" />
@@ -167,7 +171,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
                 <section>
                     <h2 className="text-lg font-semibold text-gray-400 mb-3">Geral</h2>
                     <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                         {/* Botão de Perfil */}
                          <AppButton 
                             iconPath="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
                             iconClassName="text-green-400 w-9 h-9" 
@@ -187,12 +190,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ company, profile, isOwne
                             label="Central de Logística" 
                             onClick={() => onAppSelect('logisticsHub')} 
                         />
-                        {/* [[ NOVO BOTÃO ADICIONADO AQUI ]] */}
                         <AppButton 
                             iconPath="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
                             iconClassName="text-pink-400 w-9 h-9"
                             label="Painel de Cargas"
                             onClick={() => onAppSelect('cargo_panel')} 
+                        />
+                         {/* NOVO ÍCONE DE PERSONALIZAR AQUI */}
+                         <AppButton 
+                            iconPath="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.586-1.586a2 2 0 012.828 0l3.172 3.172a2 2 0 010 2.828L15.828 17H10V7.343z"
+                            iconClassName="text-indigo-400 w-9 h-9"
+                            label="Personalizar"
+                            onClick={() => onAppSelect('customization')} 
                         />
                     </div>
                 </section>

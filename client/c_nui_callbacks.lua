@@ -1,4 +1,4 @@
--- space-trucker/client/c_nui_callbacks.lua (VERSÃO FINAL, LIMPA E CORRIGIDA)
+-- space-trucker/client/c_nui_callbacks.lua (VERSÃO FINAL, COMPLETA E CORRIGIDA)
 local QBCore = exports['qb-core']:GetCoreObject()
 
 -- Garante que os callbacks da NUI sejam registrados apenas uma vez
@@ -6,39 +6,104 @@ local nuiCallbacksRegistered = false
 AddEventHandler('onClientResourceStart', function(resourceName)
     if resourceName == GetCurrentResourceName() and not nuiCallbacksRegistered then
         print('^2[space-trucker]^7 A registar Callbacks da NUI pela primeira e única vez...')
-        
-        -- Callback para carregar as estatísticas do jogador
+
+        -- =============================================================================
+        -- CALLBACKS GENÉRICOS (NÃO MEXER)
+        -- =============================================================================
+        local callbacks = {
+            'createCompany', 'getCompanyData', 'hirePlayer', 'hireNpc', 'fireEmployee',
+            'createProfile', 'getRecruitmentPosts', 'createRecruitmentPost',
+            'hireFromPost', 'acceptGig', 'applyForJob', 'getCompanyApplications',
+            'hireFromApplication', 'updateEmployee', 'deleteRecruitmentPost',
+            'getChatList', 'getChatMessages', 'sendChatMessage', 'deleteChat',
+            'transferOwnership', 'updateManagerPermissions', 'toggleAutoSalary',
+            'setGarageLocation', 'getPlayerVehicles', 'addVehicleToFleet',
+            'returnVehicleToOwner', 'getFleetVehicles', 'storeFleetVehicle', 'getFleetLogs',
+            'buyIndustry', 'sellIndustry', 'getIndustryOwnershipData', 'isVehicleInMyCompanyFleet',
+            'getCompanyReputation', 'rentCompanyVehicle',
+            'deleteProfile' -- << ADICIONADO AQUI
+            -- 'updateProfile' e outros callbacks específicos são tratados abaixo
+        }
+
+        for _, callbackName in ipairs(callbacks) do
+            RegisterNuiCallback(callbackName, function(data, cb)
+                QBCore.Functions.TriggerCallback('space_trucker:callback:' .. callbackName, function(result)
+                    cb(result)
+                end, data)
+            end)
+        end
+
+        -- =============================================================================
+        -- CALLBACKS ESPECÍFICOS QUE JÁ EXISTIAM
+        -- =============================================================================
         RegisterNuiCallback('loadPlayerStats', function(_, cb)
             QBCore.Functions.TriggerCallback('space_trucker:callback:getPlayerStats', function(stats)
-                cb(stats or {}) -- Retorna um objeto vazio em caso de erro para evitar crash na UI
+                cb(stats or {})
             end)
         end)
 
-        -- Callback para carregar o histórico de missões
         RegisterNuiCallback('loadMissionHistory', function(_, cb)
             QBCore.Functions.TriggerCallback('space_trucker:callback:getMissionHistory', function(history)
-                cb(history or {}) -- Retorna um objeto vazio em caso de erro
+                cb(history or {})
             end)
         end)
 
-        -- Callback para atualizar o perfil do jogador
         RegisterNuiCallback('space_trucker:callback:updateProfile', function(data, cb)
-            print('--- [LOG | NUI_CALLBACK] Recebido pedido "updateProfile" da UI ---')
             QBCore.Functions.TriggerCallback('space_trucker:callback:updateProfile', function(result)
-                print('--- [LOG | NUI_CALLBACK] Servidor respondeu a "updateProfile". A enviar para a UI. ---')
                 cb(result)
             end, data)
         end)
 
-        -- Callback para o Painel de Cargas
         RegisterNuiCallback('getCargoAndVehicleData', function(_, cb)
-            print('--- [LOG | NUI_CALLBACK] Recebido pedido "getCargoAndVehicleData" da UI ---')
             QBCore.Functions.TriggerCallback('space_trucker:callback:getCargoAndVehicleData', function(data)
-                print('--- [LOG | NUI_CALLBACK] Servidor respondeu a "getCargoAndVehicleData". A enviar para a UI. ---')
                 cb(data or {})
             end)
         end)
 
+        -- ==================================================================
+        -- ========= ✨ CALLBACKS DE PERSONALIZAÇÃO ADICIONADOS ✨ ==========
+        -- ==================================================================
+        RegisterNuiCallback('space_trucker:save_customization', function(data, cb)
+            TriggerServerEvent('space_trucker:server:saveCustomization', data)
+            cb('ok')
+        end)
+
+        RegisterNuiCallback('space_trucker:get_customization', function(_, cb)
+            if PlayerData and PlayerData.profile_data then
+                cb({
+                    backgroundColor = PlayerData.profile_data.backgroundColor,
+                    backgroundImage = PlayerData.profile_data.backgroundImage,
+                    blurEnabled = PlayerData.profile_data.blurEnabled
+                })
+            else
+                cb({})
+            end
+        end)
+        
+        -- =============================================================================
+        -- CALLBACKS DE CONTROLO DA UI
+        -- =============================================================================
+        RegisterNuiCallback('forceRefreshData', function(_, cb)
+            TriggerEvent('space_trucker:client:forceRefresh')
+            cb('ok')
+        end)
+
+        RegisterNuiCallback('closePanel', function(_, cb)
+            SetNUIMode(false)
+            cb('ok')
+        end)
+
+        RegisterNuiCallback('hideFrame', function(data, cb)
+            SetDisplay(false, data.visibleType, data.proceed)
+            cb('ok')
+        end)
+
+        RegisterNuiCallback('space_trucker:garage_close', function(data, cb)
+            SetNuiFocus(false, false)
+            cb('ok')
+        end)
+
         nuiCallbacksRegistered = true
+        print('^2[space-trucker]^7 Callbacks da NUI registados com sucesso.')
     end
 end)

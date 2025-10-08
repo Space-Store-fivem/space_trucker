@@ -219,5 +219,10 @@ ALTER TABLE `space_trucker_logistics_orders`
 ADD COLUMN `source_industry_name` VARCHAR(100) NULL DEFAULT NULL AFTER `dropoff_location`,
 ADD COLUMN `destination_industry_name` VARCHAR(100) NULL DEFAULT NULL AFTER `source_industry_name`;
 
+ALTER TABLE `space_trucker_profiles`
+ADD COLUMN `backgroundColor` VARCHAR(10) DEFAULT '#111827',
+ADD COLUMN `backgroundImage` TEXT DEFAULT '',
+ADD COLUMN `blurEnabled` BOOLEAN DEFAULT true;
+
 
 INSERT INTO `space_trucker_companies` (`id`, `name`, `owner_identifier`, `balance`, `logo_url`, `level`, `reputation`, `created_at`, `permissions`, `salary_payment_enabled`, `garage_location`, `is_npc`) VALUES (6, 'Sistema', 'npc_system', 999999999, 'https://i.imgur.com/7nLz43G.png', 1, 0, '2025-09-30 14:31:02', '{}', 0, NULL, 1);

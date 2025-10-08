@@ -3,6 +3,41 @@
 -- REGISTO DE CALLBACKS DAS INDÚSTRIAS (A SER CHAMADO ATRASADAMENTE)
 -- =============================================================================
 
+-- ==================================================================
+-- ========= ✨ 1. ADICIONAR NOVA FUNÇÃO PARA GUARDAR ✨ ==========
+-- ==================================================================
+RegisterNetEvent('space_trucker:server:saveCustomization', function(customization)
+    local src = source
+    local identifier = GetPlayerUniqueId(src)
+    if not identifier then
+        print('[space_trucker | customization] ERRO: Não foi possível obter o identificador para a source: ' .. src)
+        return
+    end
+
+    local bgColor = customization.backgroundColor or '#111827'
+    local bgImage = customization.backgroundImage or ''
+    local blur = true
+    if customization.blurEnabled == false then
+        blur = false
+    end
+
+    print(('[space_trucker | customization] A GUARDAR para o identifier %s: bgColor=%s, blur=%s, bgImage=%s'):format(identifier, bgColor, tostring(blur), bgImage))
+
+    -- Query corrigida para a tabela e coluna certas
+    MySQL.update('UPDATE space_trucker_profiles SET backgroundColor = ?, backgroundImage = ?, blurEnabled = ? WHERE identifier = ?',
+        {bgColor, bgImage, blur, identifier},
+        function(affectedRows)
+            if affectedRows > 0 then
+                print('[space_trucker | customization] DADOS GUARDADOS COM SUCESSO.')
+                -- Força uma atualização dos dados no cliente para que fiquem sincronizados imediatamente
+                TriggerClientEvent('space_trucker:client:forceRefresh', src)
+            else
+                print('[space_trucker | customization] ERRO: A query para guardar não afetou nenhuma linha.')
+            end
+        end)
+end)
+
+
 function RegisterIndustryCallbacks()
     print('[space_trucker] A registar callbacks das indústrias...')
     
@@ -133,11 +168,13 @@ exports('GetFullCompanyData', GetFullCompanyData)
 
 -- Substitua a função existente em s_company.lua
 
+-- Substitua o callback 'getCompanyData' existente por este
 CreateCallback('space_trucker:callback:getCompanyData', function(source, cb)
     local identifier = GetPlayerUniqueId(source)
     if not identifier then return cb(nil) end
 
-    local profile = MySQL.query.await('SELECT * FROM space_trucker_profiles WHERE identifier = ?', { identifier })
+    -- Query corrigida para carregar as novas colunas
+    local profile = MySQL.query.await('SELECT *, backgroundColor, backgroundImage, blurEnabled FROM space_trucker_profiles WHERE identifier = ?', { identifier })
     if not profile or not profile[1] then
         return cb({ has_profile = false })
     end
@@ -177,7 +214,7 @@ CreateCallback('space_trucker:callback:getCompanyData', function(source, cb)
         fleet = fleet or {},
         transactions = transactions or {},
         is_owner = isOwner,
-        player_role = playerRole -- AQUI ESTÁ A INFORMAÇÃO CRÍTICA
+        player_role = playerRole
     })
 end)
 
@@ -383,8 +420,8 @@ CreateCallback('space_trucker:callback:hireFromPost', function(source, cb, data)
         companyId,
         targetIdentifier,
         data.targetName, -- Vamos precisar de passar o nome do alvo a partir da UI
-        'worker',      -- Cargo padrão
-        500            -- Salário padrão
+        'worker',       -- Cargo padrão
+        500             -- Salário padrão
     })
 
     if not result then
@@ -1331,8 +1368,59 @@ QBCore.Functions.CreateCallback('space_trucker:callback:updateProfile', function
 end)
 
 
+CreateCallback('space_trucker:callback:deleteProfile', function(source, cb)
+    local user = QBCore.Functions.GetPlayer(source)
+    if not user then 
+        return cb({ success = false, message = "Jogador não encontrado." }) 
+    end
+
+    local identifier = user.PlayerData.citizenid
+    print('[space_trucker] Pedido para apagar perfil e empresa do identifier: ' .. identifier)
+
+    -- Usamos pcall para garantir que o script não quebre em caso de erro
+    local success, result = pcall(function()
+        -- 1. Verificar se o jogador é dono de uma empresa
+        local company = MySQL.query.await('SELECT id FROM space_trucker_companies WHERE owner_identifier = ?', { identifier })
+        
+        if company and company[1] then
+            local companyId = company[1].id
+            print('[space_trucker] O jogador é dono da empresa ID ' .. companyId .. '. A apagar a empresa...')
+            
+            -- Adicionado para apagar os registos de indústria da empresa
+            MySQL.update.await('DELETE FROM space_trucker_company_industries WHERE company_id = ?', { companyId })
+
+            -- Como a tabela 'space_trucker_employees' e 'space_trucker_fleet' têm "ON DELETE CASCADE", 
+            -- apagar a empresa irá apagar os funcionários e a frota automaticamente.
+            MySQL.update.await('DELETE FROM space_trucker_companies WHERE id = ?', { companyId })
+            print('[space_trucker] Empresa ID ' .. companyId .. ' e suas indústrias foram apagadas com sucesso.')
+        end
+
+        -- 2. Apagar o perfil do jogador da tabela de perfis
+        MySQL.update.await('DELETE FROM space_trucker_profiles WHERE identifier = ?', { identifier })
+        
+        -- 3. Apagar o registo de funcionário (caso ele seja funcionário e não dono)
+        MySQL.update.await('DELETE FROM space_trucker_employees WHERE identifier = ?', { identifier })
+
+        -- 4. Apagar estatísticas e histórico (opcional, mas recomendado)
+        MySQL.update.await('DELETE FROM space_trucker_player_stats WHERE identifier = ?', { identifier })
+        MySQL.update.await('DELETE FROM space_trucker_mission_history WHERE identifier = ?', { identifier })
+
+        print('[space_trucker] Perfil do identifier ' .. identifier .. ' apagado com sucesso de todas as tabelas.')
+        
+        return { success = true, message = "Conta apagada com sucesso." }
+    end)
+
+    if success then
+        TriggerClientEvent('QBCore:Notify', source, "A sua conta foi permanentemente apagada.", "success", 8000)
+        -- Força o cliente a recarregar os dados, o que o levará à tela de criação de perfil
+        TriggerClientEvent('space_trucker:client:forceRefresh', source) 
+        cb(result)
+    else
+        print('[space-trucker ERRO FATAL] Ocorreu um erro ao apagar o perfil: ' .. tostring(result))
+        TriggerClientEvent('QBCore:Notify', source, "Ocorreu um erro no servidor ao apagar a sua conta.", "error")
+        cb({ success = false, message = "Erro de servidor. Verifique a consola." })
+    end
+end)
 
 
 exports('CheckIfPlayerWorksForCompany', CheckIfPlayerWorksForCompany)
-
-
