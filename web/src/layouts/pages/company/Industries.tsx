@@ -35,6 +35,8 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onS
   const [ownershipData, setOwnershipData] = useState<Record<string, string>>({});
   const [modalState, setModalState] = useState<{isOpen: boolean; title: string; description: string; onConfirm: () => void} | null>(null);
   const [managingIndustry, setManagingIndustry] = useState<Industry | null>(null);
+  // ✨ ESTADO ADICIONADO PARA CONTROLAR O MODAL DE ERRO ✨
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useNuiEvent<string>('setCompanyIndustries', (jsonData) => {
     try {
@@ -68,16 +70,28 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onS
 
   const handleBuyIndustry = async (industryName: string) => {
     const result = await fetchNui<{ success: boolean; message: string }>('buyIndustry', { industryName });
-    if (result?.message) {
-        if (result.success) { onSuccess(); fetchAllData(); }
+    if (result) {
+        if (result.success) {
+            onSuccess();
+            fetchAllData(); 
+        } else {
+            // ✨ AQUI DEFINIMOS A MENSAGEM DE ERRO PARA EXIBIR O MODAL ✨
+            setErrorMessage(result.message || 'Ocorreu um erro desconhecido.');
+        }
     }
     setModalState(null);
   };
 
   const handleSellIndustry = async (industryName: string) => {
     const result = await fetchNui<{ success: boolean; message: string }>('sellIndustry', { industryName });
-    if (result?.message) {
-        if (result.success) { onSuccess(); fetchAllData(); }
+    if (result) {
+        if (result.success) {
+            onSuccess(); 
+            fetchAllData(); 
+        } else {
+            // ✨ TAMBÉM PODEMOS USAR PARA ERROS NA VENDA ✨
+            setErrorMessage(result.message || 'Ocorreu um erro desconhecido.');
+        }
     }
     setModalState(null);
   };
@@ -119,6 +133,26 @@ export const Industries: React.FC<IndustriesProps> = ({ onBack, companyData, onS
         onConfirm={() => modalState?.onConfirm()}
         onClose={() => setModalState(null)}
       />
+
+      {/* ✨ INÍCIO DO MODAL DE ERRO ✨ */}
+      {errorMessage && (
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
+              <div className="bg-gray-800 p-6 rounded-lg border border-red-500/50 max-w-sm text-center">
+                  <h3 className="text-xl font-bold text-red-500 mb-4">Atenção!</h3>
+                  <p className="text-gray-300 mb-6">{errorMessage}</p>
+                  <div className="flex justify-center">
+                      <button
+                          onClick={() => setErrorMessage(null)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg"
+                      >
+                          Ok
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
+      {/* ✨ FIM DO MODAL DE ERRO ✨ */}
+
       <div className="flex flex-col w-full h-full bg-gray-900/80 backdrop-blur-md text-white">
         <AppHeader title="Gestão de Indústrias" onBack={onBack} />
         <div className="flex-grow p-6 overflow-y-auto">

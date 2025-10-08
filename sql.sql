@@ -224,5 +224,20 @@ ADD COLUMN `backgroundColor` VARCHAR(10) DEFAULT '#111827',
 ADD COLUMN `backgroundImage` TEXT DEFAULT '',
 ADD COLUMN `blurEnabled` BOOLEAN DEFAULT true;
 
+CREATE TABLE IF NOT EXISTS `space_trucker_trailers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `company_id` int(11) NOT NULL,
+  `model` varchar(50) NOT NULL,
+  `plate` varchar(10) NOT NULL,
+  `damage` text DEFAULT '{}',
+  `status` varchar(50) NOT NULL DEFAULT 'Na Garagem',
+  `last_driver` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `plate` (`plate`),
+  KEY `company_id` (`company_id`),
+  CONSTRAINT `space_trucker_trailers_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `space_trucker_companies` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 
 INSERT INTO `space_trucker_companies` (`id`, `name`, `owner_identifier`, `balance`, `logo_url`, `level`, `reputation`, `created_at`, `permissions`, `salary_payment_enabled`, `garage_location`, `is_npc`) VALUES (6, 'Sistema', 'npc_system', 999999999, 'https://i.imgur.com/7nLz43G.png', 1, 0, '2025-09-30 14:31:02', '{}', 0, NULL, 1);
