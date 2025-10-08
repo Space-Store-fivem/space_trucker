@@ -1,3 +1,5 @@
+Config = Config or {}
+
 config.VehicleTransport = {
     [`dloader`] = {                                    --SET = hash (`vehicle_model`)
         name = 'dloader',                              --SET = string (vehicle_model)
@@ -1496,4 +1498,15 @@ config.VehicleTransport = {
     },
 }
 
+
+
 config.VehicleTransportCount = tablelength(config.VehicleTransport)
+
+-- Adicione esta tabela ao seu arquivo de configuração
+Config.CompatibleTrucks = {
+    phantom = true,
+    hauler = true,
+    packer = true,
+    phantom3 = true,
+    hauler2 = true,
+}

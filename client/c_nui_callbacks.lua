@@ -21,8 +21,8 @@ AddEventHandler('onClientResourceStart', function(resourceName)
             'returnVehicleToOwner', 'getFleetVehicles', 'storeFleetVehicle', 'getFleetLogs',
             'buyIndustry', 'sellIndustry', 'getIndustryOwnershipData', 'isVehicleInMyCompanyFleet',
             'getCompanyReputation', 'rentCompanyVehicle',
-            'deleteProfile' -- << ADICIONADO AQUI
-            -- 'updateProfile' e outros callbacks específicos são tratados abaixo
+            'deleteProfile'
+            -- Callbacks de trailer foram movidos para uma seção específica abaixo
         }
 
         for _, callbackName in ipairs(callbacks) do
@@ -59,6 +59,64 @@ AddEventHandler('onClientResourceStart', function(resourceName)
                 cb(data or {})
             end)
         end)
+        
+        -- ==================================================================
+        -- ✨ CALLBACKS DA CONCESSIONÁRIA E GARAGEM DE TRAILERS (CORRIGIDOS) ✨
+        -- ==================================================================
+        
+-- Busca a lista de trailers à venda
+RegisterNuiCallback('getTrailersForSale', function(_, cb)
+    QBCore.Functions.TriggerCallback('space_trucker:callback:getTrailersForSale', function(trailers)
+        cb(trailers or {})
+    end)
+end)
+
+        -- Envia o pedido de COMPRA para o servidor (usado na concessionária)
+        RegisterNuiCallback('requestTrailerPurchase', function(data, cb)
+            TriggerServerEvent('space_trucker:server:requestTrailerPurchase', data)
+            cb('ok')
+        end)
+        -- Busca os trailers que a empresa já possui
+RegisterNuiCallback('getCompanyTrailers', function(_, cb)
+    QBCore.Functions.TriggerCallback('space_trucker:callback:getCompanyTrailers', function(trailers)
+        cb(trailers or {})
+    end)
+end)
+
+
+-- Substitua a sua função 'requestTrailerSpawn' inteira por esta versão
+
+RegisterNuiCallback('requestTrailerSpawn', function(data, cb)
+    local playerPed = PlayerPedId()
+    if not IsPedInAnyVehicle(playerPed, false) then
+        QBCore.Functions.Notify("Você precisa estar em um caminhão para retirar um trailer.", "error")
+        return cb({ success = false })
+    end
+
+    local vehicle = GetVehiclePedIsIn(playerPed, false)
+    if GetPedInVehicleSeat(vehicle, -1) ~= playerPed then
+        QBCore.Functions.Notify("Você precisa estar no assento do motorista.", "error")
+        return cb({ success = false })
+    end
+
+    local modelName = GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)):lower()
+    if not Config.CompatibleTrucks[modelName] then
+        QBCore.Functions.Notify("Este veículo não é compatível para puxar trailers.", "error")
+        return cb({ success = false })
+    end
+    
+    -- ✨ CORREÇÃO APLICADA AQUI: O nome correto da função é 'GetVehicleTrailerVehicle' ✨
+    local trailer, trailerExists = GetVehicleTrailerVehicle(vehicle)
+    if trailerExists then
+        QBCore.Functions.Notify("Seu caminhão já possui um trailer engatado.", "error")
+        return cb({ success = false })
+    end
+
+    -- Se tudo estiver certo, aciona o evento no servidor e fecha o tablet
+    TriggerServerEvent('space_trucker:server:requestTrailerSpawn', data)
+    SetNuiFocus(false, false) 
+    cb({ success = true })
+end)
 
         -- ==================================================================
         -- ========= ✨ CALLBACKS DE PERSONALIZAÇÃO ADICIONADOS ✨ ==========

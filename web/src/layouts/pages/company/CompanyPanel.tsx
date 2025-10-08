@@ -18,6 +18,8 @@ import { IndustryMonitor } from './IndustryMonitor';
 import { ProfileManagement } from './ProfileManagement';
 import { CargoPanel } from './CargoPanel';
 import CustomizationPanel from './CustomizationPanel';
+// ✨ NOVO COMPONENTE IMPORTADO AQUI ✨
+import { TrailerGarage } from './TrailerGarage';
 
 const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: FullCompanyInfo) => void; }> = ({ data, updateCompanyData }) => {
   const [activeApp, setActiveApp] = useState(data.has_profile ? 'home' : 'createProfile');
@@ -101,11 +103,15 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
       case 'industryMonitor': return <IndustryMonitor onBack={goBack} />;
       case 'profile': return <ProfileManagement onBack={goBack} profile={data.profile_data || null} />;
       case 'cargo_panel': return <CargoPanel onBack={goBack} />;
+      
+      // ✨ NOVA ROTA ADICIONADA AQUI ✨
+      case 'trailer_garage': return <TrailerGarage onBack={goBack} />;
+
       default:
         return <HomeScreen company={data.company_data} profile={data.profile_data} isOwner={data.is_owner || false} playerRole={data.player_role} onAppSelect={setActiveApp} />;
     }
   };
-  
+ 
   const panelStyle = {
     backgroundColor: customization.backgroundColor,
     backgroundImage: customization.backgroundImage ? `url(${customization.backgroundImage})` : 'none',
@@ -137,3 +143,4 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
 }
 
 export default CompanyPanel;
+

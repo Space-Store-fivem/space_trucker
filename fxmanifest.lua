@@ -60,6 +60,7 @@ client_scripts {
 	'client/c_logistics_hub.lua',
 	'client/c_company_gps.lua',
 	'client/c_nui_callbacks.lua',
+	'client/c_trailer_garage.lua',
 	"client/c_fleet.lua"
 }
 
@@ -76,6 +77,7 @@ server_scripts {
 	'server/s_missions.lua',
 	'server/s_company_gps.lua',
 	'server/s_info_panels.lua',
+	'server/s_trailer_garage.lua',
 	 'server/s_logistics_hub.lua'
 }
 
