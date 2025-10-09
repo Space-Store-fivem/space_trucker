@@ -17,6 +17,8 @@ local function CheckIfPlayerWorksForCompany(source)
     return false, nil
 end
 
+-- Versão Corrigida
+
 -- Callback para buscar os trailers à venda na config
 CreateCallback('space_trucker:callback:getTrailersForSale', function(source, cb)
     local trailersForSale = {}
@@ -26,9 +28,8 @@ CreateCallback('space_trucker:callback:getTrailersForSale', function(source, cb)
                 table.insert(trailersForSale, {
                     key = key,
                     label = vehicleData.label,
-                    model = vehicleData.name,
+                    model = vehicleData.name, -- A interface só precisa do nome do modelo
                     price = vehicleData.rentPrice or 0,
-                    image = vehicleData.image or nil -- ✨ ADICIONADO: Envia a URL da imagem
                 })
             end
         end
@@ -41,20 +42,10 @@ CreateCallback('space_trucker:callback:getCompanyTrailers', function(source, cb)
     local isEmployed, companyId = CheckIfPlayerWorksForCompany(source)
     if not isEmployed then return cb({}) end
 
+    -- A query agora é mais simples e direta
     local trailers = MySQL.query.await('SELECT id, model, plate, status FROM space_trucker_trailers WHERE company_id = ?', { companyId })
-    if not trailers then return cb({}) end
-
-    -- ✨ ADICIONADO: Procura a imagem para cada trailer que a empresa possui
-    for i, trailer in ipairs(trailers) do
-        for _, vehicleData in pairs(config.VehicleTransport) do
-            if vehicleData.name:lower() == trailer.model:lower() then
-                trailers[i].image = vehicleData.image
-                break
-            end
-        end
-    end
-
-    cb(trailers)
+    
+    cb(trailers or {})
 end)
 
 -- Callback para processar a COMPRA de um trailer

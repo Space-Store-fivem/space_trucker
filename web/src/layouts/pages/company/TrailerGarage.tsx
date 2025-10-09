@@ -3,14 +3,32 @@
 import React, { useState, useEffect } from 'react';
 import { fetchNui } from '../../../utils/fetchNui';
 import AppHeader from '../../components/AppHeader';
+import { CompanyData } from '../../../types';
+import { IconPhotoOff } from '@tabler/icons-react'; // Ícone para quando a imagem falha
 
-// ✨ Interfaces atualizadas para incluir a imagem ✨
+// ## SEU COMPONENTE DE IMAGEM ADICIONADO AQUI ##
+const VehicleImage: React.FC<{ modelName: string; vehicleLabel: string }> = ({ modelName, vehicleLabel }) => {
+    const [error, setError] = useState(false);
+    // URL dinâmica para as imagens dos veículos
+    const imgSrc = `https://docs.fivem.net/vehicles/${modelName.toLowerCase()}.webp`;
+
+    if (error || !modelName) {
+        return (
+            <div className="w-32 h-20 flex-shrink-0 bg-black/30 flex items-center justify-center rounded-md">
+                <IconPhotoOff size={32} className="text-gray-600" />
+            </div>
+        );
+    }
+    
+    return <img src={imgSrc} alt={vehicleLabel} className="w-32 h-20 flex-shrink-0 object-cover rounded-md bg-black/30" onError={() => setError(true)} />;
+};
+
+// Interfaces atualizadas (sem a propriedade 'image')
 interface OwnedTrailer {
     id: number;
     model: string;
     plate: string;
     status: string;
-    image?: string; // Adicionado
 }
 
 interface TrailerForSale {
@@ -18,12 +36,15 @@ interface TrailerForSale {
     label: string;
     model: string;
     price: number;
-    image?: string; // Adicionado
 }
 
 type ActiveTab = 'garage' | 'dealership';
 
-export const TrailerGarage: React.FC<{onBack: () => void}> = ({ onBack }) => {
+const handleCloseNui = () => {
+    fetchNui('hide');
+};
+
+export const TrailerGarage: React.FC<{onBack: () => void, companyData: CompanyData}> = ({ onBack, companyData }) => {
     const [activeTab, setActiveTab] = useState<ActiveTab>('garage');
     const [ownedTrailers, setOwnedTrailers] = useState<OwnedTrailer[]>([]);
     const [trailersForSale, setTrailersForSale] = useState<TrailerForSale[]>([]);
@@ -52,8 +73,8 @@ export const TrailerGarage: React.FC<{onBack: () => void}> = ({ onBack }) => {
     }, [activeTab]);
 
     const handleWithdraw = (trailerId: number) => {
-        fetchNui<{success: boolean}>('requestTrailerSpawn', { trailerId });
-        // O fechamento do NUI agora é feito no client/c_trailer_garage.lua
+        fetchNui('requestTrailerSpawn', { trailerId });
+        handleCloseNui();
     };
 
     const handlePurchase = async (trailerKey: string) => {
@@ -66,13 +87,10 @@ export const TrailerGarage: React.FC<{onBack: () => void}> = ({ onBack }) => {
         }
     };
 
-    const renderTrailerCard = (children: React.ReactNode, image?: string) => (
+    // Card de exibição do trailer (agora usa o VehicleImage)
+    const renderTrailerCard = (children: React.ReactNode, modelName: string, label: string) => (
         <div className="bg-gray-800/50 p-4 rounded-lg flex items-center border border-white/5 gap-4">
-            {image && (
-                <div className="w-32 h-20 flex-shrink-0 bg-black/30 rounded-md overflow-hidden">
-                    <img src={image} alt="Trailer" className="w-full h-full object-cover" />
-                </div>
-            )}
+            <VehicleImage modelName={modelName} vehicleLabel={label} />
             <div className="flex-grow flex justify-between items-center">
                 {children}
             </div>
@@ -96,7 +114,8 @@ export const TrailerGarage: React.FC<{onBack: () => void}> = ({ onBack }) => {
                             <p className="text-sm text-yellow-400 font-semibold">{trailer.status}</p>
                         )}
                     </>,
-                    trailer.image
+                    trailer.model, // Passa o nome do modelo para a imagem
+                    trailer.model  // Passa o nome do modelo como label alternativo
                 )
             ))}
         </div>
@@ -108,28 +127,33 @@ export const TrailerGarage: React.FC<{onBack: () => void}> = ({ onBack }) => {
         <div className="space-y-3">
             {trailersForSale.map((trailer) => (
                  renderTrailerCard(
-                    <>
-                        <div>
-                            <p className="font-bold text-lg uppercase">{trailer.label}</p>
-                            <p className="text-sm text-green-400 font-semibold">${trailer.price.toLocaleString()}</p>
-                        </div>
-                        <button onClick={() => handlePurchase(trailer.key)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors text-sm">Comprar</button>
-                    </>,
-                    trailer.image
-                )
+                     <>
+                         <div>
+                             <p className="font-bold text-lg uppercase">{trailer.label}</p>
+                             <p className="text-sm text-green-400 font-semibold">${trailer.price.toLocaleString()}</p>
+                         </div>
+                         <button onClick={() => handlePurchase(trailer.key)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors text-sm">Comprar</button>
+                     </>,
+                     trailer.model, // Passa o nome do modelo para a imagem
+                     trailer.label  // Passa o label para a imagem
+                 )
             ))}
         </div>
     );
 
     return (
-        <div className="flex flex-col w-full h-full">
-            <AppHeader title="Garagem e Concessionária" onBack={onBack} />
-            <div className="flex p-2 bg-gray-900/50">
-                <button onClick={() => setActiveTab('garage')} className={`flex-1 p-2 font-semibold text-center rounded-lg ${activeTab === 'garage' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-white/5'}`}>Minha Garagem</button>
-                <button onClick={() => setActiveTab('dealership')} className={`flex-1 p-2 font-semibold text-center rounded-lg ${activeTab === 'dealership' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-white/5'}`}>Concessionária</button>
-            </div>
-            <div className="p-4 overflow-y-auto">
-                {activeTab === 'garage' ? <GarageView /> : <DealershipView />}
+        // ## LAYOUT CORRIGIDO, IDÊNTICO AO DAS CONFIGURAÇÕES ##
+        <div className="w-full h-full p-8 flex flex-col bg-gray-900">
+            <AppHeader title="Garagem de Trailers" onBack={onBack} logoUrl={companyData?.logo_url} />
+
+            <div className="flex flex-col flex-grow mt-4 overflow-hidden">
+                <div className="flex p-2 bg-gray-900/50">
+                    <button onClick={() => setActiveTab('garage')} className={`flex-1 p-2 font-semibold text-center rounded-lg ${activeTab === 'garage' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-white/5'}`}>Minha Garagem</button>
+                    <button onClick={() => setActiveTab('dealership')} className={`flex-1 p-2 font-semibold text-center rounded-lg ${activeTab === 'dealership' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-white/5'}`}>Concessionária</button>
+                </div>
+                <div className="p-4 overflow-y-auto flex-grow">
+                    {activeTab === 'garage' ? <GarageView /> : <DealershipView />}
+                </div>
             </div>
         </div>
     );

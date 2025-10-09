@@ -105,8 +105,9 @@ const CompanyPanel: React.FC<{ data: FullCompanyInfo; updateCompanyData: (data: 
       case 'cargo_panel': return <CargoPanel onBack={goBack} />;
       
       // ✨ NOVA ROTA ADICIONADA AQUI ✨
-      case 'trailer_garage': return <TrailerGarage onBack={goBack} />;
-
+        case 'trailer_garage':
+    if (!data.company_data) return null; // Adicione esta linha de verificação
+    return <TrailerGarage onBack={goBack} companyData={data.company_data} />;
       default:
         return <HomeScreen company={data.company_data} profile={data.profile_data} isOwner={data.is_owner || false} playerRole={data.player_role} onAppSelect={setActiveApp} />;
     }

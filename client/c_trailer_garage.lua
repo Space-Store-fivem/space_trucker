@@ -2,6 +2,8 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
 -- Evento que recebe os dados do trailer do servidor para criá-lo no jogo
+-- space_trucker/client/c_trailer_garage.lua
+
 RegisterNetEvent('space_trucker:client:spawnAndAttachTrailer', function(trailerData)
     local playerPed = PlayerPedId()
     if not IsPedInAnyVehicle(playerPed, false) then return end
@@ -24,7 +26,5 @@ RegisterNetEvent('space_trucker:client:spawnAndAttachTrailer', function(trailerD
     AttachVehicleToTrailer(truck, trailer, 15.0)
 
     QBCore.Functions.Notify("Trailer retirado e engatado com sucesso!", "success")
-    
-    -- ✨ ADICIONADO: Fecha o tablet (NUI) automaticamente ✨
-    SetNuiFocus(false, false)
+  
 end)

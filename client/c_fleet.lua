@@ -89,11 +89,12 @@ if dist < 5.0 then
         }
 
         -- 2. Procura por um trailer engatado
-        local trailer = GetVehicleTrailerVehicle(currentVeh)
-        if DoesEntityExist(trailer) then
-            -- 3. Se encontrar um trailer, adiciona a matrícula dele aos dados
-            data.trailerPlate = GetVehicleNumberPlateText(trailer)
-        end
+-- 2. Procura por um trailer engatado
+local trailerExists, trailer = GetVehicleTrailerVehicle(currentVeh)
+if trailerExists and trailer ~= 0 and DoesEntityExist(trailer) then
+    -- 3. Se encontrar um trailer, adiciona a matrícula dele aos dados
+    data.trailerPlate = GetVehicleNumberPlateText(trailer)
+end
 
         -- 4. Envia TODOS os dados (incluindo a trailerPlate, se existir) para o servidor
         QBCore.Functions.TriggerCallback('space_trucker:callback:storeFleetVehicle', function(result)
