@@ -1027,7 +1027,10 @@ CreateCallback('space_trucker:callback:getFleetVehicles', function(source, cb)
 end)
 
 
--- NOVO: Callback para guardar um veículo na garagem
+
+-- Em server/s_company.lua
+-- ✨ SUBSTITUA O SEU CALLBACK PELA VERSÃO DE DIAGNÓSTICO ABAIXO ✨
+
 CreateCallback('space_trucker:callback:storeFleetVehicle', function(source, cb, data)
     local user = QBCore.Functions.GetPlayer(source)
     if not user then return cb({ success = false, message = "Jogador não encontrado." }) end
@@ -1042,6 +1045,35 @@ CreateCallback('space_trucker:callback:storeFleetVehicle', function(source, cb, 
     
     MySQL.update.await('UPDATE space_trucker_fleet SET status = ?, damage = ? WHERE id = ?', { 'Na Garagem', json.encode(data.damage), vehicle[1].id })
     MySQL.insert.await('INSERT INTO space_trucker_fleet_logs (fleet_id, company_id, player_name, action) VALUES (?, ?, ?, ?)', { vehicle[1].id, companyId, playerName, 'Guardado' })
+
+    -- =================================================================
+    -- ✨ DIAGNÓSTICO ADICIONADO AQUI ✨
+    -- =================================================================
+    print('----------------------------------------------------')
+    print('[space-trucker] Diagnóstico de Armazenamento de Trailer:')
+    
+    if data.trailerPlate then
+        print('-> Matrícula do trailer recebida do cliente: ' .. data.trailerPlate)
+        
+        local result = MySQL.update.await(
+            'UPDATE space_trucker_trailers SET status = ? WHERE plate = ?',
+            { 'Na Garagem', data.trailerPlate }
+        )
+
+        if result > 0 then
+            print('-> SUCESSO: A base de dados do trailer foi atualizada. Linhas afetadas: ' .. result)
+        else
+            print('-> FALHA: A query para atualizar o trailer foi executada, mas não afetou nenhuma linha. Verifique se a matrícula "' .. data.trailerPlate .. '" existe na tabela space_trucker_trailers.')
+        end
+        
+        TriggerClientEvent('QBCore:Notify', source, 'O seu trailer também foi guardado com sucesso.', 'primary')
+    else
+        print('-> AVISO: Nenhum trailerPlate foi recebido do cliente. O caminhão foi guardado sem trailer.')
+    end
+    print('----------------------------------------------------')
+    -- =================================================================
+    -- FIM DO DIAGNÓSTICO
+    -- =================================================================
 
     cb({ success = true, message = "Veículo guardado com sucesso." })
 end)

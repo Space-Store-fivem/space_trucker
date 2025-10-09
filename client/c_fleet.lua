@@ -72,21 +72,40 @@ CreateThread(function()
                 if dist < 10.0 then
                     local currentVeh = GetVehiclePedIsIn(PlayerPedId(), false)
                     if currentVeh ~= 0 then
-                        if dist < 5.0 then
-                            DrawText3D(CurrentCompanyGarage.x, CurrentCompanyGarage.y, CurrentCompanyGarage.z + 1.0, "[E] - Guardar Veículo")
-                            if IsControlJustReleased(0, 38) then
-                                local plate = QBCore.Functions.GetPlate(currentVeh)
-                                local damage = { engine = GetVehicleEngineHealth(currentVeh), body = GetVehicleBodyHealth(currentVeh) }
-                                QBCore.Functions.TriggerCallback('space_trucker:callback:storeFleetVehicle', function(result)
-                                    if result and result.success then
-                                        QBCore.Functions.DeleteVehicle(currentVeh)
-                                        QBCore.Functions.Notify(result.message, "success")
-                                    else
-                                        QBCore.Functions.Notify(result.message or "Este veículo não pertence à frota.", "error")
-                                    end
-                                end, { plate = plate, damage = damage })
-                            end
-                        end
+ -- SUBSTITUA O BLOCO ACIMA POR ESTE BLOCO CORRIGIDO
+
+
+if dist < 5.0 then
+    DrawText3D(CurrentCompanyGarage.x, CurrentCompanyGarage.y, CurrentCompanyGarage.z + 1.0, "[E] - Guardar Veículo")
+    if IsControlJustReleased(0, 38) then
+        
+        -- 1. Prepara os dados do caminhão
+        local data = {
+            plate = QBCore.Functions.GetPlate(currentVeh),
+            damage = { 
+                engine = GetVehicleEngineHealth(currentVeh), 
+                body = GetVehicleBodyHealth(currentVeh) 
+            }
+        }
+
+        -- 2. Procura por um trailer engatado
+        local trailer = GetVehicleTrailerVehicle(currentVeh)
+        if DoesEntityExist(trailer) then
+            -- 3. Se encontrar um trailer, adiciona a matrícula dele aos dados
+            data.trailerPlate = GetVehicleNumberPlateText(trailer)
+        end
+
+        -- 4. Envia TODOS os dados (incluindo a trailerPlate, se existir) para o servidor
+        QBCore.Functions.TriggerCallback('space_trucker:callback:storeFleetVehicle', function(result)
+            if result and result.success then
+                QBCore.Functions.DeleteVehicle(currentVeh)
+                QBCore.Functions.Notify(result.message, "success")
+            else
+                QBCore.Functions.Notify(result.message or "Este veículo não pertence à frota.", "error")
+            end
+        end, data) -- A variável 'data' agora contém tudo
+    end
+end
                     else
                         if dist < 2.5 then
                             DrawText3D(CurrentCompanyGarage.x, CurrentCompanyGarage.y, CurrentCompanyGarage.z + 1.0, "[E] - Aceder à Garagem")

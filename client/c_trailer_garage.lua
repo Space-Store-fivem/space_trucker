@@ -12,18 +12,19 @@ RegisterNetEvent('space_trucker:client:spawnAndAttachTrailer', function(trailerD
     local model = GetHashKey(trailerData.model)
     RequestModel(model)
     while not HasModelLoaded(model) do
-        Citizen.Wait(10)
+        Wait(10)
     end
 
-    -- Posição de spawn segura atrás do caminhão
     local spawnPos = GetOffsetFromEntityInWorldCoords(truck, 0.0, -8.0, 0.5)
     local trailer = CreateVehicle(model, spawnPos, GetEntityHeading(truck), true, false)
     
     SetVehicleNumberPlateText(trailer, trailerData.plate)
     SetModelAsNoLongerNeeded(model)
     
-    -- Anexa o trailer ao caminhão
     AttachVehicleToTrailer(truck, trailer, 15.0)
 
     QBCore.Functions.Notify("Trailer retirado e engatado com sucesso!", "success")
+    
+    -- ✨ ADICIONADO: Fecha o tablet (NUI) automaticamente ✨
+    SetNuiFocus(false, false)
 end)
