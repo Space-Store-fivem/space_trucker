@@ -264,3 +264,48 @@ QBCore.Functions.CreateCallback('space_trucker:callback:getMissionHistory', func
         cb({})
     end
 end)
+
+
+QBCore.Functions.CreateCallback('space_trucker:callback:isVehicleInCompanyFleet', function(source, cb, vehiclePlate)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    if not player then cb(false) return end
+
+    local _, playerCompanyId = exports['space_trucker']:CheckIfPlayerWorksForCompany(src)
+    if not playerCompanyId then
+        -- Se o jogador não tem empresa, ele não pode usar um veículo de empresa.
+        cb(false)
+        return
+    end
+
+    local result = MySQL.query.await('SELECT id FROM space_trucker_fleet WHERE plate = ? AND company_id = ?', { vehiclePlate, playerCompanyId })
+
+    if result and result[1] then
+        cb(true) -- Veículo encontrado na frota da empresa
+    else
+        cb(false) -- Veículo não pertence à empresa
+    end
+end)
+
+
+
+-- ADICIONE ESTES DOIS BLOCOS DE CÓDIGO NO FINAL DO SEU s_missions.lua
+
+-- Pergunta: "Este veículo (pela placa) pertence à frota da empresa do jogador?"
+QBCore.Functions.CreateCallback('space_trucker:callback:isVehicleInCompanyFleet', function(source, cb, vehiclePlate)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    if not player then return cb(false) end
+    local _, playerCompanyId = exports['space_trucker']:CheckIfPlayerWorksForCompany(src)
+    if not playerCompanyId then return cb(false) end
+    local result = MySQL.query.await('SELECT id FROM space_trucker_fleet WHERE plate = ? AND company_id = ?', { vehiclePlate, playerCompanyId })
+    if result and result[1] then cb(true) else cb(false) end
+end)
+
+-- Pergunta: "Quais são os detalhes completos da encomenda com este ID?"
+QBCore.Functions.CreateCallback('space_trucker:callback:getLogisticsOrderDetails', function(source, cb, orderId)
+    if not orderId then return cb(nil) end
+    local order = MySQL.query.await('SELECT * FROM space_trucker_logistics_orders WHERE id = ?', { orderId })
+    if order and order[1] then cb(order[1]) else cb(nil) end
+end)
+

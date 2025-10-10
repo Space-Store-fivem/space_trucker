@@ -94,16 +94,95 @@ RegisterNUICallback('getMissions', function(_, cb)
     QBCore.Functions.TriggerCallback('space_trucker:callback:getMissions', function(missions) cb(missions or {}) end)
 end)
 
+-- Substitua esta função inteira no seu client/c_missions.lua
+
 RegisterNUICallback('acceptMission', function(data, cb)
-    if currentMission then QBCore.Functions.Notify("Você já tem uma missão de transporte ativa.", "error"); return end
-    if not data or not data.id then cb({ success = false, message = "ID da missão inválido." }); return end
+    if currentMission then
+        QBCore.Functions.Notify("Você já tem uma missão de transporte ativa.", "error")
+        return
+    end
+    if not data or not data.id then
+        cb({ success = false, message = "ID da missão inválido." })
+        return
+    end
 
     QBCore.Functions.TriggerCallback('space_trucker:callback:getMissionDetails', function(missionDetails)
-        if missionDetails then
-            TriggerEvent('space_trucker:client:startMission', missionDetails)
-        else
+        if not missionDetails then
             QBCore.Functions.Notify("Esta missão já não está mais disponível.", "error")
+            cb({ success = false, message = "Missão indisponível." })
+            return
         end
+
+        local playerPed = PlayerPedId()
+
+        if not IsPedInAnyVehicle(playerPed, false) then
+            QBCore.Functions.Notify("Você precisa estar dentro de um veículo da sua empresa para aceitar esta missão.", "error")
+            cb({ success = false, message = "Veículo não encontrado." })
+            return
+        end
+
+        local truckCab = GetVehiclePedIsIn(playerPed, false)
+        local vehicleToCheck = truckCab
+        local vehiclePlate = GetVehicleNumberPlateText(truckCab)
+
+        -- << NOVA VERIFICAÇÃO DE FROTA >>
+        QBCore.Functions.TriggerCallback('space_trucker:callback:isVehicleInCompanyFleet', function(isCompanyVehicle)
+            if not isCompanyVehicle then
+                QBCore.Functions.Notify("Este veículo não pertence à sua empresa.", "error")
+                cb({ success = false, message = "Veículo não pertence à frota." })
+                return
+            end
+
+            -- Se o veículo pertence à empresa, continue com as outras verificações...
+            if IsVehicleAttachedToTrailer(truckCab) then
+                local success, trailer = GetVehicleTrailerVehicle(truckCab)
+                if success and DoesEntityExist(trailer) then
+                    vehicleToCheck = trailer
+                end
+            end
+
+            local vehicleModelHash = GetEntityModel(vehicleToCheck)
+            local vehicleConfig
+
+            for spawnName, vConfig in pairs(config.VehicleTransport) do
+                if GetHashKey(tostring(spawnName)) == vehicleModelHash or (tonumber(spawnName) and tonumber(spawnName) == vehicleModelHash) then
+                    vehicleConfig = vConfig
+                    break
+                end
+            end
+
+            if not vehicleConfig then
+                local vehicleName = GetDisplayNameFromVehicleModel(GetEntityModel(truckCab))
+                local trailerName = vehicleToCheck ~= truckCab and GetDisplayNameFromVehicleModel(GetEntityModel(vehicleToCheck))
+                if trailerName then
+                    QBCore.Functions.Notify(("O reboque '%s' engatado no seu '%s' não é um veículo de carga registrado."):format(trailerName, vehicleName), "error")
+                else
+                    QBCore.Functions.Notify("O veículo que você está usando não é um veículo de carga registrado.", "error")
+                end
+                cb({ success = false, message = "Veículo não registrado." })
+                return
+            end
+
+            local itemInfo = config.IndustryItems[missionDetails.item]
+            local isCrateMission = itemInfo.transType == config.ItemTransportType.CRATE or itemInfo.transType == config.ItemTransportType.STRONGBOX
+
+            if not vehicleConfig.transType or not vehicleConfig.transType[itemInfo.transType] then
+                QBCore.Functions.Notify(("Seu %s não é compatível para transportar este tipo de carga."):format(vehicleConfig.label), "error")
+                cb({ success = false, message = "Tipo de carga incompatível." })
+                return
+            end
+
+            if isCrateMission and vehicleConfig.capacity < missionDetails.amount then
+                QBCore.Functions.Notify(('Capacidade insuficiente. A missão requer espaço para %d caixas, mas seu %s só tem %d.'):format(missionDetails.amount, vehicleConfig.label, vehicleConfig.capacity), "error")
+                cb({ success = false, message = "Capacidade insuficiente." })
+                return
+            end
+
+            QBCore.Functions.Notify("Veículo verificado! Missão aceita.", "success")
+            TriggerEvent('space_trucker:client:startMission', missionDetails)
+            cb({ success = true })
+
+        end, vehiclePlate)
     end, data)
 end)
 

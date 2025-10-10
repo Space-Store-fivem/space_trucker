@@ -192,44 +192,45 @@ QBCore.Functions.CreateCallback('space_trucker:callback:acceptLogisticsOrder', f
     end
 end)
 
-RegisterNetEvent('space_trucker:server:completeLogisticsOrder', function(missionData)
+QBCore.Functions.CreateCallback('space_trucker:callback:acceptLogisticsOrder', function(source, cb, data)
     local src = source
     local player = QBCore.Functions.GetPlayer(src)
-    if not player or not missionData or not missionData.orderId then return end
-    
+    if not player then
+        return cb({ success = false, message = "Jogador não encontrado." })
+    end
+
+    -- [[ INÍCIO DA CORREÇÃO ]] --
+    -- O servidor agora é mais inteligente para encontrar o ID, não importa como o cliente o envie.
+    local orderId
+    if data and data.orderData and data.orderData.id then
+        orderId = data.orderData.id
+    elseif data and data.orderId then
+        orderId = data.orderId
+    elseif data and data.id then
+        orderId = data.id
+    end
+    -- [[ FIM DA CORREÇÃO ]] --
+
+    if not orderId then
+        -- Esta é a mensagem de erro que você está a receber.
+        return cb({ success = false, message = "ID da encomenda inválido." })
+    end
+
     local identifier = player.PlayerData.citizenid
-    local orderId = missionData.orderId
 
-    local order = MySQL.query.await('SELECT * FROM space_trucker_logistics_orders WHERE id = ? AND taker_identifier = ?', { orderId, identifier })
-    if not order or not order[1] then return end
-    local ord = order[1]
-
-    -- SALVA O HISTÓRICO PRIMEIRO, USANDO OS NOMES CORRETOS DAS COLUNAS
-    local sourceIndustryDef = Industries:GetIndustry(ord.pickup_industry_name)
-    local destinationBusinessDef = Industries:GetIndustry(ord.destination_industry_name)
-
-    if sourceIndustryDef and destinationBusinessDef then
-        local distance = #(sourceIndustryDef.location - destinationBusinessDef.location) / 1000
-        MySQL.update.await('INSERT INTO space_trucker_player_stats (identifier, total_profit, total_distance, total_packages) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE total_profit = total_profit + VALUES(total_profit), total_distance = total_distance + VALUES(total_distance), total_packages = total_packages + VALUES(total_packages)', { identifier, ord.reward, distance, ord.quantity })
-        MySQL.insert.await('INSERT INTO space_trucker_mission_history (identifier, mission_id, source_industry, destination_business, item, amount, profit, distance) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', { identifier, ord.id, ord.pickup_industry_name, ord.destination_industry_name, ord.item_name, ord.quantity, ord.reward, distance })
+    -- 1. Verifica no banco de dados se a encomenda ainda está aberta
+    local order = MySQL.query.await('SELECT * FROM space_trucker_logistics_orders WHERE id = ? AND status = ?', { orderId, 'OPEN' })
+    if not order or #order == 0 then
+        return cb({ success = false, message = "Esta encomenda já não está disponível." })
     end
-    
-    player.Functions.AddMoney('bank', ord.reward, "Pagamento de encomenda de logística")
 
-    if ord.creator_identifier == 'system' then
-        if SystemCompanyId then
-            local destinationIndustryName = ord.destination_industry_name
-            if destinationIndustryName then
-                MySQL.execute('INSERT INTO space_trucker_industry_stock (company_id, industry_name, item_name, stock) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = stock + VALUES(stock)', { SystemCompanyId, destinationIndustryName, ord.item_name, ord.quantity })
-            end
-        end
+    -- 2. Tenta aceitar a encomenda para o jogador
+    local result = MySQL.update.await('UPDATE space_trucker_logistics_orders SET status = ?, taker_identifier = ? WHERE id = ? AND status = ?', { 'IN_PROGRESS', identifier, orderId, 'OPEN' })
+    if result > 0 then
+        -- 3. Se conseguiu, retorna sucesso e os dados completos da encomenda
+        cb({ success = true, orderData = order[1] })
     else
-        local requestingIndustryName = ord.destination_industry_name
-        if requestingIndustryName and ord.company_id then
-            MySQL.execute('INSERT INTO space_trucker_industry_stock (company_id, industry_name, item_name, stock) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = stock + VALUES(stock)', { ord.company_id, requestingIndustryName, ord.item_name, ord.quantity })
-        end
+        -- 4. Se falhou (outro jogador aceitou 1ms antes), retorna falha
+        cb({ success = false, message = "Não foi possível aceitar a encomenda. Tente novamente." })
     end
-
-    MySQL.execute('DELETE FROM space_trucker_logistics_orders WHERE id = ?', { orderId })
-    TriggerClientEvent('QBCore:Notify', src, ('Encomenda concluída! Você recebeu $%s.'):format(ord.reward), 'success')
 end)
